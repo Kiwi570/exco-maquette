@@ -4,7 +4,12 @@
 import { $$, T, base } from './util.js';
 
 // noms des images Grok déjà reçues et intégrées (document « exco-images-grok-v2 »)
-export const GROK_READY = new Set([]);
+export const GROK_READY = new Set([
+  'secteur-agriculture-4x5', 'secteur-automobile-4x5', 'secteur-banque-assurance-4x5', 'secteur-btp-immobilier-4x5', 'secteur-ess-4x5',
+  'secteur-startup-4x5', 'secteur-hotellerie-restauration-4x5', 'secteur-industrie-4x5', 'secteur-loisirs-tourisme-4x5',
+  'secteur-professions-liberales-4x5', 'secteur-pharmacie-4x5', 'secteur-sante-medico-social-4x5', 'secteur-public-4x5',
+  'secteur-transports-logistique-4x5',
+]);
 
 export function initPlaceholders() {
   $$('.ph').forEach((ph) => {

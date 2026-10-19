@@ -1,7 +1,7 @@
 # Exco · maquette « Cabinet »
 
-Maquette de refonte du site exco.fr (version 2, 19 octobre 2026).
-Version 2 : direction « cabinet premium » sans aucun motif végétal, couleurs du logo, vraies photos du site actuel.
+Maquette de refonte du site exco.fr (version 3, 19 octobre 2026).
+Version 3 : images Grok des secteurs et du cycle de vie. Version 2 : direction « cabinet premium » sans aucun motif végétal, couleurs du logo, vraies photos du site actuel.
 Site statique HTML, CSS et JavaScript, sans étape de construction, prêt pour Vercel.
 
 ## Pages
@@ -24,4 +24,4 @@ GSAP 3.15 (ScrollTrigger, SplitText, DrawSVG, CustomEase), Lenis 1.3, OGL. Polic
 
 ## À savoir
 Formulaires, rendez-vous et contact sont simulés : aucune donnée n'est envoyée.
-Les visuels marqués « Visuel provisoire » attendent leurs images Grok (document exco-images-grok-v2). Une fois reçues, les images vont dans `assets/img/grok/` et leur nom s'ajoute à `GROK_READY` dans `src/js/ph.js`. Les chiffres marqués « À confirmer » sont incohérents sur le site actuel.
+Les photos des 14 secteurs et des 4 étapes du cycle de vie sont générées par IA (Grok, document exco-images-grok-v2) : personnes fictives, à signaler ou remplacer par de vraies photos avant toute mise en production. Elles sont dans `assets/img/grok/` ; les secteurs passent par `GROK_READY` dans `src/js/ph.js`. `accueil-ouverture-4x5.webp` est livrée mais pas utilisée (la photo réelle de l'ouverture est plus nette). Les chiffres marqués « À confirmer » sont incohérents sur le site actuel.

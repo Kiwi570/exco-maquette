@@ -214,7 +214,7 @@ export function initNews() {
   $$('.ev', evl).forEach((a) => a.style.textDecoration = 'none');
   setInterval(() => $$('[data-live-count]').forEach((el) => { const c = countdownText(el.dataset.liveCount); if (c) el.innerHTML = `${c.d}<small>${T('jours', 'days')} ${c.h} h</small>`; }), 60000);
   const arts = $('[data-articles]');
-  arts.innerHTML = ARTICLES.filter((a) => a.img !== 'cessions-titres').slice(0, 5).map((a) => `<li class="art"><a href="${a.url}" target="_blank" rel="noopener"><span class="art__img"><img src="${base()}assets/img/actus/${a.img}-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block">${fmtDate(new Date(a.d))}${lang() === 'en' ? ' (article in French)' : ''}</span><span class="art__t" style="display:block">${a.fr}</span></span></a></li>`).join('');
+  arts.innerHTML = ARTICLES.slice(0, 5).map((a) => `<li class="art"><a href="${a.url}" target="_blank" rel="noopener"><span class="art__img"><img src="${base()}assets/img/actus/${a.img}-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block">${fmtDate(new Date(a.d))}${lang() === 'en' ? ' (article in French)' : ''}</span><span class="art__t" style="display:block">${a.fr}</span></span></a></li>`).join('');
   if (!reduced()) gsap.fromTo($$('.art', arts), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .08, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: arts, start: 'top 85%', once: true } });
 }
 
