@@ -1,6 +1,5 @@
 import { Lenis } from '../vendor/lenis/lenis.ts';
 import { $, $$, html, lang, reduced, finePointer, fmtNum, T } from './util.js';
-import { Roots, animateRoots } from './roots.js';
 
 const gsap = window.gsap;
 export let lenis = null;
@@ -34,7 +33,7 @@ export function initScroll() {
   gsap.registerPlugin(window.ScrollTrigger);
   if (window.SplitText) gsap.registerPlugin(window.SplitText);
   if (window.DrawSVGPlugin) gsap.registerPlugin(window.DrawSVGPlugin);
-  if (window.CustomEase) { gsap.registerPlugin(window.CustomEase); window.CustomEase.create('sprout', 'M0,0 C0.2,0.7 0.3,1.04 0.55,1.02 0.75,1 0.85,1 1,1'); }
+  if (window.CustomEase) { gsap.registerPlugin(window.CustomEase); window.CustomEase.create('exco', 'M0,0 C0.18,0.62 0.28,1 0.6,1 0.8,1 0.9,1 1,1'); }
   if (!reduced()) {
     lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1, smoothWheel: true, anchors: false });
     lenis.on('scroll', window.ScrollTrigger.update);
@@ -69,7 +68,7 @@ export function scrollToEl(t, immediate = false) {
 export function initHeader() {
   const hd = $('[data-hd]'); if (!hd) return;
   const hero = $('[data-hero]');
-  if (hero) hd.classList.add('on-dark');
+  if (hero && hero.classList.contains('hero--dark')) hd.classList.add('on-dark');
   let last = 0;
   const upd = () => {
     const y = window.scrollY;
@@ -89,13 +88,12 @@ export function initHeader() {
 }
 
 // ---------- menu mobile ----------
-let menuRoots = null;
 export function closeMenu() {
   const b = $('[data-burger]'), m = $('[data-menu]');
   if (!b || b.getAttribute('aria-expanded') !== 'true') return;
   b.setAttribute('aria-expanded', 'false'); html.classList.remove('menu-open');
   if (lenis) lenis.start();
-  gsap.to(m, { clipPath: 'circle(0% at 100% 0%)', duration: reduced() ? 0 : .6, ease: 'power3.inOut', onComplete: () => { m.hidden = true; menuRoots && menuRoots.stop(); } });
+  gsap.to(m, { clipPath: 'circle(0% at 100% 0%)', duration: reduced() ? 0 : .6, ease: 'power3.inOut', onComplete: () => { m.hidden = true; } });
 }
 export function initMenu() {
   const b = $('[data-burger]'), m = $('[data-menu]'); if (!b || !m) return;
@@ -105,24 +103,19 @@ export function initMenu() {
     if (lenis) lenis.stop();
     gsap.fromTo(m, { clipPath: 'circle(0% at 100% 0%)' }, { clipPath: 'circle(150% at 100% 0%)', duration: reduced() ? 0 : .8, ease: 'power3.inOut' });
     gsap.fromTo($$('.menu__nav a', m), { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: .05, duration: .7, delay: .2, ease: 'power3.out' });
-    const c = $('[data-menu-roots]', m);
-    if (c && !reduced()) {
-      const r = new Roots(c, { seeds: [{ x: .95, y: 0, a: 2.2 }, { x: .7, y: 0, a: 1.8 }, { x: 1, y: .4, a: 2.8 }], color: 'rgba(237,229,211,.22)', glow: 'rgba(245,154,0,.06)', width: 2, life: 200, seed: 11, pulses: 4 });
-      menuRoots && menuRoots.stop(); menuRoots = animateRoots(r, { perFrame: 4 });
-    }
     $('.menu__nav a', m)?.focus({ preventScroll: true });
   });
   m.addEventListener('click', (e) => { if (e.target.closest('[data-menu-link]')) closeMenu(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 }
 
-// ---------- curseur graine ----------
+// ---------- curseur ----------
 export function initCursor() {
   if (!finePointer() || reduced()) return;
   const cur = $('[data-cursor]'); if (!cur) return;
   html.classList.add('has-cursor');
-  const seed = $('.cursor__seed', cur), ring = $('.cursor__ring', cur), lab = $('[data-cursor-label]', cur);
-  const xs = gsap.quickTo(seed, 'x', { duration: .08 }), ys = gsap.quickTo(seed, 'y', { duration: .08 });
+  const dot = $('.cursor__dot', cur), ring = $('.cursor__ring', cur), lab = $('[data-cursor-label]', cur);
+  const xs = gsap.quickTo(dot, 'x', { duration: .08 }), ys = gsap.quickTo(dot, 'y', { duration: .08 });
   const xr = gsap.quickTo(ring, 'x', { duration: .45, ease: 'power3' }), yr = gsap.quickTo(ring, 'y', { duration: .45, ease: 'power3' });
   const xl = gsap.quickTo(lab, 'x', { duration: .3 }), yl = gsap.quickTo(lab, 'y', { duration: .3 });
   window.addEventListener('pointermove', (e) => { xs(e.clientX); ys(e.clientY); xr(e.clientX); yr(e.clientY); xl(e.clientX); yl(e.clientY); cur.classList.remove('is-hidden'); }, { passive: true });
@@ -149,12 +142,14 @@ export function initMagnetic() {
 // ---------- transitions de page ----------
 export function leave(url, force = false) {
   const v = $('[data-veil]');
-  if (reduced() || !v) { location.href = url; return; }
+  // même page (changement de langue) : on recharge, sinon le navigateur ne ferait que suivre l'ancre
+  const go = () => { if (force && url.split('#')[0] === location.href.split('#')[0]) location.reload(); else location.href = url; };
+  if (reduced() || !v) { go(); return; }
   html.classList.add('is-leaving');
   try { sessionStorage.setItem('exco-veil', '1'); } catch (e) {}
-  const c = $('canvas', v);
-  if (c) { const r = new Roots(c, { seeds: [{ x: .5, y: 1, a: -Math.PI / 2 }, { x: .2, y: 1, a: -1.3 }, { x: .8, y: 1, a: -1.8 }], gravity: -0.06, color: 'rgba(237,229,211,.25)', glow: 'rgba(245,154,0,.08)', width: 2.4, life: 120, seed: 5 }); animateRoots(r, { perFrame: 6 }); }
-  gsap.fromTo(v, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: .7, ease: 'power3.inOut', onComplete: () => { location.href = url; } });
+  const lg = $('.veil__logo', v);
+  gsap.fromTo(v, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: .65, ease: 'power3.inOut', onComplete: go });
+  if (lg) gsap.fromTo(lg, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .4, delay: .35 });
 }
 export function initTransitions() {
   document.addEventListener('click', (e) => {
@@ -175,47 +170,44 @@ export function initTransitions() {
   return false;
 }
 
-// ---------- ouverture orchestrée (accueil) ----------
+// ---------- ouverture orchestrée (accueil, une fois par session) ----------
+// le logo apparaît, un double trait de total se trace dessous, puis le rideau se lève
 export function runIntro() {
   return new Promise((resolve) => {
     const intro = $('[data-intro]');
     if (!intro || reduced() || html.classList.contains('intro-seen') || getComputedStyle(intro).display === 'none') { intro && intro.remove(); resolve(); return; }
     try { sessionStorage.setItem('exco-intro', '1'); } catch (e) {}
     if (lenis) lenis.stop();
-    const c = $('[data-intro-roots]', intro), seed = $('.intro__seed', intro), logo = $('.intro__logo', intro);
-    const r = new Roots(c, { seeds: Array.from({ length: 7 }, (_, i) => ({ x: .5, y: .5, a: i * (Math.PI * 2 / 7) + .3 })), gravity: 0, curl: .3, color: 'rgba(29,25,19,.55)', glow: 'rgba(245,154,0,.12)', width: 2.2, life: 140, branch: .06, seed: 2, pulses: 6, speed: 9 });
-    const anim = animateRoots(r, { perFrame: 5 });
-    const tl = gsap.timeline({ onComplete: () => { anim.stop(); intro.remove(); if (lenis) lenis.start(); resolve(); } });
-    tl.fromTo(seed, { scale: 0 }, { scale: 1, duration: .45, ease: 'back.out(3)' })
-      .to(seed, { boxShadow: '0 0 0 18px rgba(245,154,0,0)', duration: .6 }, '<.2')
-      .to(logo, { opacity: 1, y: -6, duration: .6, ease: 'power2.out' }, .55)
-      .to(seed, { scale: 0, duration: .3 }, .6)
-      .to(intro, { clipPath: 'inset(0 0 100% 0)', duration: .9, ease: 'power4.inOut' }, 1.55);
+    const logo = $('.intro__logo', intro), rules = $$('.intro__rule span', intro);
+    const tl = gsap.timeline({ onComplete: () => { intro.remove(); if (lenis) lenis.start(); resolve(); } });
+    tl.fromTo(logo, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .55, ease: 'power3.out' })
+      .fromTo(rules, { scaleX: 0 }, { scaleX: 1, duration: .5, stagger: .12, ease: 'power3.inOut' }, .3)
+      .to(intro, { clipPath: 'inset(0 0 100% 0)', duration: .8, ease: 'power4.inOut' }, 1.15);
   });
 }
 
-// ---------- titres qui germent ----------
-export function germinate(root = document) {
+// ---------- titres : les lettres montent, la graisse se pose ----------
+export function revealTitles(root = document) {
   if (!window.SplitText) return;
-  $$('[data-germinate]', root).forEach((h) => {
+  $$('[data-reveal]', root).forEach((h) => {
     if (h.dataset.split) return; h.dataset.split = '1';
-    const split = new window.SplitText(h, { type: 'lines,chars', linesClass: 'germ-line', charsClass: 'germ-char' });
+    const split = new window.SplitText(h, { type: 'lines,chars', linesClass: 'tr-line', charsClass: 'tr-char' });
     if (reduced()) return;
     const final = parseFloat(getComputedStyle(h).fontWeight) || 380;
     const tl = gsap.timeline({ paused: true });
-    tl.fromTo(split.chars, { yPercent: 110, rotate: () => (Math.random() - .5) * 14, transformOrigin: '50% 100%', scaleY: .6 },
-      { yPercent: 0, rotate: 0, scaleY: 1, duration: 1.1, ease: 'sprout', stagger: { each: .018, from: 'start' } })
+    tl.fromTo(split.chars, { yPercent: 105 },
+      { yPercent: 0, duration: 1, ease: 'exco', stagger: { each: .016, from: 'start' } })
       .fromTo(h, { fontWeight: Math.max(150, final - 220) }, { fontWeight: final, duration: 1.6, ease: 'power2.out' }, 0);
-    h._germ = tl;
+    h._reveal = tl;
     if (h.closest('[data-hero]')) return; // déclenché après l'ouverture
     window.ScrollTrigger.create({ trigger: h, start: 'top 88%', once: true, onEnter: () => tl.play() });
   });
 }
 
-// ---------- texte semé : les mots s'éclairent au défilement ----------
-export function sow() {
+// ---------- paragraphe : les mots s'éclairent au défilement ----------
+export function wordsReveal() {
   if (!window.SplitText || reduced()) return;
-  $$('[data-sow]').forEach((p) => {
+  $$('[data-words]').forEach((p) => {
     const s = new window.SplitText(p, { type: 'words', wordsClass: 'w' });
     gsap.fromTo(s.words, { opacity: .16 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: p, start: 'top 80%', end: 'bottom 45%', scrub: true } });
   });
@@ -228,13 +220,13 @@ export function parallax() {
     const k = parseFloat(img.dataset.parallax) || .1;
     gsap.fromTo(img, { yPercent: -k * 50 }, { yPercent: k * 50, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
   });
-  $$('[data-arch]').forEach((f) => {
-    const a = $('.manifest__arch', f) || f;
-    gsap.fromTo(a, { clipPath: 'inset(40% 10% 0% 10% round 999px 999px 14px 14px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 14px 14px)', ease: 'none', scrollTrigger: { trigger: f, start: 'top 90%', end: 'top 30%', scrub: true } });
+  $$('[data-frame]').forEach((f) => {
+    const a = $('.manifest__frame', f) || f;
+    gsap.fromTo(a, { clipPath: 'inset(18% 12% 18% 12% round 14px)' }, { clipPath: 'inset(0% 0% 0% 0% round 14px)', ease: 'none', scrollTrigger: { trigger: f, start: 'top 90%', end: 'top 35%', scrub: true } });
   });
 }
 
-// ---------- chiffres qui sortent de terre ----------
+// ---------- chiffres : défilement des chiffres puis arrêt, comme un compteur ----------
 export function counters() {
   $$('[data-count]').forEach((n) => {
     const target = +n.dataset.count, pre = n.dataset.prefix || '';
@@ -244,7 +236,7 @@ export function counters() {
     if (reduced()) return;
     const ds = $$('.digit', n);
     const tl = gsap.timeline({ paused: true });
-    tl.fromTo(ds, { yPercent: 120, rotate: 8 }, { yPercent: 0, rotate: 0, duration: 1.1, ease: 'sprout', stagger: .07 });
+    tl.fromTo(ds, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .9, ease: 'exco', stagger: .06 });
     // les chiffres défilent avant de se poser
     ds.forEach((d) => {
       const fin = d.textContent; if (!/\d/.test(fin)) return;
@@ -276,18 +268,5 @@ export function tilt() {
     const rx = gsap.quickTo(c, 'rotationX', { duration: .6, ease: 'power3' }), ry = gsap.quickTo(c, 'rotationY', { duration: .6, ease: 'power3' });
     c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - .5) * 14); rx(-((e.clientY - r.top) / r.height - .5) * 12); });
     c.addEventListener('pointerleave', () => { rx(0); ry(0); });
-  });
-}
-
-// ---------- pied de page : descente sous terre ----------
-export function footerRoots() {
-  const c = $('[data-footer-roots]'); if (!c) return;
-  let started = false;
-  window.ScrollTrigger.create({
-    trigger: c.closest('footer'), start: 'top 85%', once: true, onEnter: () => {
-      if (started) return; started = true;
-      const r = new Roots(c, { seeds: Array.from({ length: 11 }, (_, i) => ({ x: (i + .5) / 11, y: 0, a: Math.PI / 2 + (Math.random() - .5) * .5, k: .6 + Math.random() * .8 })), color: 'rgba(237,229,211,.16)', glow: 'rgba(245,154,0,.05)', width: 2.2, life: 260, branch: .04, seed: 19, pulses: reduced() ? 0 : 7 });
-      if (reduced()) { r.growAll(); r.render(); } else animateRoots(r, { perFrame: 4 });
-    },
   });
 }

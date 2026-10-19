@@ -1,59 +1,113 @@
-// Page Expertise comptable : cernes des missions, engagements qui s'allument, tableau de bord illustratif.
-import { $, $$, T, lang, reduced, rng, fmtNum } from './util.js';
+// Page Expertise comptable : bilan qui s'équilibre, liste d'engagements cochée au défilement,
+// calendrier illustratif de l'exercice, tableau de bord illustratif, pictogrammes tracés.
+import { $, $$, T, lang, reduced, fmtNum } from './util.js';
 
 const gsap = window.gsap;
 const NS = 'http://www.w3.org/2000/svg';
 const mk = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
 
+// calendrier illustratif : exercice N clos le 31 décembre, puis premier semestre N+1 (18 mois, en mois depuis le 1er janvier N)
+const MONTHS = 18;
+const BARS = [
+  [[0, 1]],                                                       // business plan
+  [[0, 12.4]],                                                    // collecte des informations
+  Array.from({ length: 13 }, (_, m) => [m + .15, m + .7]),        // saisie comptable, chaque mois
+  [[2.55, 3], [5.55, 6], [8.55, 9], [11.55, 12]],                 // pointage, chaque trimestre
+  [[11.7, 12.15]],                                                // inventaire au 31 décembre
+  [[3.05, 3.55], [6.05, 6.55], [9.05, 9.55], [13.05, 13.55]],     // analyse des marges
+  [[12, 13]],                                                     // clôture
+  [[12.5, 14.5]],                                                 // révision
+  [[14, 15.6]],                                                   // comptes annuels
+];
+const DEADLINES = [
+  { at: 16.1, fr: 'Liasse fiscale (mai)', en: 'Tax return (May)' },
+  { at: 17.9, fr: 'Approbation des comptes (au plus tard six mois après la clôture)', en: 'Approval of the accounts (within six months of year end)' },
+];
+
 export function initServicePage() {
   // lien « trouver un cabinet » : présélectionne le service dans le trouveur
   $$('[data-filter]').forEach((a) => a.addEventListener('click', () => { try { sessionStorage.setItem('exco-filter', a.dataset.filter); } catch (e) {} }, true));
 
-  // hero : la graine respire, le texte monte
-  const hero = $('[data-svc-hero]');
-  if (hero && !reduced()) {
-    gsap.fromTo($('.svc-top__img', hero), { scale: 1.12 }, { scale: 1, duration: 2.4, ease: 'power3.out' });
-    gsap.fromTo($$('.svc-top__sub, .svc-top__in .lead, .svc-top__in .cab-actions', hero), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: .12, delay: .4, ease: 'power3.out' });
-    gsap.to($('.svc-top__img', hero), { yPercent: 10, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
+  // ---------- bilan simplifié : les lignes se posent, les totaux s'équilibrent ----------
+  const bilan = $('[data-bilan]');
+  if (bilan) {
+    const cells = $$('[data-v]', bilan);
+    cells.forEach((c) => (c.textContent = fmtNum(+c.dataset.v)));
+    if (!reduced()) {
+      const rows = $$('tbody tr', bilan), tots = $$('tfoot tr', bilan), eq = $('.bilan__eq', bilan);
+      gsap.set([...rows, ...tots], { opacity: 0, y: 10 }); gsap.set(eq, { opacity: 0, scale: .9 });
+      gsap.set($$('.bilan__rule', bilan), { scaleX: 0 });
+      const tl = gsap.timeline({ delay: .5 });
+      tl.fromTo(bilan, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .8, ease: 'power3.out' })
+        .to(rows, { opacity: 1, y: 0, duration: .5, stagger: .09, ease: 'power3.out' }, .3);
+      $$('tbody [data-v]', bilan).forEach((c, i) => { const end = +c.dataset.v, o = { v: 0 }; tl.to(o, { v: end, duration: .7, ease: 'power2.out', onUpdate: () => (c.textContent = fmtNum(Math.round(o.v / 100) * 100)) }, .35 + i * .09); });
+      tl.to(tots, { opacity: 1, y: 0, duration: .5 }, 1.3)
+        .to($$('.bilan__rule', bilan), { scaleX: 1, duration: .6, ease: 'power3.inOut', stagger: .1 }, 1.45)
+        .to(eq, { opacity: 1, scale: 1, duration: .5, ease: 'back.out(2.4)' }, 1.9);
+    }
   }
 
-  // engagements : chaque feuille s'allume en passant au centre
+  // ---------- engagements : chaque case se coche en passant au centre ----------
   $$('.engage__list li').forEach((li) => {
     if (reduced()) { li.classList.add('is-lit'); return; }
     window.ScrollTrigger.create({ trigger: li, start: 'top 62%', end: 'bottom 38%', onToggle: (s) => li.classList.toggle('is-lit', s.isActive || s.progress === 1) });
   });
 
-  // cernes : 9 anneaux irréguliers, un par mission
-  const svg = $('[data-rings-svg]'), list = $$('[data-missions] li');
-  if (svg && list.length) {
-    const R = rng(4);
-    const rings = list.map((_, i) => {
-      const r = 6 + i * 3.05; const n = 64; let d = '';
-      const ph = R() * 6.28, amp = .35 + R() * .35;
-      for (let k = 0; k <= n; k++) { const a = (k / n) * Math.PI * 2; const rr = r + Math.sin(a * 3 + ph) * amp + Math.sin(a * 7 + ph * 2) * amp * .4; d += `${k ? 'L' : 'M'}${(50 + Math.cos(a) * rr).toFixed(2)},${(50 + Math.sin(a) * rr).toFixed(2)}`; }
-      const p = mk('path', { d: d + 'Z', class: 'ring', pathLength: 1 }); svg.appendChild(p); return p;
+  // ---------- calendrier de l'exercice ----------
+  const gantt = $('[data-gantt]');
+  if (gantt) {
+    const rows = $$('[data-missions] li');
+    const mNames = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+    const head = document.createElement('div'); head.className = 'gantt__head';
+    head.innerHTML = `<span class="gantt__corner"></span><span class="gantt__months">${Array.from({ length: MONTHS }, (_, i) => `<span class="${i === 12 ? 'is-n1' : ''}">${mNames[i % 12]}</span>`).join('')}<em class="gantt__year" style="left:0">${T('Exercice N', 'Year N')}</em><em class="gantt__year" style="left:${(12 / MONTHS) * 100}%">N+1</em></span>`;
+    gantt.appendChild(head);
+    const body = document.createElement('div'); body.className = 'gantt__body';
+    const lit = [];
+    rows.forEach((li, i) => {
+      const r = document.createElement('div'); r.className = 'gantt__row';
+      const lab = document.createElement('span'); lab.className = 'gantt__label'; lab.innerHTML = `<b>${i + 1}</b><span>${li.textContent.trim()}</span>`;
+      const tr = document.createElement('span'); tr.className = 'gantt__track';
+      (BARS[i] || []).forEach(([a, b]) => { const s = document.createElement('i'); s.className = 'gantt__bar'; s.style.left = `${(a / MONTHS) * 100}%`; s.style.width = `${((b - a) / MONTHS) * 100}%`; tr.appendChild(s); });
+      r.append(lab, tr); body.appendChild(r); lit.push({ r, bars: BARS[i] || [] });
     });
-    const light = (k) => { rings.forEach((r, i) => r.classList.toggle('is-lit', i <= k)); list.forEach((l, i) => l.classList.toggle('is-lit', i === k)); };
-    if (reduced()) light(list.length - 1);
+    const dl = document.createElement('div'); dl.className = 'gantt__row gantt__row--dl';
+    dl.innerHTML = `<span class="gantt__label"><span>${T('Échéances légales', 'Legal deadlines')}</span></span><span class="gantt__track">${DEADLINES.map((d, k) => `<span class="gantt__dl${k ? ' is-end' : ''}" style="left:${(d.at / MONTHS) * 100}%"><i></i><small>${lang() === 'en' ? d.en : d.fr}</small></span>`).join('')}</span>`;
+    body.appendChild(dl);
+    const over = document.createElement('div'); over.className = 'gantt__overlay'; over.setAttribute('aria-hidden', 'true');
+    over.innerHTML = `<span class="gantt__lane"><span class="gantt__close" style="left:${(12 / MONTHS) * 100}%"><small>${T('Clôture au 31 décembre', 'Year end, 31 December')}</small></span><span class="gantt__play"></span></span>`;
+    body.appendChild(over);
+    gantt.appendChild(body);
+    const play = $('.gantt__play', over);
+    // la liste d'origine reste lisible par les lecteurs d'écran, le tableau la double visuellement
+    $('[data-missions]').classList.add('sr');
+    gantt.setAttribute('aria-hidden', 'true');
+
+    const setT = (m) => {
+      play.style.left = `${(m / MONTHS) * 100}%`;
+      lit.forEach(({ r, bars }) => r.classList.toggle('is-lit', bars.some(([a, b]) => m >= a - .05 && m <= b + .05)));
+      $$('.gantt__months > span', head).forEach((s, i) => s.classList.toggle('is-now', i === Math.min(MONTHS - 1, Math.floor(m))));
+      $$('.gantt__dl', dl).forEach((d, k) => d.classList.toggle('is-hit', m >= DEADLINES[k].at - .2));
+    };
+    if (reduced()) gantt.classList.add('is-static');
     else {
-      const sec = $('[data-rings]');
+      const sec = $('[data-year]');
       const mm = gsap.matchMedia();
       mm.add('(min-width: 901px)', () => {
-        window.ScrollTrigger.create({ trigger: sec, start: 'top top', end: '+=1400', pin: $('.rings-pin', sec), scrub: true, onUpdate: (s) => light(Math.min(list.length - 1, Math.floor(s.progress * list.length))) });
-        gsap.fromTo(rings, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, stagger: .08, duration: 1.2, ease: 'power2.out', scrollTrigger: { trigger: sec, start: 'top 70%', once: true } });
+        setT(0);
+        const st = window.ScrollTrigger.create({ trigger: sec, start: 'top top', end: '+=1600', pin: $('.year-pin', sec), scrub: .6, onUpdate: (s) => setT(s.progress * MONTHS) });
+        const tw = gsap.fromTo($$('.gantt__bar', gantt), { scaleX: 0 }, { scaleX: 1, transformOrigin: '0 50%', duration: .6, ease: 'power2.out', stagger: .008, scrollTrigger: { trigger: gantt, start: 'top 80%', once: true } });
+        return () => { st.kill(); tw.kill(); };
       });
-      mm.add('(max-width: 900px)', () => {
-        list.forEach((li, i) => window.ScrollTrigger.create({ trigger: li, start: 'top 65%', end: 'bottom 35%', onEnter: () => light(i), onEnterBack: () => light(i) }));
-      });
+      mm.add('(max-width: 900px)', () => { gantt.classList.add('is-static'); return () => gantt.classList.remove('is-static'); });
     }
   }
 
-  // tableau de bord (données fictives, affichées comme telles)
+  // ---------- tableau de bord (données fictives, affichées comme telles) ----------
   const ch = $('[data-dash-chart]');
   if (ch) {
     const ca = [96, 102, 110, 104, 118, 121, 99, 88, 115, 124, 119, 128];
     const mg = [37.8, 38.2, 39.1, 38.6, 39.4, 40.0, 39.2, 38.4, 40.1, 40.6, 40.3, 41.0];
-    const months = lang() === 'en' ? ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] : ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+    const months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
     const L = 40, Rr = 480, T0 = 16, B = 190, W = Rr - L, H = B - T0;
     const yCa = (v) => B - (v / 140) * H, yMg = (v) => B - ((v - 30) / 15) * H;
     [0, 35, 70, 105, 140].forEach((v) => { ch.appendChild(mk('line', { x1: L, x2: Rr, y1: yCa(v), y2: yCa(v), class: 'dash__grid' })); const t = mk('text', { x: L - 6, y: yCa(v) + 3, 'text-anchor': 'end' }); t.textContent = v; ch.appendChild(t); });
@@ -66,7 +120,7 @@ export function initServicePage() {
     if (!reduced()) {
       gsap.set(bars, { scaleY: 0, transformOrigin: '50% 100%' }); gsap.set(line, { strokeDasharray: 1, strokeDashoffset: 1 }); gsap.set(dots, { scale: 0, transformOrigin: '50% 50%' });
       window.ScrollTrigger.create({ trigger: ch, start: 'top 80%', once: true, onEnter: () => {
-        gsap.to(bars, { scaleY: 1, duration: .9, stagger: .05, ease: 'sprout' });
+        gsap.to(bars, { scaleY: 1, duration: .9, stagger: .05, ease: 'exco' });
         gsap.to(line, { strokeDashoffset: 0, duration: 1.6, delay: .5, ease: 'power2.inOut' });
         gsap.to(dots, { scale: 1, stagger: .06, delay: .7, ease: 'back.out(3)' });
         $$('[data-kpi]').forEach((k) => { const end = +k.dataset.kpi, suf = k.textContent.replace(/[\d\s]/g, '').trim(); const o = { v: 0 }; gsap.to(o, { v: end, duration: 1.4, ease: 'power2.out', onUpdate: () => (k.textContent = `${fmtNum(Math.round(o.v))} ${suf}`) }); });
@@ -74,7 +128,7 @@ export function initServicePage() {
     }
   }
 
-  // bénéfices : les pictogrammes se dessinent
+  // ---------- bénéfices : les pictogrammes se tracent ----------
   if (!reduced()) {
     const items = $$('[data-benefits] li');
     gsap.fromTo(items, { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .07, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: '[data-benefits]', start: 'top 80%', once: true } });

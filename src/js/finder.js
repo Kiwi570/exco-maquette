@@ -1,5 +1,5 @@
-// Trouver mon cabinet : annuaire réel (139 fiches), carte SVG, racines groupe → cabinet, recherche, filtres.
-import { $, $$, T, lang, reduced, norm, haversine, getJSON, openStatus, rng, base, finePointer } from './util.js';
+// Trouver mon cabinet : annuaire réel (139 fiches), carte SVG, liaisons groupe → cabinet, recherche, filtres.
+import { $, $$, T, lang, reduced, norm, haversine, getJSON, openStatus, base } from './util.js';
 import { initPlaceholders } from './ph.js';
 
 const gsap = window.gsap;
@@ -68,21 +68,17 @@ export async function initFinder() {
   gLand.appendChild(mk('path', { d: map.france, class: 'france' }));
   gLand.appendChild(mk('path', { d: map.deps, class: 'deps' }));
   Object.values(map.dom).forEach((d) => gLand.appendChild(mk('path', { d, class: 'dom' })));
-  const gRoots = mk('g'); svg.appendChild(gRoots);
+  const gLinks = mk('g'); svg.appendChild(gLinks);
   const gPins = mk('g'); svg.appendChild(gPins);
   const halo = mk('circle', { class: 'halo', r: 0, cx: 0, cy: 0 }); svg.appendChild(halo);
 
-  // racines : groupe → cabinet, puis Paris → groupe
-  const curve = (a, b, seed, bendK = .22) => {
-    const R = rng(seed); const dx = b[0] - a[0], dy = b[1] - a[1]; const L = Math.hypot(dx, dy) || 1;
-    const nx = -dy / L, ny = dx / L; const k1 = (R() - .5) * 2 * bendK * L, k2 = (R() - .5) * 2 * bendK * L;
-    return `M${a[0].toFixed(2)},${a[1].toFixed(2)} C${(a[0] + dx * .33 + nx * k1).toFixed(2)},${(a[1] + dy * .33 + ny * k1).toFixed(2)} ${(a[0] + dx * .66 + nx * k2).toFixed(2)},${(a[1] + dy * .66 + ny * k2).toFixed(2)} ${b[0].toFixed(2)},${b[1].toFixed(2)}`;
-  };
-  const hash = (s) => s.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7);
+  // liaisons : chaque cabinet relié au siège de son groupe (trait droit), chaque groupe au siège d'Exco à Paris (arc régulier)
+  const line = (a, b) => `M${a[0].toFixed(2)},${a[1].toFixed(2)} L${b[0].toFixed(2)},${b[1].toFixed(2)}`;
+  const arc = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, k = L * .16; const mx = (a[0] + b[0]) / 2 - dy / L * k, my = (a[1] + b[1]) / 2 + dx / L * k; return `M${a[0].toFixed(2)},${a[1].toFixed(2)} Q${mx.toFixed(2)},${my.toFixed(2)} ${b[0].toFixed(2)},${b[1].toFixed(2)}`; };
   const fv = map.views.fr; const inFr = (h) => h[0] > fv[0] && h[0] < fv[0] + fv[2] && h[1] > fv[1] && h[1] < fv[1] + fv[3];
-  const groupRoots = Object.entries(map.heads).map(([g, h]) => mk('path', { d: curve(map.paris, h, hash(g), .18), class: 'root root--g' + (inFr(h) ? '' : ' is-far'), pathLength: 1, 'data-g': g }));
-  const cabRoots = cabs.map((c) => { const h = map.heads[c.g] || map.paris; return mk('path', { d: curve(h, [c.x, c.y], hash(c.id)), class: 'root' + (inFr(h) ? '' : ' is-far'), pathLength: 1, 'data-id': c.id }); });
-  groupRoots.forEach((p) => gRoots.appendChild(p)); cabRoots.forEach((p) => gRoots.appendChild(p));
+  const groupLinks = Object.entries(map.heads).map(([g, h]) => mk('path', { d: arc(map.paris, h), class: 'link link--g' + (inFr(h) ? '' : ' is-far'), pathLength: 1, 'data-g': g }));
+  const cabLinks = cabs.map((c) => { const h = map.heads[c.g] || map.paris; return mk('path', { d: line(h, [c.x, c.y]), class: 'link' + (inFr(h) ? '' : ' is-far'), pathLength: 1, 'data-id': c.id }); });
+  groupLinks.forEach((p) => gLinks.appendChild(p)); cabLinks.forEach((p) => gLinks.appendChild(p));
   Object.values(map.heads).forEach((h) => gPins.appendChild(mk('circle', { cx: h[0], cy: h[1], class: 'head', r: 1 })));
   gPins.appendChild(mk('circle', { cx: map.paris[0], cy: map.paris[1], class: 'paris', r: 1 }));
   const pins = new Map();
@@ -100,8 +96,8 @@ export async function initFinder() {
     $$('.head', gPins).forEach((p) => p.setAttribute('r', r * .9));
     $$('.paris', gPins).forEach((p) => p.setAttribute('r', r * 1.5));
     $$('.pin', gPins).forEach((p) => p.setAttribute('stroke-width', r * .35));
-    cabRoots.forEach((p) => p.setAttribute('stroke-width', w / 520));
-    groupRoots.forEach((p) => p.setAttribute('stroke-width', w / 300));
+    cabLinks.forEach((p) => p.setAttribute('stroke-width', w / 600));
+    groupLinks.forEach((p) => p.setAttribute('stroke-width', w / 420));
     halo.setAttribute('stroke-width', w / 400);
     $$('.deps', gLand).forEach((p) => p.setAttribute('stroke-width', w / 900));
     $$('.france', gLand).forEach((p) => p.setAttribute('stroke-width', w / 700));
@@ -111,19 +107,19 @@ export async function initFinder() {
     if (reduced() || !dur) { svg.setAttribute('viewBox', vb); sizeMarks(); return; }
     gsap.to(svg, { attr: { viewBox: vb }, duration: dur, ease: 'power3.inOut', onUpdate: sizeMarks });
   };
-  // croissance des racines à l'entrée de la section
-  const growRoots = () => {
+  // tracé des liaisons à l'entrée de la section
+  const drawLinks = () => {
     if (reduced()) return;
-    gsap.set([...groupRoots, ...cabRoots], { strokeDasharray: 1, strokeDashoffset: 1 });
+    gsap.set([...groupLinks, ...cabLinks], { strokeDasharray: 1, strokeDashoffset: 1 });
     gsap.set($$('.pin', gPins), { opacity: 0 });
-    gsap.to(groupRoots, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', stagger: .04 });
+    gsap.to(groupLinks, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', stagger: .04 });
     const order = cabs.map((c, i) => ({ i, d: Math.hypot(c.x - map.paris[0], c.y - map.paris[1]) })).sort((a, b) => a.d - b.d);
     order.forEach((o, k) => {
-      gsap.to(cabRoots[o.i], { strokeDashoffset: 0, duration: 1.1, delay: 1 + k * .012, ease: 'power2.out' });
+      gsap.to(cabLinks[o.i], { strokeDashoffset: 0, duration: 1.1, delay: 1 + k * .012, ease: 'power2.out' });
       gsap.to(pins.get(cabs[o.i].id), { opacity: 1, duration: .4, delay: 1.8 + k * .012 });
     });
   };
-  window.ScrollTrigger.create({ trigger: root, start: 'top 70%', once: true, onEnter: growRoots });
+  window.ScrollTrigger.create({ trigger: root, start: 'top 70%', once: true, onEnter: drawLinks });
 
   // glisser pour déplacer (souris)
   let drag = null;
@@ -194,7 +190,7 @@ export async function initFinder() {
     countEl.textContent = `${L.length} ${L.length > 1 ? T('cabinets', 'offices') : T('cabinet', 'office')}${where ? ' ' + where : ''}${st.svc.size && cabs.some((c) => !c.s.length) ? T('. Certains cabinets n’ont pas encore de services renseignés.', '. Some offices have no services listed yet.') : ''}`;
     const ids = new Set(L.map((c) => c.id));
     pins.forEach((p, id) => { p.classList.toggle('is-dim', !ids.has(id)); p.classList.toggle('is-open', ids.has(id) && st.open); });
-    cabRoots.forEach((p) => { p.style.opacity = ids.has(p.dataset.id) ? '' : '.08'; });
+    cabLinks.forEach((p) => { p.style.opacity = ids.has(p.dataset.id) ? '' : '.08'; });
     list.innerHTML = '';
     if (!L.length) {
       const li = document.createElement('li'); li.className = 'cab__meta';
@@ -205,7 +201,7 @@ export async function initFinder() {
       const s = openStatus(c);
       const li = document.createElement('li');
       li.innerHTML = `<button type="button" class="cab${st.active === c.id ? ' is-active' : ''}" data-id="${c.id}">
-        <span class="cab__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-480.webp" alt="" loading="lazy">` : '<span class="ph" data-ph="soil"></span>'}</span>
+        <span class="cab__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-480.webp" alt="" loading="lazy">` : '<span class="ph ph--mini"></span>'}</span>
         <span><span class="cab__name" style="display:block">${c.n}</span>
         <span class="cab__meta" style="display:block">${c.c}${c.reg !== 'fr' ? ', ' + c.co[lang() === 'en' ? 1 : 0] : ''}${c._d !== undefined ? `<span class="cab__dist">${c._d < 10 ? c._d.toFixed(1) : Math.round(c._d)} km</span>` : ''}</span>
         <span class="status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}">${s.text}</span></span></button>`;
@@ -213,7 +209,7 @@ export async function initFinder() {
       li.firstElementChild.addEventListener('mouseenter', () => pulse(c));
       list.appendChild(li);
     });
-    initPlaceholders(gsap);
+    initPlaceholders();
   }
   function pulse(c) {
     if (reduced()) return;
@@ -241,7 +237,7 @@ export async function initFinder() {
     const ficheLocal = c.id === 'exco-albi';
     const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.n + ' ' + c.a)}`;
     card.innerHTML = `<button type="button" class="mc__close" aria-label="${T('Fermer', 'Close')}">×</button>
-      <div class="mc__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-960.webp" alt="${T('Façade ou accueil du cabinet ', 'Office ')}${c.n}">` : '<div class="ph" data-ph="soil"></div>'}</div>
+      <div class="mc__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-960.webp" alt="${T('Façade ou accueil du cabinet ', 'Office ')}${c.n}">` : `<div class="ph" data-word="${c.c}"></div>`}</div>
       <div class="mc__body">
         <p class="mc__name">${c.n}</p>
         <p class="mc__row">${c.g ? T('Groupe ', 'Group ') + c.g : ''}</p>
@@ -254,7 +250,7 @@ export async function initFinder() {
     if (!reduced()) gsap.fromTo(card, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' });
     $('.mc__close', card).addEventListener('click', () => { card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); sizeMarks(); });
     $$('[data-copy]', card).forEach((el) => el.addEventListener('click', () => navigator.clipboard?.writeText(el.dataset.copy).catch(() => {})));
-    initPlaceholders(gsap);
+    initPlaceholders();
     try { sessionStorage.setItem('exco-last-cab', id); } catch (e) {}
   }
 

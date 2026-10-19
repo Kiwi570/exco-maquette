@@ -52,7 +52,7 @@ for pg in PAGES:
 <meta name="title-en" content="{pg['title_en']}">
 <meta name="description" content="{pg['desc']}">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#EEE7D8">
+<meta name="theme-color" content="#F4F4F1">
 <link rel="icon" href="{p}assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="{p}assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{p}assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -61,7 +61,7 @@ for pg in PAGES:
 </head>
 <body data-page="{pg['page']}" data-base="{p}"{pg['extra']}>
 {rel(skip, p)}
-{veil}
+{rel(veil, p)}
 {cursor}
 
 {hdr}

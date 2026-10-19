@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Exco, fertiliseurs d'entreprises</title>
+<title>Exco, expertise comptable, audit et conseil</title>
+<meta name="title-en" content="Exco, accounting, audit and advisory">
 <meta name="description" content="Exco, réseau de cabinets d'expertise comptable, d'audit et de conseil indépendants, en France et dans 14 autres pays. Maquette de refonte.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#EEE7D8">
+<meta name="theme-color" content="#F4F4F1">
 <link rel="icon" href="assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -17,12 +18,10 @@
 <a class="skip" href="#contenu"><span lang="fr">Aller au contenu</span><span lang="en">Skip to content</span></a>
 
 <div class="intro" aria-hidden="true" data-intro>
-  <canvas class="intro__roots" data-intro-roots></canvas>
-  <div class="intro__seed"></div>
-  <img class="intro__logo" src="assets/img/logos/exco-logo.svg" alt="" width="220" height="59">
+  <div class="intro__in"><img class="intro__logo" src="assets/img/logos/exco-logo.svg" alt="" width="220" height="59"><span class="intro__rule"><span></span><span></span></span></div>
 </div>
-<div class="veil" aria-hidden="true" data-veil><canvas data-veil-roots></canvas></div>
-<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__seed"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
+<div class="veil" aria-hidden="true" data-veil><img class="veil__logo" src="assets/img/logos/exco-logo-blanc.svg" alt="" width="160" height="43"></div>
+<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__dot"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
 
 <header class="hd" data-hd>
   <div class="hd__in">
@@ -37,14 +36,13 @@
     <div class="hd__tools">
       <button class="hd__lang" type="button" data-lang-toggle><span lang="fr" aria-label="Switch to English">EN</span><span lang="en" aria-label="Passer en français">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener"><span lang="fr">Accès client</span><span lang="en">Client access</span></a>
-      <a class="btn btn--seed btn--sm hd__cta" href="#cabinets" data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
+      <a class="btn btn--primary btn--sm hd__cta" href="#cabinets" data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr" lang="fr">Menu</span><span class="sr" lang="en">Menu</span></button>
     </div>
   </div>
 </header>
 
 <div class="menu" id="menu" data-menu hidden>
-  <canvas class="menu__roots" data-menu-roots></canvas>
   <nav class="menu__nav" aria-label="Menu">
     <a href="#reseau" data-menu-link><span lang="fr">Le réseau</span><span lang="en">Network</span></a>
     <a href="services/expertise-comptable.html" data-transition><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></a>
@@ -63,23 +61,14 @@
 
 <main id="contenu">
 
-<!-- ============ HERO ============ -->
+<!-- ============ OUVERTURE ============ -->
 <section class="hero" data-hero aria-labelledby="hero-title">
-  <div class="hero__media" aria-hidden="true">
-    <picture>
-      <source media="(max-aspect-ratio: 4/5)" srcset="assets/img/grok/accueil-hero-racines-9x16.webp">
-      <img class="hero__img" src="assets/img/grok/accueil-hero-racines-16x9.webp" alt="" width="1168" height="784" fetchpriority="high" data-hero-img>
-    </picture>
-    <canvas class="hero__gl" data-soil-gl></canvas>
-    <div class="hero__towns" data-hero-towns></div>
-    <div class="hero__scrim"></div>
-  </div>
-  <div class="hero__content wrap">
-    <h1 class="hero__title display" id="hero-title" data-germinate>
-      <span lang="fr">Rendre simple et naturel l'entrepreneuriat.</span>
-      <span lang="en">Making entrepreneurship simple and natural.</span>
-    </h1>
-    <div class="hero__aside">
+  <div class="wrap hero__grid">
+    <div class="hero__text">
+      <h1 class="hero__title display" id="hero-title" data-reveal>
+        <span lang="fr">Rendre simple et naturel l'entrepreneuriat.</span>
+        <span lang="en">Making entrepreneurship simple and natural.</span>
+      </h1>
       <p class="lead hero__lead">
         <span lang="fr">Exco réunit des cabinets d'expertise comptable, d'audit et de conseil indépendants, reliés en un même réseau, en France et dans 14 autres pays.</span>
         <span lang="en">Exco brings together independent accounting, audit and advisory firms, connected in one network, in France and 14 other countries.</span>
@@ -88,24 +77,28 @@
         <label class="search__label" for="hero-q"><span lang="fr">Trouver un cabinet près de chez vous</span><span lang="en">Find an office near you</span></label>
         <div class="search__row">
           <input class="search__input" id="hero-q" name="q" type="search" autocomplete="off" placeholder="Ville, code postal ou nom du cabinet" data-en-placeholder="Town, postcode or office name">
-          <button class="btn btn--seed" type="submit" data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></button>
+          <button class="btn btn--primary" type="submit" data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></button>
         </div>
         <p class="search__hint"><span lang="fr">Exemples : Albi, 64100, Papeete, Cotonou</span><span lang="en">For example: Albi, 64100, Papeete, Cotonou</span></p>
       </form>
     </div>
+    <figure class="hero__media">
+      <img class="hero__img" src="assets/img/site/reunion-vue-dessus-1600.webp" srcset="assets/img/site/reunion-vue-dessus-800.webp 800w, assets/img/site/reunion-vue-dessus-1600.webp 1600w, assets/img/site/reunion-vue-dessus-2400.webp 2400w" sizes="(max-width: 900px) 92vw, 48vw" alt="Un rendez-vous de travail autour d'une table, vu du dessus" data-en-alt="A working meeting around a table, seen from above" width="1600" height="1067" fetchpriority="high" data-hero-img>
+      <canvas class="hero__gl" data-hero-gl aria-hidden="true"></canvas>
+      <a class="hero__live" href="#cabinets" data-hero-live><span class="hero__live-dot" aria-hidden="true"></span><span data-live-open><span lang="fr">Horaires des 139 cabinets en direct</span><span lang="en">Live opening hours for 139 offices</span></span></a>
+    </figure>
   </div>
-  <a class="hero__down" href="#reseau"><span class="hero__down-line"></span><span lang="fr">Descendre dans le réseau</span><span lang="en">Explore the network</span></a>
 </section>
 
 <!-- ============ MANIFESTE ============ -->
 <section class="manifest band band--paper" id="reseau" aria-labelledby="manifest-title">
   <div class="wrap manifest__grid">
     <div class="manifest__text">
-      <h2 class="h2 manifest__title" id="manifest-title" data-germinate>
+      <h2 class="h2 manifest__title" id="manifest-title" data-reveal>
         <span lang="fr">Nous aimons nous définir comme une communauté de fertiliseurs d'entreprises.</span>
         <span lang="en">We like to call ourselves a community of business growers.</span>
       </h2>
-      <p class="manifest__words" data-sow>
+      <p class="manifest__words" data-words>
         <span lang="fr">Nous pensons qu'on ne fait pas un métier technique mais humain. Expert-comptable, auditeur, commissaire aux comptes, juriste, gestionnaire de paie, consultant : autant de métiers pour vous aider à faire croître et embellir votre entreprise.</span>
         <span lang="en">We believe our profession is human before it is technical. Chartered accountants, auditors, statutory auditors, lawyers, payroll specialists and consultants help your business grow and flourish.</span>
       </p>
@@ -114,10 +107,10 @@
         <p><strong><span lang="fr">Des cabinets indépendants</span><span lang="en">Independent firms</span></strong><span lang="fr">réunis par une ambition locale commune et le partage des savoir-faire.</span><span lang="en">united by a shared local ambition and shared know-how.</span></p>
         <p><strong><span lang="fr">Nos valeurs</span><span lang="en">Our values</span></strong><span lang="fr">Collectif, humanisme, confiance.</span><span lang="en">Teamwork, humanism, trust.</span></p>
       </div>
-      <a class="link-root" href="https://exco.fr/nous-connaitre/" target="_blank" rel="noopener"><span lang="fr">Nous connaître sur exco.fr</span><span lang="en">About us on exco.fr</span></a>
+      <a class="link-arrow" href="https://exco.fr/nous-connaitre/" target="_blank" rel="noopener"><span lang="fr">Nous connaître sur exco.fr</span><span lang="en">About us on exco.fr</span></a>
     </div>
-    <figure class="manifest__fig" data-arch>
-      <div class="manifest__arch">
+    <figure class="manifest__fig" data-frame>
+      <div class="manifest__frame">
         <img src="assets/img/rse/school-integration-groupe-1600.webp" srcset="assets/img/rse/school-integration-groupe-800.webp 800w, assets/img/rse/school-integration-groupe-1600.webp 1600w" sizes="(max-width: 800px) 92vw, 42vw" alt="Les nouveaux collaborateurs du réseau réunis lors de la School d'intégration Exco" data-en-alt="New network employees gathered at the Exco induction School" loading="lazy" decoding="async" data-parallax="0.12">
       </div>
       <figcaption><span lang="fr">La « School » d'intégration réunit chaque année à Paris les nouveaux collaborateurs du réseau.</span><span lang="en">Every year, the induction "School" brings the network's new employees together in Paris.</span></figcaption>
@@ -126,8 +119,7 @@
 </section>
 
 <!-- ============ CHIFFRES ============ -->
-<section class="figures band band--humus" aria-labelledby="figures-title">
-  <div class="figures__strata" aria-hidden="true"><div class="ph ph--fill" data-ph="strata" data-grok="accueil-chiffres-strates-21x9"></div></div>
+<section class="figures band band--night" aria-labelledby="figures-title">
   <div class="wrap">
     <h2 class="h3 figures__title" id="figures-title"><span lang="fr">Le réseau en quelques chiffres</span><span lang="en">The network in figures</span></h2>
     <div class="figures__grid" data-figures>
@@ -144,12 +136,12 @@
 <section class="cycle band band--paper" aria-labelledby="cycle-title" data-cycle>
   <div class="cycle__pin">
     <div class="wrap cycle__head">
-      <h2 class="h2" id="cycle-title" data-germinate><span lang="fr">À chaque étape du cycle de vie de votre entreprise</span><span lang="en">At every stage of your company's life</span></h2>
+      <h2 class="h2" id="cycle-title" data-reveal><span lang="fr">À chaque étape du cycle de vie de votre entreprise</span><span lang="en">At every stage of your company's life</span></h2>
       <div class="cycle__progress" aria-hidden="true"><span data-cycle-bar></span></div>
     </div>
     <div class="cycle__track" data-cycle-track>
       <article class="stage" aria-labelledby="st1">
-        <div class="stage__media"><img src="assets/img/grok/cycle-01-creer-4x5.webp" alt="Une graine qui s'ouvre dans la terre, sa première racine sortie" data-en-alt="A seed opening in the soil, its first root emerging" loading="lazy" width="784" height="1168" data-parallax="0.06"></div>
+        <div class="stage__media"><img src="assets/img/site/rendez-vous-conseil-1000.webp" alt="Une dirigeante en rendez-vous avec son conseil" data-en-alt="A business owner meeting her adviser" loading="lazy" width="1000" height="667" style="object-position:62% 50%" data-parallax="0.06"></div>
         <div class="stage__body">
           <p class="stage__n">1</p>
           <h3 class="h3" id="st1"><span lang="fr">Créer</span><span lang="en">Start</span></h3>
@@ -162,7 +154,7 @@
         </div>
       </article>
       <article class="stage" aria-labelledby="st2">
-        <div class="stage__media"><img src="assets/img/grok/cycle-02-developper-4x5.webp" alt="Une jeune pousse et ses deux premières feuilles" data-en-alt="A seedling with its first two leaves" loading="lazy" width="784" height="1168" data-parallax="0.06"></div>
+        <div class="stage__media"><img src="assets/img/site/equipe-ordinateur-800.webp" srcset="assets/img/site/equipe-ordinateur-800.webp 800w, assets/img/site/equipe-ordinateur-1500.webp 1500w" sizes="(max-width: 900px) 86vw, 380px" alt="Une jeune équipe réunie autour d'un ordinateur" data-en-alt="A young team gathered around a laptop" loading="lazy" width="1500" height="1001" style="object-position:40% 50%" data-parallax="0.06"></div>
         <div class="stage__body">
           <p class="stage__n">2</p>
           <h3 class="h3" id="st2"><span lang="fr">Développer</span><span lang="en">Grow</span></h3>
@@ -179,7 +171,7 @@
         </div>
       </article>
       <article class="stage" aria-labelledby="st3">
-        <div class="stage__media"><img src="assets/img/grok/cycle-03-transformer-4x5.webp" alt="Une branche greffée où pousse un jeune rameau" data-en-alt="A grafted branch with a new shoot" loading="lazy" width="784" height="1168" data-parallax="0.06"></div>
+        <div class="stage__media"><img src="assets/img/site/bureau-orange-vue-dessus-800.webp" srcset="assets/img/site/bureau-orange-vue-dessus-800.webp 800w, assets/img/site/bureau-orange-vue-dessus-1600.webp 1600w" sizes="(max-width: 900px) 86vw, 380px" alt="Une séance de travail en équipe, vue du dessus" data-en-alt="A team working session, seen from above" loading="lazy" width="1600" height="1126" style="object-position:28% 50%" data-parallax="0.06"></div>
         <div class="stage__body">
           <p class="stage__n">3</p>
           <h3 class="h3" id="st3"><span lang="fr">Transformer</span><span lang="en">Transform</span></h3>
@@ -192,7 +184,7 @@
         </div>
       </article>
       <article class="stage" aria-labelledby="st4">
-        <div class="stage__media"><img src="assets/img/grok/cycle-04-transmettre-4x5.webp" alt="Un chêne au soleil couchant, de jeunes arbres poussent à son pied" data-en-alt="An oak at sunset with young trees growing at its foot" loading="lazy" width="784" height="1168" data-parallax="0.06"></div>
+        <div class="stage__media"><img src="assets/img/actus/cessions-titres-800.webp" alt="Un dirigeant en rendez-vous avec son conseil" data-en-alt="A business owner meeting his adviser" loading="lazy" width="800" height="883" style="object-position:40% 50%" data-parallax="0.06"></div>
         <div class="stage__body">
           <p class="stage__n">4</p>
           <h3 class="h3" id="st4"><span lang="fr">Transmettre</span><span lang="en">Hand over</span></h3>
@@ -208,41 +200,47 @@
         </div>
       </article>
     </div>
-    <svg class="cycle__plant" viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true"><path class="cycle__stem" data-cycle-stem d="M0,80 C200,60 320,96 520,78 C720,60 860,98 1060,76 C1260,56 1400,92 1600,70"/></svg>
   </div>
 </section>
 
-<!-- ============ SERVICES / HERBIER ============ -->
-<section class="herbier band band--paper2" id="services" aria-labelledby="services-title">
-  <div class="herbier__bg" aria-hidden="true"><div class="ph ph--fill ph--soft" data-ph="herbier" data-grok="services-herbier-16x9"></div></div>
+<!-- ============ SERVICES ============ -->
+<section class="services band band--paper2" id="services" aria-labelledby="services-title" data-services>
   <div class="wrap">
-    <div class="sec-head">
-      <h2 class="h2" id="services-title" data-germinate><span lang="fr">Expertise comptable, audit, conseil, juridique et social : un herbier de savoir-faire</span><span lang="en">Accounting, audit, advisory, legal and HR: a herbarium of expertise</span></h2>
-      <p class="lead"><span lang="fr">Treize services, rassemblés dans chaque cabinet ou mutualisés par le réseau.</span><span lang="en">Thirteen services, offered in each office or shared across the network.</span></p>
+    <div class="sec-head sec-head--row">
+      <h2 class="h2" id="services-title" data-reveal><span lang="fr">Expertise comptable, audit, conseil, juridique et social</span><span lang="en">Accounting, audit, advisory, legal and HR</span></h2>
+      <p class="lead"><span lang="fr">Treize services, assurés dans chaque cabinet ou mutualisés par le réseau.</span><span lang="en">Thirteen services, offered in each office or shared across the network.</span></p>
     </div>
-    <ul class="specimens" data-specimens>
-      <li class="spec"><a href="services/expertise-comptable.html" data-transition data-tilt><svg class="spec__plant" data-plant="1" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></span><span class="spec__desc"><span lang="fr">Déléguez vos obligations réglementaires, identifiez les risques, optimisez vos options comptables et fiscales.</span><span lang="en">Delegate regulatory obligations, identify risks, optimise accounting and tax options.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/audit/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="2" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name">Audit</span><span class="spec__desc"><span lang="fr">Commissariat aux comptes ou audit contractuel, pour une information financière fiable, transparente et certifiée.</span><span lang="en">Statutory or contractual audits, for reliable, transparent and certified financial information.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/social-et-ressources-humaines/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="3" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Gestion sociale, paie et RH</span><span lang="en">Payroll and HR</span></span><span class="spec__desc"><span lang="fr">Gestion de la paie, conseil en droit du travail et droit social, audit social, management du personnel.</span><span lang="en">Payroll, employment law advice, HR audits, people management.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/juridique-fiscal/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="4" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Juridique et fiscal</span><span lang="en">Legal and tax</span></span><span class="spec__desc"><span lang="fr">Conseil, optimisation, conformité et sécurisation de vos décisions d'entreprise.</span><span lang="en">Advice, optimisation, compliance and securing your business decisions.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/rse-durabilite/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="5" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></span><span class="spec__desc"><span lang="fr">Aller au-delà des chiffres financiers en prenant en compte l'impact de l'activité sur la société et l'environnement.</span><span lang="en">Look beyond financial figures to your impact on society and the environment.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/verification-organisme-tiers-independant-oti/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="6" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Vérification OTI</span><span lang="en">Independent third-party verification</span></span><span class="spec__desc"><span lang="fr">Vérification des reportings durabilité et ESG, et de la qualité de société à mission.</span><span lang="en">Verification of sustainability and ESG reports and of mission-driven company status.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/evaluation-dentreprises/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="7" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Évaluation d'entreprise</span><span lang="en">Business valuation</span></span><span class="spec__desc"><span lang="fr">Une expérience des opérations de rapprochement et d'acquisition pour résoudre les situations complexes.</span><span lang="en">Experience in mergers and acquisitions to resolve complex situations.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/conseil/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="8" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Conseil</span><span lang="en">Advisory</span></span><span class="spec__desc"><span lang="fr">Des solutions de conseil et d'accompagnement sur mesure et collaboratives pour réussir vos projets.</span><span lang="en">Tailored, collaborative advice and support for your projects.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/forensics/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="9" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name">Forensics</span><span class="spec__desc"><span lang="fr">À la demande des entreprises et de leurs avocats, avant contentieux et lors de litiges économiques et financiers.</span><span lang="en">For companies and their lawyers, before and during economic and financial disputes.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/developpement-international/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="10" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name">International</span><span class="spec__desc"><span lang="fr">Où que vous alliez, Exco vous accompagne, avec le réseau Kreston Global.</span><span lang="en">Wherever you go, Exco goes with you, alongside the Kreston Global network.</span></span></span></a></li>
-      <li class="spec"><a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="11" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Gestion de patrimoine</span><span lang="en">Wealth management</span></span><span class="spec__desc"><span lang="fr">Exco Gestion Privée accompagne les dirigeants dans leurs projets patrimoniaux.</span><span lang="en">Exco Gestion Privée supports business owners with their personal asset plans.</span></span></span></a></li>
-      <li class="spec"><a href="https://finance.exco.fr/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="12" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name"><span lang="fr">Finance et transactions</span><span lang="en">Corporate finance</span></span><span class="spec__desc"><span lang="fr">Des fusions et acquisitions rendues simples et accessibles, avec un haut niveau de compétences sur les territoires.</span><span lang="en">Mergers and acquisitions made simple and accessible, with strong local expertise.</span></span></span></a></li>
-      <li class="spec"><a href="https://exco.fr/nos-services/exco-consulting/" target="_blank" rel="noopener" data-tilt><svg class="spec__plant" data-plant="13" aria-hidden="true"></svg><span class="spec__tag"><span class="spec__name">Exco Consulting</span><span class="spec__desc"><span lang="fr">Un écosystème de consultants entrepreneurs : finance, digital, supply chain, systèmes d'information, développement commercial.</span><span lang="en">A network of entrepreneurial consultants: finance, digital, supply chain, IT systems, business development.</span></span></span></a></li>
-    </ul>
+    <div class="services__grid">
+      <a class="svc-feature" href="services/expertise-comptable.html" data-transition>
+        <svg class="ico ico--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z M15 3v4h4 M9 11h7 M9 14.5h7 M9 18h4"/></svg>
+        <span class="svc-feature__name"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></span>
+        <span class="svc-feature__sub"><span lang="fr">Comptabilité et fiscalité, gestion, consolidation des comptes</span><span lang="en">Bookkeeping and tax, management, consolidated accounts</span></span>
+        <span class="svc-feature__desc"><span lang="fr">Déléguez vos obligations réglementaires, identifiez les risques, optimisez vos options comptables et fiscales.</span><span lang="en">Delegate regulatory obligations, identify risks, optimise accounting and tax options.</span></span>
+        <span class="svc-feature__cta"><span class="btn__dot"></span><span lang="fr">Découvrir le service</span><span lang="en">Explore the service</span></span>
+      </a>
+      <ul class="svc-index">
+        <li><a href="https://exco.fr/nos-services/audit/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.5h6v3H9z M7.5 5H5v16h14V5h-2.5 M8.5 13.5l2.5 2.5 4.5-5"/></svg><span class="svc-index__name">Audit</span><span class="svc-index__desc"><span lang="fr">Commissariat aux comptes ou audit contractuel, pour une information financière fiable, transparente et certifiée.</span><span lang="en">Statutory or contractual audits, for reliable, transparent and certified financial information.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/social-et-ressources-humaines/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z M3 20c.4-3.4 2.9-5.8 6-5.8s5.6 2.4 6 5.8 M16 4.9a3.2 3.2 0 0 1 0 6 M17.6 14.5c1.9.7 3.1 2.8 3.4 5.5"/></svg><span class="svc-index__name"><span lang="fr">Gestion sociale, paie et RH</span><span lang="en">Payroll and HR</span></span><span class="svc-index__desc"><span lang="fr">Gestion de la paie, conseil en droit du travail et droit social, audit social, management du personnel.</span><span lang="en">Payroll, employment law advice, HR audits, people management.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/juridique-fiscal/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16 M8 20h8 M4.5 7.5h15 M12 4.6a1 1 0 1 0 .01 0 M4.5 7.5L2 14a2.5 2.5 0 0 0 5 0z M19.5 7.5L17 14a2.5 2.5 0 0 0 5 0z"/></svg><span class="svc-index__name"><span lang="fr">Juridique et fiscal</span><span lang="en">Legal and tax</span></span><span class="svc-index__desc"><span lang="fr">Conseil, optimisation, conformité et sécurisation de vos décisions d'entreprise.</span><span lang="en">Advice, optimisation, compliance and securing your business decisions.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/conseil/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4.5h12v8.5H8.5l-5 3.5z M15.5 9h5v8.5h-2v3l-4-3h-5.5V15"/></svg><span class="svc-index__name"><span lang="fr">Conseil</span><span lang="en">Advisory</span></span><span class="svc-index__desc"><span lang="fr">Des solutions de conseil et d'accompagnement sur mesure et collaboratives pour réussir vos projets.</span><span lang="en">Tailored, collaborative advice and support for your projects.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/evaluation-dentreprises/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16 M7 20v-5 M11 20v-8 M15 20v-6 M19 20V8 M4.5 10.5l5-4 4 2.5 6-5"/></svg><span class="svc-index__name"><span lang="fr">Évaluation d'entreprise</span><span lang="en">Business valuation</span></span><span class="svc-index__desc"><span lang="fr">Une expérience des opérations de rapprochement et d'acquisition pour résoudre les situations complexes.</span><span lang="en">Experience in mergers and acquisitions to resolve complex situations.</span></span></a></li>
+        <li><a href="https://finance.exco.fr/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15 M15 4l4 4-4 4 M20 16H5 M9 12l-4 4 4 4"/></svg><span class="svc-index__name"><span lang="fr">Finance et transactions</span><span lang="en">Corporate finance</span></span><span class="svc-index__desc"><span lang="fr">Des fusions et acquisitions rendues simples et accessibles, avec un haut niveau de compétences sur les territoires.</span><span lang="en">Mergers and acquisitions made simple and accessible, with strong local expertise.</span></span></a></li>
+        <li><a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5c4.1 0 7.5-1.2 7.5-2.8S16.1 3 12 3 4.5 4.1 4.5 5.7 7.9 8.5 12 8.5z M4.5 5.7v4.4c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8V5.7 M4.5 10.1v4.4c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8v-4.4 M4.5 14.5v4c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8v-4"/></svg><span class="svc-index__name"><span lang="fr">Gestion de patrimoine</span><span lang="en">Wealth management</span></span><span class="svc-index__desc"><span lang="fr">Exco Gestion Privée accompagne les dirigeants dans leurs projets patrimoniaux.</span><span lang="en">Exco Gestion Privée supports business owners with their personal asset plans.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/developpement-international/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3z"/></svg><span class="svc-index__name">International</span><span class="svc-index__desc"><span lang="fr">Où que vous alliez, Exco vous accompagne, avec le réseau Kreston Global.</span><span lang="en">Wherever you go, Exco goes with you, alongside the Kreston Global network.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/rse-durabilite/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17.5a8.5 8.5 0 0 1 17 0 M12 17.5l4-5.2 M7 17.5h10 M12 9V7.5 M6.2 11.3l-1-1 M17.8 11.3l1-1"/></svg><span class="svc-index__name"><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></span><span class="svc-index__desc"><span lang="fr">Aller au-delà des chiffres financiers en prenant en compte l'impact de l'activité sur la société et l'environnement.</span><span lang="en">Look beyond financial figures to your impact on society and the environment.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/verification-organisme-tiers-independant-oti/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a5.8 5.8 0 1 0 0-11.6 5.8 5.8 0 0 0 0 11.6z M9.4 9.3l1.8 1.8 3.4-3.4 M8.6 14l-1.6 7 5-2.6 5 2.6-1.6-7"/></svg><span class="svc-index__name"><span lang="fr">Vérification OTI</span><span lang="en">Independent third-party verification</span></span><span class="svc-index__desc"><span lang="fr">Vérification des reportings durabilité et ESG, et de la qualité de société à mission.</span><span lang="en">Verification of sustainability and ESG reports and of mission-driven company status.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/forensics/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 16.5a6 6 0 1 0 0-12 6 6 0 0 0 0 12z M15 15l5.5 5.5 M8 10.5h5 M10.5 8v5"/></svg><span class="svc-index__name">Forensics</span><span class="svc-index__desc"><span lang="fr">À la demande des entreprises et de leurs avocats, avant contentieux et lors de litiges économiques et financiers.</span><span lang="en">For companies and their lawyers, before and during economic and financial disputes.</span></span></a></li>
+        <li><a href="https://exco.fr/nos-services/exco-consulting/" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18 8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M12 20.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M8.5 6h7 M7.3 8.2l3.5 7.4 M16.7 8.2l-3.5 7.4"/></svg><span class="svc-index__name">Exco Consulting</span><span class="svc-index__desc"><span lang="fr">Un écosystème de consultants entrepreneurs : finance, digital, supply chain, systèmes d'information, développement commercial.</span><span lang="en">A network of entrepreneurial consultants: finance, digital, supply chain, IT systems, business development.</span></span></a></li>
+      </ul>
+    </div>
   </div>
 </section>
 
 <!-- ============ TROUVER MON CABINET ============ -->
-<section class="finder band band--humus" id="cabinets" aria-labelledby="finder-title" data-finder>
+<section class="finder band band--night" id="cabinets" aria-labelledby="finder-title" data-finder>
   <div class="wrap">
     <div class="sec-head sec-head--row">
-      <h2 class="h2" id="finder-title" data-germinate><span lang="fr">Trouvez votre cabinet</span><span lang="en">Find your office</span></h2>
+      <h2 class="h2" id="finder-title" data-reveal><span lang="fr">Trouvez votre cabinet</span><span lang="en">Find your office</span></h2>
       <p class="lead"><span lang="fr">139 cabinets dans l'annuaire, reliés à leur groupe et au réseau. Horaires affichés à l'heure locale de chaque cabinet.</span><span lang="en">139 offices in the directory, linked to their group and to the network. Opening hours shown in each office's local time.</span></p>
     </div>
     <div class="finder__ui">
@@ -270,7 +268,7 @@
         <svg class="map" data-map role="img" aria-label="Carte des cabinets Exco" data-en-aria-label="Map of Exco offices"></svg>
         <div class="map__insets" data-map-insets hidden></div>
         <div class="map__card" data-map-card hidden></div>
-        <p class="map__legend"><span class="map__k map__k--root"></span><span lang="fr">Racines : chaque cabinet relié au siège de son groupe, et les groupes au siège d'Exco à Paris.</span><span lang="en">Roots: each office is linked to its group's head office, and each group to Exco's Paris head office.</span></p>
+        <p class="map__legend"><span class="map__k"></span><span lang="fr">Chaque cabinet est relié au siège de son groupe, et chaque groupe au siège d'Exco à Paris.</span><span lang="en">Each office is linked to its group's head office, and each group to Exco's Paris head office.</span></p>
       </div>
     </div>
     <noscript><p><a href="https://exco.fr/trouvez-votre-cabinet/">Liste des cabinets par ville sur exco.fr</a></p></noscript>
@@ -280,7 +278,7 @@
 <!-- ============ SECTEURS ============ -->
 <section class="sectors band band--paper" id="secteurs" aria-labelledby="sectors-title" data-sectors>
     <div class="wrap sec-head sec-head--row">
-      <h2 class="h2" id="sectors-title" data-germinate><span lang="fr">Une connaissance fine de votre secteur</span><span lang="en">A close understanding of your sector</span></h2>
+      <h2 class="h2" id="sectors-title" data-reveal><span lang="fr">Une connaissance fine de votre secteur</span><span lang="en">A close understanding of your sector</span></h2>
       <p class="lead"><span lang="fr">Les experts de tous les cabinets se retrouvent en commissions sectorielles pour partager leurs pratiques.</span><span lang="en">Experts from every office meet in sector committees to share their practice.</span></p>
     </div>
     <div class="sectors__track" data-sectors-track>
@@ -306,7 +304,7 @@
 <section class="gov band band--paper2" aria-labelledby="gov-title" data-gov>
   <div class="wrap gov__grid">
     <div class="gov__text">
-      <h2 class="h2" id="gov-title" data-germinate><span lang="fr">Un homme, une voix</span><span lang="en">One partner, one vote</span></h2>
+      <h2 class="h2" id="gov-title" data-reveal><span lang="fr">Un homme, une voix</span><span lang="en">One partner, one vote</span></h2>
       <p class="lead"><span lang="fr">La stratégie du réseau est définie par un Comité directeur de 21 associés représentant les cabinets membres. Chacun y dispose d'une voix. Un Bureau exécutif élu la met en œuvre.</span><span lang="en">The network's strategy is set by a Steering Committee of 21 partners representing the member firms, each with one vote. An elected Executive Board carries it out.</span></p>
       <button class="btn btn--ghost btn--sm" type="button" data-gov-wave><span lang="fr">Faire passer la parole</span><span lang="en">Pass the word around</span></button>
       <p class="gov__legend"><span class="gov__k"></span><span lang="fr">Membres du Bureau exécutif</span><span lang="en">Executive Board members</span></p>
@@ -373,14 +371,14 @@
 </section>
 
 <!-- ============ KRESTON ============ -->
-<section class="kreston band band--humus" aria-labelledby="kreston-title">
+<section class="kreston band band--night" aria-labelledby="kreston-title">
   <div class="wrap kreston__grid">
     <div class="kreston__globe"><canvas data-globe aria-hidden="true"></canvas></div>
     <div class="kreston__text">
       <img class="kreston__logo" src="assets/img/logos/kreston-global-500.webp" alt="Kreston Global" width="250" height="132" loading="lazy">
-      <h2 class="h2" id="kreston-title" data-germinate><span lang="fr">Membre de Kreston Global depuis 2008</span><span lang="en">A member of Kreston Global since 2008</span></h2>
+      <h2 class="h2" id="kreston-title" data-reveal><span lang="fr">Membre de Kreston Global depuis 2008</span><span lang="en">A member of Kreston Global since 2008</span></h2>
       <p class="lead"><span lang="fr">Kreston Global est un réseau mondial de cabinets comptables, d'audit et de conseil, chacun indépendant, présent dans plus de 115 pays. Vos projets internationaux trouvent un relais sur place.</span><span lang="en">Kreston Global is a worldwide network of independent accounting, audit and advisory firms in more than 115 countries. Your international projects find local support.</span></p>
-      <a class="link-root" href="https://www.kreston.com/" target="_blank" rel="noopener">kreston.com</a>
+      <a class="link-arrow" href="https://www.kreston.com/" target="_blank" rel="noopener">kreston.com</a>
     </div>
   </div>
 </section>
@@ -388,32 +386,29 @@
 <!-- ============ RSE ============ -->
 <section class="rse band band--paper" aria-labelledby="rse-title" data-rse>
   <div class="wrap">
-    <div class="sec-head">
-      <h2 class="h2" id="rse-title" data-germinate><span lang="fr">Nos engagements RSE, au plus près de nos territoires</span><span lang="en">Our CSR commitments, close to our communities</span></h2>
+    <div class="sec-head sec-head--row">
+      <h2 class="h2" id="rse-title" data-reveal><span lang="fr">Nos engagements RSE, au plus près de nos territoires</span><span lang="en">Our CSR commitments, close to our communities</span></h2>
       <p class="lead"><span lang="fr">Environnement, social, économie locale, éthique et transparence : des actions menées au niveau national et dans chaque cabinet.</span><span lang="en">Environment, people, local economy, ethics and transparency: actions led nationally and in every office.</span></p>
     </div>
-    <div class="rse__body">
-      <svg class="rse__stem" viewBox="0 0 120 1000" preserveAspectRatio="none" aria-hidden="true"><path data-rse-stem d="M60,0 C30,120 90,200 60,320 C30,440 92,520 60,640 C30,760 90,860 60,1000"/></svg>
-      <ul class="leaves">
-        <li class="leaf"><h3 class="h4"><span lang="fr">Mois Exco Responsable</span><span lang="en">Exco Responsible Month</span></h3><p><span lang="fr">Chaque année, un mois de sensibilisation pour tout le réseau : un défi environnemental pour réduire l'empreinte carbone et une action de solidarité.</span><span lang="en">Every year, a month-long awareness event across the network: an environmental challenge to cut our carbon footprint and a solidarity drive.</span></p></li>
-        <li class="leaf leaf--img"><img src="assets/img/rse/seminaire-plein-air-800.webp" srcset="assets/img/rse/seminaire-plein-air-800.webp 800w, assets/img/rse/seminaire-plein-air-1600.webp 1600w" sizes="(max-width:800px) 90vw, 36vw" alt="Collaborateurs Exco réunis en plein air" data-en-alt="Exco employees gathered outdoors" loading="lazy" data-parallax="0.08"></li>
-        <li class="leaf"><h3 class="h4"><span lang="fr">Convention des entreprises pour le climat</span><span lang="en">Business Climate Convention</span></h3><p><span lang="fr">Exco a suivi le parcours « Monde financier » de la session 2023-2024 pour co-construire un modèle économique respectueux du vivant.</span><span lang="en">Exco took part in the 2023-2024 "Financial world" programme to help design an economic model that respects living systems.</span></p></li>
-        <li class="leaf"><h3 class="h4">Exco United</h3><p><span lang="fr">Depuis plus de sept ans, un challenge de marche connectée contre la sédentarité.</span><span lang="en">For over seven years, a connected walking challenge to fight a sedentary lifestyle.</span></p></li>
-        <li class="leaf leaf--img"><img src="assets/img/rse/evenement-sportif-equipes-800.webp" srcset="assets/img/rse/evenement-sportif-equipes-800.webp 800w, assets/img/rse/evenement-sportif-equipes-1600.webp 1600w" sizes="(max-width:800px) 90vw, 36vw" alt="Équipes Exco lors d'un événement sportif" data-en-alt="Exco teams at a sports event" loading="lazy" data-parallax="0.08"></li>
-        <li class="leaf"><h3 class="h4"><span lang="fr">Exco a du cœur</span><span lang="en">Exco has heart</span></h3><p><span lang="fr">Chaque mois de décembre, des collectes solidaires pour les Restos du Cœur, le Secours Populaire, les banques alimentaires et d'autres associations.</span><span lang="en">Every December, collections for food banks and charities such as Restos du Cœur and Secours Populaire.</span></p></li>
-        <li class="leaf leaf--img"><img src="assets/img/rse/collecte-jouets-noel-800.webp" alt="Collecte de jouets au pied d'un sapin dans un cabinet Exco" data-en-alt="Toy collection under a Christmas tree in an Exco office" loading="lazy" data-parallax="0.08"></li>
-        <li class="leaf"><h3 class="h4"><span lang="fr">Inclusion et égalité</span><span lang="en">Inclusion and equality</span></h3><p><span lang="fr">Participation au Duo Day, publication de l'index d'égalité femmes-hommes, parcours d'intégration et de parrainage des nouveaux arrivants.</span><span lang="en">Duo Day participation, published gender equality index, onboarding and mentoring for newcomers.</span></p></li>
+    <div class="rse__grid">
+      <ul class="rse__list">
+        <li><p class="rse__tag"><span lang="fr">Environnement et solidarité</span><span lang="en">Environment and solidarity</span></p><h3 class="h4"><span lang="fr">Mois Exco Responsable</span><span lang="en">Exco Responsible Month</span></h3><p><span lang="fr">Chaque année, un mois de sensibilisation pour tout le réseau : un défi environnemental pour réduire l'empreinte carbone et une action de solidarité.</span><span lang="en">Every year, a month-long awareness event across the network: an environmental challenge to cut our carbon footprint and a solidarity drive.</span></p></li>
+        <li><p class="rse__tag"><span lang="fr">Environnement</span><span lang="en">Environment</span></p><h3 class="h4"><span lang="fr">Convention des entreprises pour le climat</span><span lang="en">Business Climate Convention</span></h3><p><span lang="fr">Exco a suivi le parcours « Monde financier » de la session 2023-2024 pour co-construire un modèle économique respectueux du vivant.</span><span lang="en">Exco took part in the 2023-2024 "Financial world" programme to help design an economic model that respects living systems.</span></p></li>
+        <li><p class="rse__tag"><span lang="fr">Santé au travail</span><span lang="en">Health at work</span></p><h3 class="h4">Exco United</h3><p><span lang="fr">Depuis plus de sept ans, un challenge de marche connectée contre la sédentarité.</span><span lang="en">For over seven years, a connected walking challenge to fight a sedentary lifestyle.</span></p></li>
+        <li><p class="rse__tag"><span lang="fr">Solidarité</span><span lang="en">Solidarity</span></p><h3 class="h4"><span lang="fr">Exco a du cœur</span><span lang="en">Exco has heart</span></h3><p><span lang="fr">Chaque mois de décembre, des collectes solidaires pour les Restos du Cœur, le Secours Populaire, les banques alimentaires et d'autres associations.</span><span lang="en">Every December, collections for food banks and charities such as Restos du Cœur and Secours Populaire.</span></p></li>
+        <li><p class="rse__tag"><span lang="fr">Inclusion</span><span lang="en">Inclusion</span></p><h3 class="h4"><span lang="fr">Inclusion et égalité</span><span lang="en">Inclusion and equality</span></h3><p><span lang="fr">Participation au Duo Day, publication de l'index d'égalité femmes-hommes, parcours d'intégration et de parrainage des nouveaux arrivants.</span><span lang="en">Duo Day participation, published gender equality index, onboarding and mentoring for newcomers.</span></p></li>
       </ul>
+      <figure class="rse__photo"><img src="assets/img/rse/evenement-sportif-equipes-800.webp" srcset="assets/img/rse/evenement-sportif-equipes-800.webp 800w, assets/img/rse/evenement-sportif-equipes-1600.webp 1600w" sizes="(max-width:900px) 92vw, 40vw" alt="Équipes Exco lors d'un événement sportif" data-en-alt="Exco teams at a sports event" loading="lazy" width="1600" height="1200"></figure>
     </div>
-    <p class="rse__more"><a class="link-root" href="https://exco.fr/wp-content/uploads/2024/06/Charte-Exco-RSE_VF-11102023.pdf" target="_blank" rel="noopener"><span lang="fr">Lire la charte RSE (PDF)</span><span lang="en">Read the CSR charter (PDF, in French)</span></a></p>
+    <p class="rse__more"><a class="link-arrow" href="https://exco.fr/wp-content/uploads/2024/06/Charte-Exco-RSE_VF-11102023.pdf" target="_blank" rel="noopener"><span lang="fr">Lire la charte RSE (PDF)</span><span lang="en">Read the CSR charter (PDF, in French)</span></a></p>
   </div>
 </section>
 
 <!-- ============ CARRIERES ============ -->
-<section class="careers band band--humus" id="carrieres" aria-labelledby="careers-title">
+<section class="careers band band--night" id="carrieres" aria-labelledby="careers-title">
   <div class="wrap careers__grid">
     <div class="careers__text">
-      <h2 class="h2" id="careers-title" data-germinate><span lang="fr">Cultiver les talents</span><span lang="en">Growing talent</span></h2>
+      <h2 class="h2" id="careers-title" data-reveal><span lang="fr">Construire sa carrière dans un réseau</span><span lang="en">Build your career in a network</span></h2>
       <p class="lead"><span lang="fr">Des cabinets à taille humaine, une communauté de métiers connectée et la liberté d'évoluer en France, en outre-mer, en Afrique ou en Pologne.</span><span lang="en">Human-sized offices, a connected community of professions and the freedom to move across France, its overseas territories, Africa or Poland.</span></p>
       <div class="careers__figs" data-figures>
         <div class="fig fig--sm"><p class="fig__n" data-count="400">400</p><p class="fig__l"><span lang="fr">recrutements en CDI par an</span><span lang="en">permanent hires a year</span></p></div>
@@ -428,7 +423,7 @@
         <li><a href="https://exco.fr/carrieres/le-metier-de-juriste/" target="_blank" rel="noopener"><span lang="fr">Juriste</span><span lang="en">Lawyer</span></a></li>
         <li><a href="https://exco.fr/carrieres/le-metier-de-consultant-comptable-et-financier/" target="_blank" rel="noopener"><span lang="fr">Consultant</span><span lang="en">Consultant</span></a></li>
       </ul>
-      <a class="btn btn--seed" href="https://exco.flatchr.io/fr/company/exco/" target="_blank" rel="noopener" data-magnetic><span class="btn__dot"></span><span lang="fr">Voir les offres d'emploi</span><span lang="en">See job openings</span></a>
+      <a class="btn btn--primary" href="https://exco.flatchr.io/fr/company/exco/" target="_blank" rel="noopener" data-magnetic><span class="btn__dot"></span><span lang="fr">Voir les offres d'emploi</span><span lang="en">See job openings</span></a>
     </div>
     <div class="careers__mosaic">
       <figure class="careers__a"><img src="assets/img/convention/photo-groupe-aerienne-1600.webp" srcset="assets/img/convention/photo-groupe-aerienne-800.webp 800w, assets/img/convention/photo-groupe-aerienne-1600.webp 1600w" sizes="(max-width:800px) 92vw, 46vw" alt="Les collaborateurs du réseau réunis à la Convention Exco 2026 à Strasbourg" data-en-alt="Network employees gathered at the 2026 Exco Convention in Strasbourg" loading="lazy" data-parallax="0.1"><figcaption><span lang="fr">Convention Exco 2026, Strasbourg</span><span lang="en">Exco Convention 2026, Strasbourg</span></figcaption></figure>
@@ -442,8 +437,8 @@
 <section class="news band band--paper" id="actus" aria-labelledby="news-title" data-news>
   <div class="wrap">
     <div class="sec-head sec-head--row">
-      <h2 class="h2" id="news-title" data-germinate><span lang="fr">Actualités et événements du réseau</span><span lang="en">Network news and events</span></h2>
-      <a class="link-root" href="https://exco.fr/les-articles-rediges-par-nos-experts/" target="_blank" rel="noopener"><span lang="fr">Toutes les actualités</span><span lang="en">All news (in French)</span></a>
+      <h2 class="h2" id="news-title" data-reveal><span lang="fr">Actualités et événements du réseau</span><span lang="en">Network news and events</span></h2>
+      <a class="link-arrow" href="https://exco.fr/les-articles-rediges-par-nos-experts/" target="_blank" rel="noopener"><span lang="fr">Toutes les actualités</span><span lang="en">All news (in French)</span></a>
     </div>
     <div class="news__grid">
       <div class="events" data-events>
@@ -459,9 +454,17 @@
 <section class="rdv band band--paper2" id="rendez-vous" aria-labelledby="rdv-title" data-rdv>
   <div class="wrap rdv__grid">
     <div class="rdv__side">
-      <h2 class="h2" id="rdv-title" data-germinate><span lang="fr">Parlons de votre projet</span><span lang="en">Let's talk about your project</span></h2>
+      <h2 class="h2" id="rdv-title" data-reveal><span lang="fr">Parlons de votre projet</span><span lang="en">Let's talk about your project</span></h2>
       <p class="lead"><span lang="fr">Quatre questions, et le cabinet le plus proche vous recontacte pour un rendez-vous personnalisé.</span><span lang="en">Four questions, then the nearest office gets back to you to arrange a personal meeting.</span></p>
-      <div class="rdv__visual"><img src="assets/img/grok/rdv-salle-reunion-4x5.webp" alt="Une salle de réunion lumineuse, prête pour un premier rendez-vous" data-en-alt="A bright meeting room ready for a first meeting" loading="lazy" width="784" height="1168"><svg class="rdv__plant" viewBox="0 0 200 260" aria-hidden="true" data-rdv-plant></svg></div>
+      <aside class="recap" data-recap aria-label="Récapitulatif de votre demande" data-en-aria-label="Summary of your request">
+        <p class="recap__top"><strong><span lang="fr">Votre demande</span><span lang="en">Your request</span></strong><span class="recap__count" data-r-count>0 / 4</span></p>
+        <dl class="recap__list">
+          <div><dt><span lang="fr">Profil</span><span lang="en">Profile</span></dt><dd data-r="profil">—</dd></div>
+          <div><dt><span lang="fr">Besoins</span><span lang="en">Needs</span></dt><dd data-r="besoin">—</dd></div>
+          <div><dt><span lang="fr">Lieu</span><span lang="en">Location</span></dt><dd data-r="ville">—</dd></div>
+          <div><dt><span lang="fr">Cabinet proposé</span><span lang="en">Suggested office</span></dt><dd data-r="cabinet">—</dd></div>
+        </dl>
+      </aside>
       <p class="rdv__direct"><span lang="fr">Ou appelez Exco France :</span><span lang="en">Or call Exco France:</span> <span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span></p>
     </div>
     <form class="steps" data-steps novalidate>
@@ -515,7 +518,7 @@
       </div>
       <div class="steps__ctrl">
         <button type="button" class="btn btn--ghost btn--sm" data-prev hidden><span lang="fr">Retour</span><span lang="en">Back</span></button>
-        <button type="button" class="btn btn--seed" data-next data-magnetic><span class="btn__dot"></span><span lang="fr" data-next-fr>Continuer</span><span lang="en" data-next-en>Continue</span></button>
+        <button type="button" class="btn btn--primary" data-next data-magnetic><span class="btn__dot"></span><span lang="fr" data-next-fr>Continuer</span><span lang="en" data-next-en>Continue</span></button>
       </div>
     </form>
   </div>
@@ -525,7 +528,6 @@
 
 <!-- ============ FOOTER ============ -->
 <footer class="ft" data-footer>
-  <div class="ft__soil" aria-hidden="true"><div class="ph ph--fill" data-ph="deep" data-grok="footer-terre-profonde-21x9"></div><canvas data-footer-roots></canvas></div>
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48">

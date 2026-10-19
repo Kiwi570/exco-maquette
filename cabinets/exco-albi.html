@@ -7,7 +7,7 @@
 <meta name="title-en" content="Exco Albi, accountants in Puygouzon">
 <meta name="description" content="Exco Albi, cabinet d'expertise comptable, d'audit et de conseil à Puygouzon (Albi). Horaires, équipe, services, contact. Maquette de refonte.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#EEE7D8">
+<meta name="theme-color" content="#F4F4F1">
 <link rel="icon" href="../assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -16,8 +16,8 @@
 </head>
 <body data-page="cabinet" data-base="../" data-cabinet="exco-albi">
 <a class="skip" href="../index.html#contenu" data-transition><span lang="fr">Aller au contenu</span><span lang="en">Skip to content</span></a>
-<div class="veil" aria-hidden="true" data-veil><canvas data-veil-roots></canvas></div>
-<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__seed"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
+<div class="veil" aria-hidden="true" data-veil><img class="veil__logo" src="../assets/img/logos/exco-logo-blanc.svg" alt="" width="160" height="43"></div>
+<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__dot"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
 
 <header class="hd" data-hd>
   <div class="hd__in">
@@ -32,14 +32,13 @@
     <div class="hd__tools">
       <button class="hd__lang" type="button" data-lang-toggle><span lang="fr" aria-label="Switch to English">EN</span><span lang="en" aria-label="Passer en français">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener"><span lang="fr">Accès client</span><span lang="en">Client access</span></a>
-      <a class="btn btn--seed btn--sm hd__cta" href="../index.html#cabinets" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
+      <a class="btn btn--primary btn--sm hd__cta" href="../index.html#cabinets" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr" lang="fr">Menu</span><span class="sr" lang="en">Menu</span></button>
     </div>
   </div>
 </header>
 
 <div class="menu" id="menu" data-menu hidden>
-  <canvas class="menu__roots" data-menu-roots></canvas>
   <nav class="menu__nav" aria-label="Menu">
     <a href="../index.html#reseau" data-transition><span lang="fr">Le réseau</span><span lang="en">Network</span></a>
     <a href="../services/expertise-comptable.html" data-transition><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></a>
@@ -64,14 +63,14 @@
     <div class="cab-hero">
       <div class="cab-hero__text">
         <a class="chip chip--illus" href="https://exco.fr/groupes/groupe-exco-fiduciaire-du-sud-ouest/" target="_blank" rel="noopener" style="text-decoration:none"><span lang="fr">Un cabinet du Groupe Exco Fiduciaire du Sud-Ouest</span><span lang="en">An office of the Exco Fiduciaire du Sud-Ouest group</span></a>
-        <h1 class="display" id="cab-title" data-germinate>Exco Albi</h1>
+        <h1 class="display" id="cab-title" data-reveal>Exco Albi</h1>
         <p class="lead"><span lang="fr">Expertise comptable, audit, conseil, gestion, social et RH à Puygouzon, aux portes d'Albi.</span><span lang="en">Accounting, audit, advisory, payroll and HR in Puygouzon, on the edge of Albi.</span></p>
         <div class="cab-facts">
           <span class="copy" data-copy="91 Route de Castres, 81990 Puygouzon, France">91 Route de Castres, 81990 Puygouzon</span>
           <span class="copy" data-copy="+33 5 63 38 54 50">+33 5 63 38 54 50</span>
         </div>
         <div class="cab-actions">
-          <a class="btn btn--seed" href="#contact" data-magnetic><span class="btn__dot"></span><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
+          <a class="btn btn--primary" href="#contact" data-magnetic><span class="btn__dot"></span><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
           <a class="btn btn--ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Exco%20Albi%2091%20Route%20de%20Castres%2081990%20Puygouzon" target="_blank" rel="noopener"><span lang="fr">Itinéraire</span><span lang="en">Directions</span></a>
           <a class="btn btn--ghost" href="https://fso.myexco.fr/login" target="_blank" rel="noopener"><span lang="fr">Espace client</span><span lang="en">Client area</span></a>
         </div>
@@ -87,7 +86,7 @@
 <section class="band band--paper2" aria-labelledby="cab-about">
   <div class="wrap two-col">
     <div class="prose">
-      <h2 class="h2" id="cab-about" data-germinate><span lang="fr">Le cabinet comptable Exco Albi</span><span lang="en">The Exco Albi office</span></h2>
+      <h2 class="h2" id="cab-about" data-reveal><span lang="fr">Le cabinet comptable Exco Albi</span><span lang="en">The Exco Albi office</span></h2>
       <p class="lead" style="color:var(--ink)"><span lang="fr">Exco Albi accompagne les dirigeants à chaque étape de la vie de leur entreprise.</span><span lang="en">Exco Albi supports business owners at every stage of their company's life.</span></p>
       <p><span lang="fr">Notre équipe de 15 collaborateurs est au service d'acteurs de toutes tailles et de tous secteurs : TPE, PME, commerce, industrie, agriculture, services, professions libérales.</span><span lang="en">Our team of 15 serves businesses of every size and sector: small and mid-sized companies, retail, industry, farming, services and the liberal professions.</span></p>
       <p><span lang="fr">Expert-comptable, gestionnaire de paie, juriste, auditeur : une équipe pluridisciplinaire, et derrière elle les ressources du groupe et du réseau.</span><span lang="en">Chartered accountant, payroll specialist, lawyer, auditor: a multidisciplinary team backed by the group and the network.</span></p>
@@ -100,10 +99,9 @@
   </div>
 </section>
 
-<section class="group-figs band band--humus" aria-labelledby="cab-group">
-  <div class="group-figs__bg" aria-hidden="true"><div class="ph ph--fill" data-ph="hills" data-grok="albi-territoire-collines-16x9"></div></div>
+<section class="group-figs band band--night" aria-labelledby="cab-group">
   <div class="wrap">
-    <h2 class="h3" id="cab-group" style="margin-bottom:40px;color:var(--on-humus-soft)"><span lang="fr">Le Groupe Exco Fiduciaire du Sud-Ouest</span><span lang="en">The Exco Fiduciaire du Sud-Ouest group</span></h2>
+    <h2 class="h3" id="cab-group" style="margin-bottom:40px;color:var(--on-night-soft)"><span lang="fr">Le Groupe Exco Fiduciaire du Sud-Ouest</span><span lang="en">The Exco Fiduciaire du Sud-Ouest group</span></h2>
     <div class="figures__grid">
       <div class="fig"><p class="fig__n" data-count="40" data-prefix="+">+40</p><p class="fig__l"><span lang="fr">cabinets dans le groupe</span><span lang="en">offices in the group</span></p></div>
       <div class="fig"><p class="fig__n" data-count="70" data-prefix="+">+70</p><p class="fig__l"><span lang="fr">experts-comptables et commissaires aux comptes</span><span lang="en">chartered accountants and statutory auditors</span></p></div>
@@ -117,18 +115,18 @@
   <div class="wrap dial-wrap">
     <svg class="dial" data-dial viewBox="0 0 300 300" role="img" aria-label="Cadran des horaires d'ouverture de la semaine" data-en-aria-label="Weekly opening hours dial"></svg>
     <div style="display:grid;gap:20px">
-      <h2 class="h2" id="cab-hours" data-germinate><span lang="fr">Horaires d'ouverture</span><span lang="en">Opening hours</span></h2>
+      <h2 class="h2" id="cab-hours" data-reveal><span lang="fr">Horaires d'ouverture</span><span lang="en">Opening hours</span></h2>
       <p class="lead" data-live-text></p>
       <ul class="hours" data-hours></ul>
-      <p class="cab__meta" style="color:var(--ink-soft)"><span lang="fr">Heure de Paris. Sur le cadran, chaque anneau est un jour de la semaine, du lundi au centre au dimanche à l'extérieur ; l'aiguille indique l'heure actuelle.</span><span lang="en">Paris time. On the dial each ring is a day, Monday in the centre to Sunday outside; the hand shows the current time.</span></p>
+      <p class="cab__meta" style="color:var(--ink-soft)"><span lang="fr">Heure de Paris. Le cadran fait le tour des 24 heures : chaque cercle est un jour, du lundi au centre au dimanche à l'extérieur, et l'aiguille indique l'heure actuelle.</span><span lang="en">Paris time. The dial covers 24 hours: each circle is a day, Monday in the centre to Sunday outside, and the hand shows the current time.</span></p>
     </div>
   </div>
 </section>
 
-<section class="band band--humus" aria-labelledby="cab-svc">
+<section class="band band--night" aria-labelledby="cab-svc">
   <div class="wrap">
     <div class="sec-head">
-      <h2 class="h2" id="cab-svc" data-germinate><span lang="fr">Un cabinet qui fertilise vos projets</span><span lang="en">An office that helps your projects grow</span></h2>
+      <h2 class="h2" id="cab-svc" data-reveal><span lang="fr">Les services du cabinet</span><span lang="en">The office's services</span></h2>
       <p class="lead"><span lang="fr">PME, TPE, start-up, commerçants et artisans d'Albi et des alentours.</span><span lang="en">For small businesses, start-ups, retailers and craftspeople in and around Albi.</span></p>
     </div>
     <ul class="svc-list">
@@ -148,7 +146,7 @@
 <section class="band band--paper" aria-labelledby="cab-team">
   <div class="wrap">
     <div class="sec-head">
-      <h2 class="h2" id="cab-team" data-germinate><span lang="fr">L'équipe</span><span lang="en">The team</span></h2>
+      <h2 class="h2" id="cab-team" data-reveal><span lang="fr">L'équipe</span><span lang="en">The team</span></h2>
       <p class="lead"><span lang="fr">Experts-comptables, commissaires aux comptes et spécialistes de la paie.</span><span lang="en">Chartered accountants, statutory auditors and payroll specialists.</span></p>
     </div>
     <ul class="team">
@@ -163,10 +161,10 @@
   <div class="wrap access">
     <div class="access__map"><svg data-access-map role="img" aria-label="Plan de situation d'Exco Albi et des cabinets voisins" data-en-aria-label="Location of Exco Albi and nearby offices"></svg></div>
     <div class="prose">
-      <h2 class="h2" id="cab-access" data-germinate><span lang="fr">Venir au cabinet</span><span lang="en">Getting here</span></h2>
+      <h2 class="h2" id="cab-access" data-reveal><span lang="fr">Venir au cabinet</span><span lang="en">Getting here</span></h2>
       <p class="lead" style="color:var(--ink)">91 Route de Castres<br>81990 Puygouzon</p>
       <p><span class="chip chip--todo"><span lang="fr">Accès, stationnement et transports en commun : à compléter</span><span lang="en">Access, parking and public transport: to be added</span></span></p>
-      <a class="link-root" href="https://www.google.com/maps/search/?api=1&amp;query=Exco%20Albi%2091%20Route%20de%20Castres%2081990%20Puygouzon" target="_blank" rel="noopener"><span lang="fr">Ouvrir dans Google Maps</span><span lang="en">Open in Google Maps</span></a>
+      <a class="link-arrow" href="https://www.google.com/maps/search/?api=1&amp;query=Exco%20Albi%2091%20Route%20de%20Castres%2081990%20Puygouzon" target="_blank" rel="noopener"><span lang="fr">Ouvrir dans Google Maps</span><span lang="en">Open in Google Maps</span></a>
       <h3 class="h4" style="margin-top:20px"><span lang="fr">Cabinets les plus proches</span><span lang="en">Nearest offices</span></h3>
       <div class="nearby" data-nearby></div>
     </div>
@@ -176,8 +174,8 @@
 <section class="band band--paper" aria-labelledby="cab-news">
   <div class="wrap">
     <div class="sec-head sec-head--row">
-      <h2 class="h2" id="cab-news" data-germinate><span lang="fr">L'actualité du groupe</span><span lang="en">Group news</span></h2>
-      <a class="link-root" href="https://exco.fr/category/actualites-du-reseau-exco/actualites-reseau-exco-fso/" target="_blank" rel="noopener"><span lang="fr">Toutes les actualités du groupe</span><span lang="en">All group news (in French)</span></a>
+      <h2 class="h2" id="cab-news" data-reveal><span lang="fr">L'actualité du groupe</span><span lang="en">Group news</span></h2>
+      <a class="link-arrow" href="https://exco.fr/category/actualites-du-reseau-exco/actualites-reseau-exco-fso/" target="_blank" rel="noopener"><span lang="fr">Toutes les actualités du groupe</span><span lang="en">All group news (in French)</span></a>
     </div>
     <ul class="articles articles--3">
       <li class="art"><a href="https://exco.fr/actualites-du-reseau-exco/actualites-reseau-exco-fso/exco-fso-rejoint-impulse-data-pour-renforcer-lexploitation-de-la-donnee-au-service-des-entreprises/" target="_blank" rel="noopener"><span class="art__img"><img src="../assets/img/actus/impulse-data-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block" data-date="2026-10-19"></span><span class="art__t" style="display:block">Exco FSO rejoint Impulse Data pour renforcer l'exploitation de la donnée au service des entreprises</span></span></a></li>
@@ -188,10 +186,10 @@
   </div>
 </section>
 
-<section class="band band--humus" id="contact" aria-labelledby="cab-contact">
+<section class="band band--night" id="contact" aria-labelledby="cab-contact">
   <div class="wrap two-col">
     <div class="prose">
-      <h2 class="h2" id="cab-contact" data-germinate><span lang="fr">Contactez Exco Albi</span><span lang="en">Contact Exco Albi</span></h2>
+      <h2 class="h2" id="cab-contact" data-reveal><span lang="fr">Contactez Exco Albi</span><span lang="en">Contact Exco Albi</span></h2>
       <p class="lead"><span lang="fr">Une question, un projet ? L'équipe vous répond.</span><span lang="en">A question or a project? The team will get back to you.</span></p>
       <p><span class="copy" data-copy="+33 5 63 38 54 50">+33 5 63 38 54 50</span></p>
       <p><span lang="fr">Déjà client ?</span><span lang="en">Already a client?</span> <a href="https://fso.myexco.fr/login" target="_blank" rel="noopener"><span lang="fr">Accéder à votre espace client</span><span lang="en">Go to your client area</span></a></p>
@@ -208,7 +206,7 @@
       <p class="rgpd"><span lang="fr">Les informations recueillies sont enregistrées par Exco pour la gestion de votre demande. Voir la <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span><span lang="en">The information collected is stored by Exco to handle your request. See the <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">privacy policy</a> (in French).</span></p>
       <p class="step__err" data-c-err hidden><span lang="fr">Indiquez votre nom, une adresse e-mail valide et votre message.</span><span lang="en">Enter your name, a valid email address and your message.</span></p>
       <p class="chip chip--illus" data-c-ok hidden><span lang="fr">Message prêt. Maquette : aucune donnée n'est envoyée.</span><span lang="en">Message ready. Mock-up: no data is sent.</span></p>
-      <div class="steps__ctrl"><button class="btn btn--seed" type="submit" data-magnetic><span class="btn__dot"></span><span lang="fr">Envoyer le message</span><span lang="en">Send message</span></button></div>
+      <div class="steps__ctrl"><button class="btn btn--primary" type="submit" data-magnetic><span class="btn__dot"></span><span lang="fr">Envoyer le message</span><span lang="en">Send message</span></button></div>
     </form>
   </div>
 </section>
@@ -216,7 +214,6 @@
 </main>
 
 <footer class="ft" data-footer>
-  <div class="ft__soil" aria-hidden="true"><div class="ph ph--fill" data-ph="deep" data-grok="footer-terre-profonde-21x9"></div><canvas data-footer-roots></canvas></div>
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="../assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48">

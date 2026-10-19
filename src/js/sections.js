@@ -1,6 +1,5 @@
-// Sections de l'accueil : cycle de vie, herbier, secteurs, gouvernance, globe Kreston, RSE, actualités, rendez-vous.
+// Sections de l'accueil : cycle de vie, services, secteurs, gouvernance, globe Kreston, RSE, actualités, rendez-vous.
 import { $, $$, T, lang, reduced, finePointer, fitCanvas, getJSON, fmtDate, base, onVisible, haversine } from './util.js';
-import { buildPlant, drawPlant } from './plant.js';
 import { loadCabinets, resolvePlace, nearest, SVC } from './finder.js';
 
 const gsap = window.gsap;
@@ -9,7 +8,7 @@ const ST = () => window.ScrollTrigger;
 // ---------- cycle de vie : défilement horizontal épinglé ----------
 export function initCycle() {
   const sec = $('[data-cycle]'); if (!sec) return;
-  const track = $('[data-cycle-track]', sec), bar = $('[data-cycle-bar]', sec), stem = $('[data-cycle-stem]', sec);
+  const track = $('[data-cycle-track]', sec), bar = $('[data-cycle-bar]', sec);
   const dash = $('[data-mini-dash]', sec);
   const drawDash = () => { if (!dash || reduced()) return; const l = $('.mini-dash__line', dash); gsap.fromTo(l, { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.6, ease: 'power2.inOut' }); gsap.fromTo($('.mini-dash__area', dash), { opacity: 0 }, { opacity: 1, duration: 1, delay: .8 }); gsap.fromTo($('.mini-dash__end', dash), { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, delay: 1.5, ease: 'back.out(3)' }); };
   if (reduced()) { track.style.flexWrap = 'wrap'; track.style.width = 'auto'; return; }
@@ -18,32 +17,34 @@ export function initCycle() {
     const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
     const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${dist() * 1.05}`, pin: $('.cycle__pin', sec), scrub: .8, invalidateOnRefresh: true, anticipatePin: 1 } });
     tl.to(track, { x: () => -dist(), ease: 'none' }, 0)
-      .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0)
-      .fromTo(stem, { drawSVG: '0%' }, { drawSVG: '100%', ease: 'none' }, 0);
-    // chaque étape : son numéro pousse, son image s'éclaire
+      .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
+    // chaque étape : son numéro apparaît, son image s'éclaire
     $$('.stage', track).forEach((s, i) => {
       gsap.fromTo(s, { opacity: i ? .35 : 1 }, { opacity: 1, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tl, start: 'left 85%', end: 'left 45%', scrub: true } });
-      gsap.fromTo($('.stage__n', s), { scale: .4, rotate: -40 }, { scale: 1, rotate: 0, ease: 'back.out(2)', scrollTrigger: { trigger: s, containerAnimation: tl, start: 'left 70%', toggleActions: 'play none none reverse' } });
+      gsap.fromTo($('.stage__n', s), { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, ease: 'back.out(2)', scrollTrigger: { trigger: s, containerAnimation: tl, start: 'left 70%', toggleActions: 'play none none reverse' } });
       if (i === 1) ST().create({ trigger: s, containerAnimation: tl, start: 'left 60%', once: true, onEnter: drawDash });
     });
     return () => {};
   });
 }
 
-// ---------- herbier : planches dessinées ----------
-export function initHerbier() {
-  $$('[data-plant]').forEach((svg) => {
-    const n = +svg.dataset.plant; buildPlant(svg, n);
-    if (reduced()) return;
-    const a = svg.closest('a');
-    onVisible(svg, (v) => { if (v && !svg.dataset.drawn) { svg.dataset.drawn = '1'; drawPlant(svg, gsap, { duration: 1.8, delay: (n % 4) * .15 }); } }, { threshold: .3 });
-    if (a && finePointer()) a.addEventListener('pointerenter', () => { gsap.fromTo($$('.leaf-fill', svg), { rotate: 0, transformOrigin: '0% 50%' }, { rotate: () => (Math.random() - .5) * 10, duration: .5, yoyo: true, repeat: 1, ease: 'sine.inOut' }); });
-  });
-  const cards = $$('.spec');
-  if (!reduced() && cards.length) gsap.fromTo(cards, { y: 60, rotate: () => (Math.random() - .5) * 6 }, { y: 0, rotate: () => (Math.random() - .5) * 1.6, duration: 1.1, ease: 'power3.out', stagger: .06, scrollTrigger: { trigger: '[data-specimens]', start: 'top 80%', once: true } });
+// ---------- services : les lignes de l'index apparaissent, les pictogrammes se tracent ----------
+export function initServices() {
+  const sec = $('[data-services]'); if (!sec) return;
+  const icons = $$('.ico', sec);
+  icons.forEach((ic) => $$('path, circle, rect', ic).forEach((p) => p.setAttribute('pathLength', 1)));
+  if (reduced()) return;
+  const rows = $$('.svc-index li, .svc-feature', sec);
+  gsap.fromTo(rows, { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: .8, ease: 'power3.out', stagger: .045, scrollTrigger: { trigger: sec, start: 'top 75%', once: true } });
+  gsap.fromTo(icons.map((ic) => $$('path, circle, rect', ic)).flat(), { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', stagger: .015, delay: .3, scrollTrigger: { trigger: sec, start: 'top 75%', once: true } });
+  // au survol, le pictogramme se retrace
+  if (finePointer()) $$('.svc-index a, .svc-feature', sec).forEach((a) => a.addEventListener('pointerenter', () => {
+    const ps = $$('.ico path, .ico circle, .ico rect', a);
+    gsap.fromTo(ps, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: .7, ease: 'power2.inOut', overwrite: true });
+  }));
 }
 
-// ---------- secteurs : bande horizontale à glisser, cartes qui s'inclinent avec la vitesse ----------
+// ---------- secteurs : bande horizontale à glisser ----------
 export function initSectors() {
   const sec = $('[data-sectors]'); if (!sec) return;
   const tr = $('[data-sectors-track]', sec), bar = $('[data-sec-bar]', sec);
@@ -59,23 +60,8 @@ export function initSectors() {
   window.addEventListener('pointerup', () => { d = null; setTimeout(() => tr.classList.remove('is-drag'), 0); });
   tr.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
   if (reduced()) return;
-  // inclinaison selon la vitesse de défilement horizontal
-  let last = tr.scrollLeft, skew = 0;
   const cards = $$('.sector', tr);
-  gsap.ticker.add(() => { const v = tr.scrollLeft - last; last = tr.scrollLeft; skew += (gsap.utils.clamp(-8, 8, v * .35) - skew) * .12; if (Math.abs(skew) > .01) gsap.set(cards, { skewX: -skew, rotate: skew * .3 }); });
-  // entrée : les cartes poussent depuis le sol
-  gsap.fromTo(cards, { y: 80, clipPath: 'inset(100% 0 0 0)' }, { y: 0, clipPath: 'inset(0% 0 0 0)', duration: 1.1, ease: 'power3.out', stagger: .06, scrollTrigger: { trigger: tr, start: 'top 85%', once: true } });
-  // déformation liquide au survol (filtre SVG)
-  if (finePointer()) {
-    const f = document.createElement('div');
-    f.innerHTML = '<svg width="0" height="0" style="position:absolute"><filter id="liquid"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter></svg>';
-    document.body.appendChild(f.firstChild);
-    const disp = $('#liquid feDisplacementMap'), turb = $('#liquid feTurbulence');
-    cards.forEach((c) => {
-      const img = $('.sector__img', c);
-      c.addEventListener('pointerenter', () => { img.style.filter = 'url(#liquid)'; gsap.fromTo(disp, { attr: { scale: 0 } }, { attr: { scale: 40 }, duration: .35, yoyo: true, repeat: 1, ease: 'sine.inOut', onComplete: () => (img.style.filter = '') }); gsap.to(turb, { attr: { seed: (Math.random() * 100) | 0 }, duration: 0 }); });
-    });
-  }
+  gsap.fromTo(cards, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: .9, ease: 'power3.out', stagger: .05, scrollTrigger: { trigger: tr, start: 'top 85%', once: true } });
 }
 
 // ---------- gouvernance : table ronde des 21 associés ----------
@@ -153,10 +139,10 @@ export async function initGlobe() {
     const g = ctx.createRadialGradient(cx - R * .3, cy - R * .3, R * .1, cx, cy, R * 1.05);
     g.addColorStop(0, 'rgba(61,182,219,.10)'); g.addColorStop(1, 'rgba(61,182,219,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.04, 0, 6.283); ctx.fill();
-    ctx.strokeStyle = 'rgba(237,229,211,.12)'; ctx.lineWidth = dpr; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.stroke();
+    ctx.strokeStyle = 'rgba(238,241,243,.12)'; ctx.lineWidth = dpr; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.stroke();
     for (const p of pts) {
       const [x, y, z] = project(p[0], p[1], R, cx, cy); if (z < 0) continue;
-      ctx.fillStyle = `rgba(237,229,211,${.12 + z * .5})`; ctx.fillRect(x - dpr * .9, y - dpr * .9, dpr * 1.8, dpr * 1.8);
+      ctx.fillStyle = `rgba(238,241,243,${.12 + z * .5})`; ctx.fillRect(x - dpr * .9, y - dpr * .9, dpr * 1.8, dpr * 1.8);
     }
     const t = ((now - t0) / 2600) % 1;
     targets.forEach((tg, i) => {
@@ -172,7 +158,7 @@ export async function initGlobe() {
       // impulsion qui voyage
       const tt = (t + i * .13) % 1; const q = slerp(paris, tg, tt); const [x, y, z] = project(q[0], q[1], R * (1 + Math.sin(Math.PI * tt) * .12), cx, cy);
       if (z > 0) { ctx.fillStyle = i % 2 ? '#3DB6DB' : '#F59A00'; ctx.beginPath(); ctx.arc(x, y, 2.6 * dpr, 0, 6.283); ctx.fill(); }
-      const [ex, ey, ez] = project(tg[0], tg[1], R, cx, cy); if (ez > 0) { ctx.fillStyle = '#EDE5D3'; ctx.beginPath(); ctx.arc(ex, ey, 2.2 * dpr, 0, 6.283); ctx.fill(); }
+      const [ex, ey, ez] = project(tg[0], tg[1], R, cx, cy); if (ez > 0) { ctx.fillStyle = '#EEF1F3'; ctx.beginPath(); ctx.arc(ex, ey, 2.2 * dpr, 0, 6.283); ctx.fill(); }
     });
     const [px, py, pz] = project(paris[0], paris[1], R, cx, cy);
     if (pz > 0) { ctx.fillStyle = '#F59A00'; ctx.beginPath(); ctx.arc(px, py, 4 * dpr, 0, 6.283); ctx.fill(); }
@@ -184,13 +170,11 @@ export async function initGlobe() {
   ST().create({ trigger: c, start: 'top bottom', end: 'bottom top', onUpdate: (s) => { rot += s.getVelocity() * .0012; } });
 }
 
-// ---------- RSE : la tige pousse, les feuilles s'ouvrent ----------
+// ---------- RSE : les engagements apparaissent un à un ----------
 export function initRse() {
   const sec = $('[data-rse]'); if (!sec || reduced()) return;
-  gsap.fromTo($('[data-rse-stem]', sec), { drawSVG: '0%' }, { drawSVG: '100%', ease: 'none', scrollTrigger: { trigger: '.rse__body', start: 'top 70%', end: 'bottom 70%', scrub: true } });
-  $$('.leaf', sec).forEach((l, i) => {
-    const left = window.innerWidth > 900 && i % 2 === 0;
-    gsap.fromTo(l, { x: left ? 60 : -60, opacity: 0, rotate: left ? 4 : -4 }, { x: 0, opacity: 1, rotate: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: l, start: 'top 85%', once: true } });
+  $$('.rse__list li', sec).forEach((l) => {
+    gsap.fromTo(l, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: l, start: 'top 88%', once: true } });
   });
 }
 
@@ -230,7 +214,7 @@ export function initNews() {
   $$('.ev', evl).forEach((a) => a.style.textDecoration = 'none');
   setInterval(() => $$('[data-live-count]').forEach((el) => { const c = countdownText(el.dataset.liveCount); if (c) el.innerHTML = `${c.d}<small>${T('jours', 'days')} ${c.h} h</small>`; }), 60000);
   const arts = $('[data-articles]');
-  arts.innerHTML = ARTICLES.slice(0, 5).map((a) => `<li class="art"><a href="${a.url}" target="_blank" rel="noopener"><span class="art__img"><img src="${base()}assets/img/actus/${a.img}-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block">${fmtDate(new Date(a.d))}${lang() === 'en' ? ' (article in French)' : ''}</span><span class="art__t" style="display:block">${a.fr}</span></span></a></li>`).join('');
+  arts.innerHTML = ARTICLES.filter((a) => a.img !== 'cessions-titres').slice(0, 5).map((a) => `<li class="art"><a href="${a.url}" target="_blank" rel="noopener"><span class="art__img"><img src="${base()}assets/img/actus/${a.img}-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block">${fmtDate(new Date(a.d))}${lang() === 'en' ? ' (article in French)' : ''}</span><span class="art__t" style="display:block">${a.fr}</span></span></a></li>`).join('');
   if (!reduced()) gsap.fromTo($$('.art', arts), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .08, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: arts, start: 'top 85%', once: true } });
 }
 
@@ -239,10 +223,18 @@ export function initRdv() {
   const form = $('[data-steps]'); if (!form) return;
   const steps = $$('.step', form), nav = $$('.steps__nav li', form);
   const prev = $('[data-prev]', form), next = $('[data-next]', form);
-  const plant = $('[data-rdv-plant]');
-  let groups = [];
-  if (plant) { groups = buildPlant(plant, 9, { ground: 250 }); groups.forEach((g, i) => { g.style.opacity = i === 0 ? 1 : 0; }); }
-  const growTo = (k) => groups.forEach((g, i) => { if (i <= k) { if (g.style.opacity !== '1') { g.style.opacity = 1; if (!reduced()) drawPlant(g, gsap, { duration: 1 }); } } });
+  // récapitulatif : la fiche de demande se remplit au fil des réponses
+  const recap = $('[data-recap]');
+  const labelOf = (inp) => { const l = inp.closest('label'); const sp = l && (l.querySelector(`[lang="${lang()}"]`) || l.querySelector('span')); return sp ? sp.textContent.trim() : inp.value; };
+  const setR = (k, v) => { const dd = recap && $(`[data-r="${k}"]`, recap); if (!dd) return; const val = v || '—'; if (dd.textContent === val) return; dd.textContent = val; dd.classList.toggle('is-set', !!v); if (v && !reduced()) gsap.fromTo(dd, { backgroundColor: 'rgba(0,143,195,.18)' }, { backgroundColor: 'rgba(0,143,195,0)', duration: 1.2 }); };
+  const updRecap = () => {
+    const pr = form.querySelector('[name="profil"]:checked'); setR('profil', pr ? labelOf(pr) : '');
+    setR('besoin', $$('[name="besoin"]:checked', form).map(labelOf).join(', '));
+    setR('ville', form.ville.value.trim());
+    setR('cabinet', chosen ? `${chosen.n}, ${chosen.c}` : '');
+    const n = ['profil', 'besoin', 'ville', 'cabinet'].filter((k) => $(`[data-r="${k}"]`, recap)?.classList.contains('is-set')).length;
+    const tot = recap && $('[data-r-count]', recap); if (tot) tot.textContent = `${n} / 4`;
+  };
   let cur = 0, chosen = null;
   const show = (i) => {
     steps.forEach((s, k) => s.classList.toggle('is-on', k === i));
@@ -251,7 +243,6 @@ export function initRdv() {
     const fr = $('[data-next-fr]', next), en = $('[data-next-en]', next);
     if (fr) fr.textContent = i === 3 ? 'Envoyer la demande' : 'Continuer';
     if (en) en.textContent = i === 3 ? 'Send request' : 'Continue';
-    growTo(i);
     if (!reduced()) gsap.fromTo(steps[i], { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: .5, ease: 'power3.out' });
     cur = i;
   };
@@ -269,16 +260,17 @@ export function initRdv() {
   town.addEventListener('input', () => {
     clearTimeout(tmo);
     tmo = setTimeout(async () => {
-      const q = town.value.trim(); if (q.length < 2) { match.innerHTML = ''; chosen = null; return; }
+      const q = town.value.trim(); if (q.length < 2) { match.innerHTML = ''; chosen = null; updRecap(); return; }
       const [ref, cabs] = await Promise.all([resolvePlace(q), loadCabinets()]);
-      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville ou un code postal.', 'Place not recognised: try a town or a postcode.')}</p>`; chosen = null; return; }
+      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville ou un code postal.', 'Place not recognised: try a town or a postcode.')}</p>`; chosen = null; updRecap(); return; }
       const needs = $$('[name="besoin"]:checked', form).map((i) => i.value);
       let pool = cabs.filter((c) => needs.every((k) => c.s.includes(k)));
       if (!pool.length) pool = cabs;
       const near = nearest(pool, ref.lat, ref.lon, 3);
       chosen = near[0].c;
       match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinets les plus proches de ', 'Nearest offices to ')}${ref.label}</p>` + near.map((n, i) => `<label class="match"><input type="radio" name="cabinet" value="${n.c.id}" ${i === 0 ? 'checked' : ''}><span>${n.c.n} <small>${n.c.a}, ${n.d < 10 ? n.d.toFixed(1) : Math.round(n.d)} km</small></span></label>`).join('');
-      $$('input[name="cabinet"]', match).forEach((r) => r.addEventListener('change', () => { chosen = near.find((n) => n.c.id === r.value).c; }));
+      $$('input[name="cabinet"]', match).forEach((r) => r.addEventListener('change', () => { chosen = near.find((n) => n.c.id === r.value).c; updRecap(); }));
+      updRecap();
     }, 250);
   });
   next.addEventListener('click', () => {
@@ -290,13 +282,14 @@ export function initRdv() {
       done.textContent = chosen
         ? T(`Merci ${nm}. Votre demande serait transmise à ${chosen.n} (${chosen.a}), qui vous recontacterait pour fixer un rendez-vous.`, `Thank you ${nm}. Your request would be passed to ${chosen.n} (${chosen.a}), who would contact you to arrange a meeting.`)
         : T(`Merci ${nm}. Votre demande serait transmise au cabinet le plus proche.`, `Thank you ${nm}. Your request would be passed to the nearest office.`);
-      show(4); growTo(4);
+      show(4);
       return;
     }
     show(cur + 1);
   });
   prev.addEventListener('click', () => show(Math.max(0, cur - 1)));
-  form.addEventListener('change', () => err(cur, false));
+  form.addEventListener('change', () => { err(cur, false); updRecap(); });
+  form.addEventListener('input', updRecap);
   form.addEventListener('submit', (e) => e.preventDefault());
   show(0);
 }

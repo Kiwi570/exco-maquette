@@ -1,27 +1,33 @@
 <main id="contenu">
 
 <section class="svc-top" data-svc-hero aria-labelledby="svc-title">
-  <picture>
-    <source media="(max-aspect-ratio: 4/5)" srcset="../assets/img/grok/ec-hero-graine-9x16.webp">
-    <img class="svc-top__img" src="../assets/img/grok/ec-hero-graine-16x9.webp" alt="" width="1168" height="784" fetchpriority="high">
-  </picture>
-  <div class="wrap svc-top__in">
-    <ol class="crumbs"><li><a href="../index.html" data-transition><span lang="fr">Accueil</span><span lang="en">Home</span></a></li><li><a href="../index.html#services" data-transition><span lang="fr">Services</span><span lang="en">Services</span></a></li><li aria-current="page"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></li></ol>
-    <h1 class="display" id="svc-title" data-germinate><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></h1>
-    <p class="svc-top__sub"><span lang="fr">Comptabilité et fiscalité, gestion, consolidation des comptes</span><span lang="en">Bookkeeping and tax, management, consolidated accounts</span></p>
-    <p class="lead" style="color:var(--ink)"><span lang="fr">Déléguez vos obligations réglementaires, identifiez les risques éventuels, optimisez vos options comptables et fiscales en intégrant l'environnement économique qui est le vôtre.</span><span lang="en">Delegate your regulatory obligations, identify potential risks and optimise your accounting and tax options within your own economic context.</span></p>
-    <div class="cab-actions">
-      <a class="btn btn--seed" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
-      <a class="btn btn--ghost" href="../index.html#rendez-vous" data-transition><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
+  <div class="wrap svc-top__grid">
+    <div class="svc-top__in">
+      <ol class="crumbs"><li><a href="../index.html" data-transition><span lang="fr">Accueil</span><span lang="en">Home</span></a></li><li><a href="../index.html#services" data-transition><span lang="fr">Services</span><span lang="en">Services</span></a></li><li aria-current="page"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></li></ol>
+      <h1 class="display" id="svc-title" data-reveal><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></h1>
+      <p class="svc-top__sub"><span lang="fr">Comptabilité et fiscalité, gestion, consolidation des comptes</span><span lang="en">Bookkeeping and tax, management, consolidated accounts</span></p>
+      <p class="lead" style="color:var(--ink)"><span lang="fr">Déléguez vos obligations réglementaires, identifiez les risques éventuels, optimisez vos options comptables et fiscales en intégrant l'environnement économique qui est le vôtre.</span><span lang="en">Delegate your regulatory obligations, identify potential risks and optimise your accounting and tax options within your own economic context.</span></p>
+      <div class="cab-actions">
+        <a class="btn btn--primary" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
+        <a class="btn btn--ghost" href="../index.html#rendez-vous" data-transition><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
+      </div>
     </div>
+    <figure class="bilan" data-bilan>
+      <figcaption class="bilan__top"><strong><span lang="fr">Bilan simplifié au 31 décembre, en euros</span><span lang="en">Simplified balance sheet at 31 December, in euros</span></strong><span class="chip chip--illus"><span lang="fr">Chiffres fictifs</span><span lang="en">Fictitious figures</span></span></figcaption>
+      <div class="bilan__cols">
+        <table class="bilan__t"><caption><span lang="fr">Actif</span><span lang="en">Assets</span></caption><tbody><tr><th scope="row"><span lang="fr">Immobilisations</span><span lang="en">Fixed assets</span></th><td><span data-v="182400">182400</span></td></tr><tr><th scope="row"><span lang="fr">Stocks</span><span lang="en">Inventory</span></th><td><span data-v="64900">64900</span></td></tr><tr><th scope="row"><span lang="fr">Créances clients</span><span lang="en">Trade receivables</span></th><td><span data-v="118300">118300</span></td></tr><tr><th scope="row"><span lang="fr">Trésorerie</span><span lang="en">Cash</span></th><td><span data-v="212000">212000</span></td></tr></tbody><tfoot><tr><th scope="row"><span lang="fr">Total actif</span><span lang="en">Total assets</span></th><td><span data-v="577600">577600</span><span class="bilan__rule" aria-hidden="true"></span></td></tr></tfoot></table>
+        <table class="bilan__t"><caption><span lang="fr">Passif</span><span lang="en">Liabilities and equity</span></caption><tbody><tr><th scope="row"><span lang="fr">Capitaux propres</span><span lang="en">Equity</span></th><td><span data-v="268700">268700</span></td></tr><tr><th scope="row"><span lang="fr">Emprunts</span><span lang="en">Borrowings</span></th><td><span data-v="156000">156000</span></td></tr><tr><th scope="row"><span lang="fr">Dettes fournisseurs</span><span lang="en">Trade payables</span></th><td><span data-v="98400">98400</span></td></tr><tr><th scope="row"><span lang="fr">Dettes fiscales et sociales</span><span lang="en">Tax and social liabilities</span></th><td><span data-v="54500">54500</span></td></tr></tbody><tfoot><tr><th scope="row"><span lang="fr">Total passif</span><span lang="en">Total liabilities</span></th><td><span data-v="577600">577600</span><span class="bilan__rule" aria-hidden="true"></span></td></tr></tfoot></table>
+      </div>
+      <p class="bilan__eq"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span lang="fr">Actif = Passif : le bilan est équilibré</span><span lang="en">Assets = Liabilities: the balance sheet balances</span></p>
+    </figure>
   </div>
 </section>
 
 <section class="band band--paper2" aria-labelledby="svc-vision">
   <div class="wrap two-col">
-    <h2 class="h2" id="svc-vision" data-germinate><span lang="fr">Une vision différente, un cadre sécurisant</span><span lang="en">A different view, in a secure framework</span></h2>
+    <h2 class="h2" id="svc-vision" data-reveal><span lang="fr">Une vision différente, un cadre sécurisant</span><span lang="en">A different view, in a secure framework</span></h2>
     <div class="prose">
-      <p class="lead" style="color:var(--ink)" data-sow><span lang="fr">Nous approchons chacun de vos enjeux sous un angle neuf et indépendant, en partenaire, pour vous apporter une vision juste, enrichie de la multiplicité de nos savoir-faire.</span><span lang="en">We approach each of your challenges from a fresh, independent angle, as a partner, to give you an accurate view enriched by the range of our expertise.</span></p>
+      <p class="lead" style="color:var(--ink)" data-words><span lang="fr">Nous approchons chacun de vos enjeux sous un angle neuf et indépendant, en partenaire, pour vous apporter une vision juste, enrichie de la multiplicité de nos savoir-faire.</span><span lang="en">We approach each of your challenges from a fresh, independent angle, as a partner, to give you an accurate view enriched by the range of our expertise.</span></p>
       <p><span lang="fr">Les experts-comptables Exco vous permettent de prendre du recul et de mesurer les conséquences des orientations que vous donnez à l'entreprise. Leur veille technique se complète d'une observation des marchés au niveau local, national et international.</span><span lang="en">Exco's chartered accountants help you step back and measure the consequences of the direction you give your company. Their technical monitoring is backed by local, national and international market insight.</span></p>
       <p><span lang="fr">Dans cet objectif, Exco a développé des commissions sectorielles et des départements métiers : les experts de tous les cabinets s'y réunissent régulièrement pour développer des solutions pour leurs clients.</span><span lang="en">To that end, Exco has set up sector committees and specialist departments where experts from every office meet regularly to develop solutions for clients.</span></p>
     </div>
@@ -30,10 +36,10 @@
 
 <section class="band band--paper" aria-labelledby="svc-clear" data-engage>
   <div class="wrap engage">
-    <div class="engage__media"><div class="ph" data-ph="engage" data-grok="ec-engagements-mains-4x5"></div></div>
+    <div class="engage__media"><img src="../assets/img/site/dossiers-vue-dessus-1600.webp" srcset="../assets/img/site/dossiers-vue-dessus-800.webp 800w, ../assets/img/site/dossiers-vue-dessus-1600.webp 1600w, ../assets/img/site/dossiers-vue-dessus-2400.webp 2400w" sizes="(max-width: 900px) 92vw, 40vw" alt="Une séance de travail sur des documents comptables, vue du dessus" data-en-alt="A working session on accounting documents, seen from above" loading="lazy" width="2400" height="1601"></div>
     <div>
       <div class="sec-head" style="margin-bottom:24px">
-        <h2 class="h2" id="svc-clear" data-germinate><span lang="fr">Un fonctionnement clair</span><span lang="en">A clear way of working</span></h2>
+        <h2 class="h2" id="svc-clear" data-reveal><span lang="fr">Un fonctionnement clair</span><span lang="en">A clear way of working</span></h2>
         <p class="lead"><span lang="fr">Une organisation pensée pour une haute qualité de résultat dans chaque mission.</span><span lang="en">An organisation designed for high-quality results on every engagement.</span></p>
       </div>
       <ul class="engage__list">
@@ -47,28 +53,26 @@
   </div>
 </section>
 
-<section class="band band--humus rings-sec" aria-labelledby="svc-missions" data-rings>
-  <div class="rings-pin">
-    <div class="wrap rings">
-      <div class="rings__svg">
-        <img class="rings__photo" src="../assets/img/grok/ec-cernes-tronc.webp" alt="" width="1168" height="784" loading="lazy">
-        <svg viewBox="0 0 100 100" data-rings-svg aria-hidden="true"></svg>
+<section class="band band--night year-sec" aria-labelledby="svc-missions" data-year>
+  <div class="year-pin">
+    <div class="wrap">
+      <div class="sec-head sec-head--row">
+        <h2 class="h2" id="svc-missions" data-reveal><span lang="fr">L'année comptable, mois par mois</span><span lang="en">The accounting year, month by month</span></h2>
+        <p class="lead"><span lang="fr">Les missions de nos cabinets, du business plan aux comptes annuels.</span><span lang="en">Our offices' engagements, from business plan to annual accounts.</span></p>
       </div>
-      <div>
-        <h2 class="h2" id="svc-missions" data-germinate><span lang="fr">L'année comptable, cerne après cerne</span><span lang="en">The accounting year, ring by ring</span></h2>
-        <p class="lead" style="margin:18px 0 26px"><span lang="fr">Les missions de nos cabinets, du business plan aux comptes annuels.</span><span lang="en">Our offices' engagements, from business plan to annual accounts.</span></p>
-        <ol class="missions" data-missions>
-          <li><span lang="fr">Établissement d'un business plan</span><span lang="en">Business plan</span></li>
-          <li><span lang="fr">Collecte des informations</span><span lang="en">Gathering information</span></li>
-          <li><span lang="fr">Saisie comptable des pièces</span><span lang="en">Bookkeeping</span></li>
-          <li><span lang="fr">Pointage périodique des comptes</span><span lang="en">Periodic account checks</span></li>
-          <li><span lang="fr">Inventaire des stocks</span><span lang="en">Stock count</span></li>
-          <li><span lang="fr">Analyse des marges</span><span lang="en">Margin analysis</span></li>
-          <li><span lang="fr">Clôture des comptes</span><span lang="en">Year-end closing</span></li>
-          <li><span lang="fr">Révision de la comptabilité</span><span lang="en">Accounts review</span></li>
-          <li><span lang="fr">Établissement des comptes annuels</span><span lang="en">Annual accounts</span></li>
-        </ol>
-      </div>
+      <ol class="missions" data-missions>
+        <li><span lang="fr">Établissement d'un business plan</span><span lang="en">Business plan</span></li>
+        <li><span lang="fr">Collecte des informations</span><span lang="en">Gathering information</span></li>
+        <li><span lang="fr">Saisie comptable des pièces</span><span lang="en">Bookkeeping</span></li>
+        <li><span lang="fr">Pointage périodique des comptes</span><span lang="en">Periodic account checks</span></li>
+        <li><span lang="fr">Inventaire des stocks</span><span lang="en">Stock count</span></li>
+        <li><span lang="fr">Analyse des marges</span><span lang="en">Margin analysis</span></li>
+        <li><span lang="fr">Clôture des comptes</span><span lang="en">Year-end closing</span></li>
+        <li><span lang="fr">Révision de la comptabilité</span><span lang="en">Accounts review</span></li>
+        <li><span lang="fr">Établissement des comptes annuels</span><span lang="en">Annual accounts</span></li>
+      </ol>
+      <div class="gantt-wrap"><div class="gantt" data-gantt></div></div>
+      <p class="chip chip--illus year__note"><span lang="fr">Calendrier illustratif pour une société qui clôture au 31 décembre. Le rythme réel dépend de la date de clôture et de l'organisation de chaque entreprise.</span><span lang="en">Illustrative calendar for a company with a 31 December year end. The actual timing depends on each company's year end and organisation.</span></p>
     </div>
   </div>
 </section>
@@ -76,7 +80,7 @@
 <section class="band band--paper2" aria-labelledby="svc-dash">
   <div class="wrap two-col" style="align-items:center">
     <div class="prose">
-      <h2 class="h2" id="svc-dash" data-germinate><span lang="fr">Des informations régulières et exploitables</span><span lang="en">Regular, usable information</span></h2>
+      <h2 class="h2" id="svc-dash" data-reveal><span lang="fr">Des informations régulières et exploitables</span><span lang="en">Regular, usable information</span></h2>
       <p><span lang="fr">Le pilotage de votre entreprise exige des informations pertinentes sur sa marche. Votre expert-comptable vous les restitue sous une forme que vous pouvez utiliser pour décider.</span><span lang="en">Running your business requires relevant information on how it is doing. Your accountant delivers it in a form you can use to make decisions.</span></p>
       <p><span class="chip chip--illus"><span lang="fr">Le tableau de bord ci-contre est une démonstration : ses chiffres sont fictifs.</span><span lang="en">The dashboard shown is a demo: its figures are fictitious.</span></span></p>
     </div>
@@ -88,7 +92,7 @@
         <div class="kpi"><span class="kpi__l"><span lang="fr">Trésorerie</span><span lang="en">Cash</span></span><span class="kpi__v" data-kpi="212">212 k€</span><span class="kpi__d"><span lang="fr">fin de mois</span><span lang="en">end of month</span></span></div>
       </div>
       <svg class="dash__chart" viewBox="0 0 520 220" data-dash-chart role="img" aria-label="Graphique illustratif : chiffre d'affaires mensuel en barres et marge en courbe sur douze mois" data-en-aria-label="Illustrative chart: monthly revenue as bars and margin as a line over twelve months"></svg>
-      <div class="dash__legend"><span><i style="background:var(--humus-3)"></i><span lang="fr">Chiffre d'affaires (k€)</span><span lang="en">Revenue (k€)</span></span><span><i style="background:var(--seed)"></i><span lang="fr">Marge brute (%)</span><span lang="en">Gross margin (%)</span></span></div>
+      <div class="dash__legend"><span><i style="background:var(--dash-bar)"></i><span lang="fr">Chiffre d'affaires (k€)</span><span lang="en">Revenue (k€)</span></span><span><i style="background:var(--orange)"></i><span lang="fr">Marge brute (%)</span><span lang="en">Gross margin (%)</span></span></div>
     </div>
   </div>
 </section>
@@ -96,27 +100,26 @@
 <section class="band band--paper" aria-labelledby="svc-benefits">
   <div class="wrap">
     <div class="sec-head">
-      <h2 class="h2" id="svc-benefits" data-germinate><span lang="fr">Ce que vous y gagnez</span><span lang="en">What you gain</span></h2>
+      <h2 class="h2" id="svc-benefits" data-reveal><span lang="fr">Ce que vous y gagnez</span><span lang="en">What you gain</span></h2>
     </div>
     <ul class="benefits" data-benefits>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 40V14M22 22c-8 0-12-6-12-12 7 0 12 4 12 12zM22 18c6 0 10-5 10-10-6 0-10 4-10 10z"/></svg><span lang="fr">Être assuré au quotidien de la prise en charge de vos contraintes réglementaires</span><span lang="en">Know that your regulatory obligations are handled day to day</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 40V8M22 8c-5 4-5 10 0 14 5-4 5-10 0-14zM14 30c4-3 8-3 8 0M30 30c-4-3-8-3-8 0"/></svg><span lang="fr">Bénéficier de l'écoute et du savoir-faire de professionnels expérimentés</span><span lang="en">Benefit from experienced professionals who listen</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 36h32M10 36V26M18 36V20M26 36V16M34 36V10"/></svg><span lang="fr">Disposer d'informations régulières et exploitables</span><span lang="en">Get regular, usable information</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 6c-9 9-9 23 0 32 9-9 9-23 0-32zM22 12v26"/></svg><span lang="fr">Optimiser l'impact de la fiscalité</span><span lang="en">Optimise the impact of tax</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 40V20M22 20l-8-8M22 20l8-8M22 26l-6-4M22 26l6-4M14 12a3 3 0 1 0 0-.1M30 12a3 3 0 1 0 0-.1"/></svg><span lang="fr">Être assisté dans la concrétisation de nouveaux projets</span><span lang="en">Get support to bring new projects to life</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 22h28M22 8v28M12 12l20 20M32 12L12 32"/></svg><span lang="fr">Disposer d'une information sûre et de qualité à destination des tiers</span><span lang="en">Provide reliable, high-quality information to third parties</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 4v36M22 14c-6 0-10 4-10 10M22 20c6 0 10 4 10 10M22 30c-4 0-7 3-7 6"/></svg><span lang="fr">Disposer d'une analyse pragmatique de la situation financière</span><span lang="en">Get a practical analysis of your financial position</span></li>
-      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 38c4-10 10-16 14-30 4 14 10 20 14 30M14 30h16"/></svg><span lang="fr">Identifier les risques inhérents à l'entreprise pour mieux les maîtriser</span><span lang="en">Identify your company's inherent risks to control them better</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 5l14 5.5v9.5c0 8.6-5.8 14.8-14 18.5-8.2-3.7-14-9.9-14-18.5v-9.5z M15.5 21.5l4.5 4.5 8.5-8.5"/></svg><span lang="fr">Être assuré au quotidien de la prise en charge de vos contraintes réglementaires</span><span lang="en">Know that your regulatory obligations are handled day to day</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 8h21v14H14.5L8 27v-5H6z M31 15h7v14h-2.5v5l-5.5-5h-10v-3"/></svg><span lang="fr">Bénéficier de l'écoute et du savoir-faire de professionnels expérimentés</span><span lang="en">Benefit from experienced professionals who listen</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 36h32 M10 36V26 M18 36V20 M26 36V16 M34 36V10"/></svg><span lang="fr">Disposer d'informations régulières et exploitables</span><span lang="en">Get regular, usable information</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M12 33L32 11 M14 11a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z M30 26a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7z"/></svg><span lang="fr">Optimiser l'impact de la fiscalité</span><span lang="en">Optimise the impact of tax</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M25 7h12v12 M37 7L20 24 M31 27v10H7V13h10"/></svg><span lang="fr">Être assisté dans la concrétisation de nouveaux projets</span><span lang="en">Get support to bring new projects to life</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M10 5h16l8 8v26H10z M26 5v8h8 M15 19h13 M15 25h8 M29 28a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9z"/></svg><span lang="fr">Disposer d'une information sûre et de qualité à destination des tiers</span><span lang="en">Provide reliable, high-quality information to third parties</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M5 27l7-7 5 4 9-10 M25 26a6.5 6.5 0 1 0 13 0a6.5 6.5 0 1 0-13 0z M36.5 30.5L41 35"/></svg><span lang="fr">Disposer d'une analyse pragmatique de la situation financière</span><span lang="en">Get a practical analysis of your financial position</span></li>
+      <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 6L40 37H4z M22 17v10 M22 31.5v1"/></svg><span lang="fr">Identifier les risques inhérents à l'entreprise pour mieux les maîtriser</span><span lang="en">Identify your company's inherent risks to control them better</span></li>
     </ul>
-    <div class="wide-media"><div class="ph" data-ph="youngtree" data-grok="ec-benefices-jeune-arbre-16x9"></div></div>
   </div>
 </section>
 
-<section class="band band--humus" aria-labelledby="svc-cta">
+<section class="band band--night" aria-labelledby="svc-cta">
   <div class="wrap">
     <div class="cta-band">
-      <h2 class="h2" id="svc-cta" data-germinate style="max-width:18ch"><span lang="fr">Un expert-comptable Exco près de chez vous</span><span lang="en">An Exco accountant near you</span></h2>
-      <a class="btn btn--seed" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
+      <h2 class="h2" id="svc-cta" data-reveal style="max-width:18ch"><span lang="fr">Un expert-comptable Exco près de chez vous</span><span lang="en">An Exco accountant near you</span></h2>
+      <a class="btn btn--primary" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
     </div>
     <h3 class="h4" style="margin:56px 0 18px"><span lang="fr">Les autres services</span><span lang="en">Other services</span></h3>
     <ul class="jobs">

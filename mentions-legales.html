@@ -7,7 +7,7 @@
 <meta name="title-en" content="Exco legal notice">
 <meta name="description" content="Mentions légales du site Exco. Maquette de refonte.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#EEE7D8">
+<meta name="theme-color" content="#F4F4F1">
 <link rel="icon" href="assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -16,8 +16,8 @@
 </head>
 <body data-page="legal" data-base="">
 <a class="skip" href="index.html#contenu" data-transition><span lang="fr">Aller au contenu</span><span lang="en">Skip to content</span></a>
-<div class="veil" aria-hidden="true" data-veil><canvas data-veil-roots></canvas></div>
-<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__seed"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
+<div class="veil" aria-hidden="true" data-veil><img class="veil__logo" src="assets/img/logos/exco-logo-blanc.svg" alt="" width="160" height="43"></div>
+<div class="cursor is-hidden" aria-hidden="true" data-cursor><span class="cursor__dot"></span><span class="cursor__ring"></span><span class="cursor__label" data-cursor-label></span></div>
 
 <header class="hd" data-hd>
   <div class="hd__in">
@@ -32,14 +32,13 @@
     <div class="hd__tools">
       <button class="hd__lang" type="button" data-lang-toggle><span lang="fr" aria-label="Switch to English">EN</span><span lang="en" aria-label="Passer en français">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener"><span lang="fr">Accès client</span><span lang="en">Client access</span></a>
-      <a class="btn btn--seed btn--sm hd__cta" href="index.html#cabinets" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
+      <a class="btn btn--primary btn--sm hd__cta" href="index.html#cabinets" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver mon cabinet</span><span lang="en">Find my office</span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr" lang="fr">Menu</span><span class="sr" lang="en">Menu</span></button>
     </div>
   </div>
 </header>
 
 <div class="menu" id="menu" data-menu hidden>
-  <canvas class="menu__roots" data-menu-roots></canvas>
   <nav class="menu__nav" aria-label="Menu">
     <a href="index.html#reseau" data-transition><span lang="fr">Le réseau</span><span lang="en">Network</span></a>
     <a href="services/expertise-comptable.html" data-transition><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></a>
@@ -60,8 +59,7 @@
 <section class="page-hero band--paper" aria-labelledby="legal-title">
   <div class="wrap">
     <ol class="crumbs"><li><a href="index.html" data-transition><span lang="fr">Accueil</span><span lang="en">Home</span></a></li><li aria-current="page"><span lang="fr">Mentions légales</span><span lang="en">Legal notice</span></li></ol>
-    <h1 class="display" id="legal-title" data-germinate style="max-width:12ch"><span lang="fr">Mentions légales</span><span lang="en">Legal notice</span></h1>
-    <div class="wide-media" style="margin-top:40px"><div class="ph" data-ph="archives" data-grok="legal-archives-16x9"></div></div>
+    <h1 class="display" id="legal-title" data-reveal style="max-width:12ch"><span lang="fr">Mentions légales</span><span lang="en">Legal notice</span></h1>
   </div>
 </section>
 <section class="band band--paper2" aria-label="Informations légales" data-en-aria-label="Legal information">
@@ -83,14 +81,13 @@
       <h2 class="h3" style="margin-top:24px"><span lang="fr">Propriété intellectuelle</span><span lang="en">Intellectual property</span></h2>
       <p><span lang="fr">Exco est propriétaire des droits liés au nom Exco SAS. Le site et son contenu sont protégés par le code de la propriété intellectuelle.</span><span lang="en">Exco owns the rights to the name Exco SAS. The site and its content are protected by intellectual property law.</span></p>
       <h2 class="h3" style="margin-top:24px"><span lang="fr">Cette maquette</span><span lang="en">This mock-up</span></h2>
-      <p><span lang="fr">Maquette de refonte non contractuelle. Contenus, chiffres et photos repris du site exco.fr le 19 octobre 2026 ; visuels d'ambiance générés et visuels provisoires signalés comme tels ; formulaires simulés, aucune donnée n'est envoyée.</span><span lang="en">Non-binding redesign mock-up. Content, figures and photos taken from exco.fr on 19 October 2026; generated mood images and temporary visuals are labelled as such; forms are simulated and send no data.</span></p>
+      <p><span lang="fr">Maquette de refonte non contractuelle. Contenus, chiffres et photos repris du site exco.fr le 19 octobre 2026 ; visuels provisoires signalés comme tels, en attendant les images générées ; formulaires simulés, aucune donnée n'est envoyée.</span><span lang="en">Non-binding redesign mock-up. Content, figures and photos taken from exco.fr on 19 October 2026; temporary visuals are labelled as such, pending the generated images; forms are simulated and send no data.</span></p>
     </div>
   </div>
 </section>
 </main>
 
 <footer class="ft" data-footer>
-  <div class="ft__soil" aria-hidden="true"><div class="ph ph--fill" data-ph="deep" data-grok="footer-terre-profonde-21x9"></div><canvas data-footer-roots></canvas></div>
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48">
