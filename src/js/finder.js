@@ -178,6 +178,10 @@ export async function initFinder() {
 
   // ---------- liste ----------
   const list = $('[data-finder-list]', root), countEl = $('[data-finder-count]', root);
+  // liste défilante : un fondu en haut / en bas signale qu'il reste des cabinets à voir
+  const edges = () => { const m = list.scrollHeight - list.clientHeight, s = list.scrollTop; list.classList.toggle('fade-t', m > 4 && s > 4); list.classList.toggle('fade-b', m > 4 && m - s > 4); };
+  list.addEventListener('scroll', edges, { passive: true });
+  window.addEventListener('resize', edges);
   const zoneOf = (c) => c.reg;
   function filtered() {
     let L = cabs.filter((c) => (st.match ? st.match.has(c.id) : zoneOf(c) === st.zone));
@@ -202,7 +206,7 @@ export async function initFinder() {
     if (!L.length) {
       const li = document.createElement('li'); li.className = 'cab__meta';
       li.textContent = st.open ? T('Aucun cabinet ouvert en ce moment avec ces critères. Décochez « Ouvert maintenant » pour voir tous les cabinets.', 'No office is open right now with these filters. Untick "Open now" to see every office.') : T('Aucun cabinet avec ces critères. Retirez un filtre ou changez de zone.', 'No office matches. Remove a filter or change area.');
-      list.appendChild(li); return;
+      list.appendChild(li); edges(); return;
     }
     const small = window.innerWidth < 700;
     const shown = small && !st.all ? L.slice(0, 6) : L;
@@ -227,6 +231,8 @@ export async function initFinder() {
     }
     initPlaceholders();
     // nouvelle recherche ou nouveau filtre : les résultats arrivent l'un après l'autre
+    if (fresh) list.scrollTop = 0;
+    requestAnimationFrame(edges);
     if (fresh && st.ready && !reduced()) gsap.fromTo(Array.from(list.children).slice(0, 10), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .4, stagger: .035, ease: 'power2.out', clearProps: 'opacity,transform' });
     st.ready = true;
   }

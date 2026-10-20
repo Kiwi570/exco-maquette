@@ -390,7 +390,7 @@ def article_page(a, actus):
     hero = f'''<section class="ihero ihero--plain" data-hero aria-labelledby="page-title">
   <div class="wrap ihero__grid"><div class="ihero__text">
     {crumbs_html(r, items)}
-    <span class="chip chip--illus">{bi(*cat)} · {when}</span>
+    <span class="chip chip--illus"><span>{bi(*cat)}</span><span aria-hidden="true">·</span><span>{when}</span></span>
     <h1 class="h2" id="page-title" data-reveal style="max-width:24ch">{esc(a["fr"]["title"])}</h1>
   </div></div>
   <div class="wrap" style="margin-top:clamp(28px,4vw,48px)">{cover}</div>

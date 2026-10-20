@@ -218,10 +218,11 @@ export function revealTitles(root = document) {
     if (h.dataset.split) return; h.dataset.split = '1';
     const prep = () => {
       if (h._reveal) return h._reveal;
-      const split = new window.SplitText(h, { type: 'lines,chars', linesClass: 'tr-line', charsClass: 'tr-char' });
+      // mots gardés entiers (pas de coupure au milieu d'un mot), découpage retiré une fois le titre posé
+      const split = new window.SplitText(h, { type: 'lines,words,chars', linesClass: 'tr-line', wordsClass: 'tr-word', charsClass: 'tr-char' });
       const final = parseFloat(getComputedStyle(h).fontWeight) || 380;
-      const tl = gsap.timeline({ paused: true });
-      tl.fromTo(split.chars, { yPercent: 105 }, { yPercent: 0, duration: 1, ease: 'exco', stagger: { each: .016, from: 'start' } })
+      const tl = gsap.timeline({ paused: true, onComplete: () => { split.revert(); } });
+      tl.fromTo(split.chars, { yPercent: 118 }, { yPercent: 0, duration: 1, ease: 'exco', stagger: { each: .016, from: 'start' } })
         .fromTo(h, { fontWeight: Math.max(300, final - 160) }, { fontWeight: final, duration: 1.6, ease: 'power2.out' }, 0);
       h._reveal = tl; return tl;
     };

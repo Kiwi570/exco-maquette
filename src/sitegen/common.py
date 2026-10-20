@@ -119,3 +119,9 @@ def dept_of(c):
 def initials(name):
     parts = [p for p in re.split(r'[\s\-]+', name) if p and p[0].isalpha()]
     return (parts[0][0] + (parts[-1][0] if len(parts) > 1 else '')).upper() if parts else '?'
+
+
+def ckey(s):
+    """Clé de tri alphabétique française : les lettres accentuées se rangent avec leur lettre de base (Béziers avant Brive)."""
+    import unicodedata
+    return unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode().lower()

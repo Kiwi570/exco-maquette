@@ -1,6 +1,6 @@
 """Pages principales : accueil, services, secteurs, le réseau, gouvernance, RSE, carrières, contact, mentions, plan du site, 404."""
 import os, re, json
-from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, slugify
+from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, slugify, ckey
 from .partials import crumbs, crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
@@ -178,7 +178,7 @@ def members_grid(r):
     for g in CAT['groups']:
         n = len(group_cabs(g))
         out.append(f'<a href="{r}groupes/{g["slug"]}.html" data-transition><img src="{r}assets/img/membres/{g["logo"]}-480.webp" alt="" loading="lazy" width="240" height="80">'
-                   f'<span class="groups__n">{esc(g["name"])}</span><span class="groups__m">{esc(g["city"])} · {bi(f"{n} cabinet" + ("s" if n > 1 else ""), f"{n} office" + ("s" if n > 1 else ""))}</span></a>')
+                   f'<span class="groups__n">{esc(g["name"])}</span><span class="groups__m"><span class="groups__city">{esc(g["city"])}</span><span class="groups__sep" aria-hidden="true"> · </span><span class="groups__cnt">{bi(f"{n}\u00a0cabinet" + ("s" if n > 1 else ""), f"{n}\u00a0office" + ("s" if n > 1 else ""))}</span></span></a>')
     return '<div class="groups">' + ''.join(out) + '</div>'
 
 
@@ -505,7 +505,7 @@ def sitemap_page(all_pages):
               lst(bi('Métiers', 'Careers'), [(f'carrieres/{m["slug"]}.html', bie(m['fr'], m['en'])) for m in CAT['metiers']]),
               lst(bi('Groupes membres', 'Member groups'), [(f'groupes/{g["slug"]}.html', esc(g['name'])) for g in CAT['groups']]),
               lst(bi('Actualités', 'News'), [(f'actualites/{a["slug"]}.html', esc(a['fr']['title'])) for a in load('actus.json')]),
-              lst(bi('Cabinets', 'Offices'), [('cabinets.html', bi('Trouver un cabinet', 'Find an office'))] + [(f'cabinets/{c["id"]}.html', esc(c['n'])) for c in sorted(CB, key=lambda c: c['n'])])]
+              lst(bi('Cabinets', 'Offices'), [('cabinets.html', bi('Trouver un cabinet', 'Find an office'))] + [(f'cabinets/{c["id"]}.html', esc(c['n'])) for c in sorted(CB, key=lambda c: ckey(c['n']))])]
     hero = ihero(r, items, ('Plan du site', 'Site map'), lead=(f'{len(all_pages)} pages.', f'{len(all_pages)} pages.'), plain=True)
     main = hero + f'<section class="band band--paper2" style="padding-top:48px"><div class="wrap sitemap">{"".join(blocks)}</div></section>'
     pg = dict(r=r, out='plan-du-site.html', type='sitemap', title='Plan du site | Exco', title_en='Site map | Exco', desc='Plan du site Exco : le réseau, les services, les secteurs, les 139 cabinets, les carrières et les actualités, page par page.', ld=[crumbs_ld(items, 'plan-du-site.html')])
@@ -520,7 +520,7 @@ def not_found():
     <p class="lead">{bi('Le site a été réorganisé : les cabinets, les services et les secteurs ont maintenant chacun leur page.', 'The site has been reorganised: offices, services and sectors now each have their own page.')}</p>
     <form class="search" action="{r}cabinets.html" method="get" role="search">
       <label class="search__label" for="nf-q">{bi('Vous cherchiez un cabinet ?', 'Looking for an office?')}</label>
-      <div class="search__row"><input class="search__input" id="nf-q" name="q" type="search" autocomplete="off" placeholder="Ville, code postal ou nom du cabinet" data-en-placeholder="Town, postcode or office name">
+      <div class="search__row"><input class="search__input" id="nf-q" name="q" type="search" autocomplete="off" placeholder="Ville, code postal ou nom" data-en-placeholder="Town, postcode or name">
       <button class="btn btn--primary" type="submit"><span class="btn__dot"></span>{bi('Trouver', 'Find')}</button></div>
     </form>
     <div class="ihero__actions">{btn(r + 'index.html', 'Retour à l’accueil', 'Back to the home page')}{btn(r + 'cabinets.html', 'Trouver un cabinet', 'Find an office', ghost=True)}{btn(r + 'plan-du-site.html', 'Plan du site', 'Site map', ghost=True)}</div>

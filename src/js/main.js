@@ -52,5 +52,11 @@ async function boot() {
   // les polices et images chargées peuvent décaler les déclencheurs
   window.addEventListener('load', () => window.ScrollTrigger && window.ScrollTrigger.refresh());
   document.fonts && document.fonts.ready.then(() => window.ScrollTrigger && window.ScrollTrigger.refresh());
+  // la page change de hauteur après coup (carte de l'annuaire, textes dépliés, images) : les repères de défilement sont recalculés,
+  // sinon une section épinglée « saute » en se libérant
+  if (window.ResizeObserver && window.ScrollTrigger) {
+    const mainEl = document.querySelector('main'); let lastH = mainEl.offsetHeight, tmr = 0;
+    new ResizeObserver(() => { const h = mainEl.offsetHeight; if (Math.abs(h - lastH) < 3) return; lastH = h; clearTimeout(tmr); tmr = setTimeout(() => window.ScrollTrigger.refresh(), 220); }).observe(mainEl);
+  }
 }
 boot();

@@ -23,7 +23,7 @@
 <link rel="preload" href="../assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
 <script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm';var v=0;try{v=sessionStorage.getItem('exco-vt')==='1';sessionStorage.removeItem('exco-vt')}catch(e){}addEventListener('pagereveal',function(e){var t=e.viewTransition,m=null;if(!t||/(^| )(calm|rm)( |$)/.test(d.className))return;try{if(v&&!location.hash){v=0;m=document.querySelector('[data-hero] .ihero__media,[data-hero] .cab-hero__media,[data-hero] .article__cover')}else{var a=navigation.activation,p=performance.getEntriesByType('navigation')[0];if(a&&a.navigationType==='traverse'&&a.from&&!(p&&p.type==='back_forward')){var u=a.from.url.split('#')[0],L=document.links;for(var k=0;k<L.length&&!m;k++)if(L[k].href.split('#')[0]===u)m=L[k].querySelector('.sector__img,.art__img,.tile__img')}}if(m){var r=m.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>innerHeight)m=null}}catch(x){m=null}if(m){m.style.viewTransitionName='vt-media';t.finished.then(function(){m.style.viewTransitionName=''})}})})()</script>
 <link rel="expect" href="#vt-end" blocking="render">
-<link rel="stylesheet" href="../assets/css/site.css?v=5b9be38e">
+<link rel="stylesheet" href="../assets/css/site.css?v=4fb8c159">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"AccountingService","name":"Exco GCA – Madagascar","url":"https://exco-maquette.vercel.app/cabinets/exco-gca-madagascar","telephone":"+261 20 23 232 92","address":{"@type":"PostalAddress","streetAddress":"Les Jardins d'Ivandry","addressLocality":"Antananarivo","addressCountry":"MG"},"geo":{"@type":"GeoCoordinates","latitude":-18.9137,"longitude":47.5361},"parentOrganization":{"@type":"Organization","name":"Exco","url":"https://exco-maquette.vercel.app/"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":"Monday","opens":"08:30","closes":"17:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":"Tuesday","opens":"08:30","closes":"17:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":"Wednesday","opens":"08:30","closes":"17:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":"Thursday","opens":"08:30","closes":"17:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":"Friday","opens":"08:30","closes":"17:30"}],"description":"Cabinet comptable spécialisé dans le métier d’expert-comptable à Madagascar, ainsi que dans les métiers de l’audit et du conseil."}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://exco-maquette.vercel.app/"},{"@type":"ListItem","position":2,"name":"Cabinets","item":"https://exco-maquette.vercel.app/cabinets"},{"@type":"ListItem","position":3,"name":"Exco Afrique","item":"https://exco-maquette.vercel.app/groupes/exco-afrique"},{"@type":"ListItem","position":4,"name":"Exco GCA – Madagascar","item":"https://exco-maquette.vercel.app/cabinets/exco-gca-madagascar"}]}</script>
 </head>
 <body data-page="cabinet" data-base="../" data-cabinet="exco-gca-madagascar" data-head-city="Cotonou">
@@ -61,7 +61,7 @@
     </div>
   </div>
 </header>
-<div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menu" hidden>
+<div class="menu" id="menu" data-menu data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu" hidden>
   <nav class="menu__nav" aria-label="Menu">
     <details class="menu__group"><summary><span lang="fr">Le réseau</span><span lang="en">Network</span></summary><ul><li><a href="../le-reseau.html" data-transition><span lang="fr">Nous connaître</span><span lang="en">About us</span></a></li><li><a href="../le-reseau/gouvernance.html" data-transition><span lang="fr">Gouvernance</span><span lang="en">Governance</span></a></li><li><a href="../le-reseau/engagements-rse.html" data-transition><span lang="fr">Engagements RSE</span><span lang="en">CSR commitments</span></a></li><li><a href="../le-reseau.html#kreston" data-transition>Kreston Global</a></li></ul></details>
     <details class="menu__group"><summary>Services</summary><ul><li><a href="../services.html" data-transition><span lang="fr">Tous les services</span><span lang="en">All services</span></a></li><li><a href="../services/expertise-comptable.html" data-transition><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></a></li><li><a href="../services/audit.html" data-transition>Audit</a></li><li><a href="../services/social-paie-rh.html" data-transition><span lang="fr">Gestion sociale, paie et RH</span><span lang="en">Payroll and HR</span></a></li><li><a href="../services/juridique-fiscal.html" data-transition><span lang="fr">Juridique et fiscal</span><span lang="en">Legal and tax</span></a></li><li><a href="../services/conseil.html" data-transition><span lang="fr">Conseil</span><span lang="en">Advisory</span></a></li><li><a href="../services/evaluation-entreprise.html" data-transition><span lang="fr">Évaluation d’entreprise</span><span lang="en">Business valuation</span></a></li><li><a href="../services/finance-transactions.html" data-transition><span lang="fr">Finance et transactions</span><span lang="en">Corporate finance</span></a></li><li><a href="../services/gestion-patrimoine.html" data-transition><span lang="fr">Gestion de patrimoine</span><span lang="en">Wealth management</span></a></li><li><a href="../services/international.html" data-transition>International</a></li><li><a href="../services/rse-durabilite.html" data-transition><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></a></li><li><a href="../services/verification-oti.html" data-transition><span lang="fr">Vérification OTI</span><span lang="en">Independent third-party verification</span></a></li><li><a href="../services/forensics.html" data-transition>Forensics</a></li><li><a href="../services/exco-consulting.html" data-transition>Exco Consulting</a></li></ul></details>
@@ -102,12 +102,9 @@
   </div>
 </section><span id="vt-end" hidden></span>
 <section class="band band--paper2" aria-labelledby="cab-about">
-  <div class="wrap two-col">
-    <div class="prose" style="max-width:none">
-      <h2 class="h2" id="cab-about" data-reveal><span lang="fr">Le cabinet</span><span lang="en">The office</span></h2>
-      <div class="more" data-more><div class="rich" lang="fr"><p class="rich__lead">Cabinet comptable spécialisé dans le métier d’expert-comptable à Madagascar ainsi que dans les métiers de l’audit et du conseil.</p><p class="rich__em">EXCO GCA assiste les sociétés dans toutes les tâches administratives et financières, juridiques, conseil fiscal, accompagnement social mais également dans le pilotage et le management des entreprises.</p><p>Missions : création de sociétés, fusion acquisition, veille fiscale, montage de dossier de faisabilité ou de demande de financement etc …</p><p>Grâce à un réseau très complet de professionnels, EXCO GCA peut répondre efficacement aux besoins des entreprises.</p><p>Une structure à taille humaine où le travail en équipe s’adapte aux besoins particuliers, ponctuels ou permanents de nos clients.</p><p>Tous les collaborateurs bénéficient d’une formation permanente de haut niveau, valorisant ainsi leurs domaines de prédilection et leurs compétences.</p><p>Par ailleurs, nous sollicitions, en toute indépendance, de façon ponctuelle et selon les besoins, des partenaires spécialisés : notaires, avocats, assureurs, consultants, société de services informatiques etc.</p><h3>Nos métiers et missions :</h3><ul><li>Conseil</li><li>Assistant administratif et financier</li><li>Assistant juridique et fiscal</li><li>Audit</li><li>Commissariat aux comptes</li><li>Expertise comptable</li><li>Formations</li></ul></div><div class="rich" lang="en"><p class="rich__lead">Accounting firm specializing in chartered accountancy in Madagascar, as well as in auditing and consulting.</p><p class="rich__em">EXCO GCA assists companies with all administrative and financial tasks, legal advice, tax consultancy, social support, as well as company steering and management.</p><p>EXCO GCA assists companies in all administrative administrative and financial tasks, legal advice, tax consultancy, social support but also in and management of companies.</p><p>Missions: company start-ups, mergers and acquisitions, tax monitoring, preparation of feasibility or financing applications, etc...</p><p>Thanks to a comprehensive network of professionals, EXCO GCA can respond effectively to companies' needs.</p><p>A human-sized structure where teamwork adapts to the specific, one-off or permanent needs of our customers.</p><p>All employees benefit from a high level of ongoing training training, enhancing their areas of expertise and skills.</p><p>In addition, we independently solicit specialized partners on an ad hoc basis, as and when required: notaries, lawyers, insurers, consultants, IT service companies, etc.</p><h3>Our jobs and missions :</h3><ul><li>Board</li><li>Administrative and financial assistant</li><li>Legal and tax assistant</li><li>Audit</li><li>Statutory auditors</li><li>Accounting expertise</li><li>Training</li></ul></div></div>
-    </div>
-    
+  <div class="wrap split">
+    <div class="split__head"><h2 class="h2" id="cab-about" data-reveal><span lang="fr">Le cabinet</span><span lang="en">The office</span></h2></div>
+    <div class="split__body prose" style="max-width:none"><div class="more" data-more><div class="rich" lang="fr"><p class="rich__lead">Cabinet comptable spécialisé dans le métier d’expert-comptable à Madagascar ainsi que dans les métiers de l’audit et du conseil.</p><p class="rich__em">EXCO GCA assiste les sociétés dans toutes les tâches administratives et financières, juridiques, conseil fiscal, accompagnement social mais également dans le pilotage et le management des entreprises.</p><p>Missions : création de sociétés, fusion acquisition, veille fiscale, montage de dossier de faisabilité ou de demande de financement etc …</p><p>Grâce à un réseau très complet de professionnels, EXCO GCA peut répondre efficacement aux besoins des entreprises.</p><p>Une structure à taille humaine où le travail en équipe s’adapte aux besoins particuliers, ponctuels ou permanents de nos clients.</p><p>Tous les collaborateurs bénéficient d’une formation permanente de haut niveau, valorisant ainsi leurs domaines de prédilection et leurs compétences.</p><p>Par ailleurs, nous sollicitions, en toute indépendance, de façon ponctuelle et selon les besoins, des partenaires spécialisés : notaires, avocats, assureurs, consultants, société de services informatiques etc.</p><h3>Nos métiers et missions :</h3><ul><li>Conseil</li><li>Assistant administratif et financier</li><li>Assistant juridique et fiscal</li><li>Audit</li><li>Commissariat aux comptes</li><li>Expertise comptable</li><li>Formations</li></ul></div><div class="rich" lang="en"><p class="rich__lead">Accounting firm specializing in chartered accountancy in Madagascar, as well as in auditing and consulting.</p><p class="rich__em">EXCO GCA assists companies with all administrative and financial tasks, legal advice, tax consultancy, social support, as well as company steering and management.</p><p>EXCO GCA assists companies in all administrative administrative and financial tasks, legal advice, tax consultancy, social support but also in and management of companies.</p><p>Missions: company start-ups, mergers and acquisitions, tax monitoring, preparation of feasibility or financing applications, etc...</p><p>Thanks to a comprehensive network of professionals, EXCO GCA can respond effectively to companies' needs.</p><p>A human-sized structure where teamwork adapts to the specific, one-off or permanent needs of our customers.</p><p>All employees benefit from a high level of ongoing training training, enhancing their areas of expertise and skills.</p><p>In addition, we independently solicit specialized partners on an ad hoc basis, as and when required: notaries, lawyers, insurers, consultants, IT service companies, etc.</p><h3>Our jobs and missions :</h3><ul><li>Board</li><li>Administrative and financial assistant</li><li>Legal and tax assistant</li><li>Audit</li><li>Statutory auditors</li><li>Accounting expertise</li><li>Training</li></ul></div></div></div>
   </div>
 </section>
 <section class="group-figs band band--night" aria-labelledby="cab-group">
@@ -128,30 +125,31 @@
   </div>
 </section>
 <section class="band band--paper2 band--slim" aria-labelledby="cab-svc">
-  <div class="wrap prose">
+  <div class="wrap"><div class="prose">
     <h2 class="h3" id="cab-svc"><span lang="fr">Les services du cabinet</span><span lang="en">The office’s services</span></h2>
     <p><span class="chip chip--illus review"><span lang="fr">Liste des services à compléter : absente de la fiche actuelle</span><span lang="en">List of services to be added: missing from the current page</span></span></p>
     <p><a class="link-arrow" href="../services.html" data-transition><span lang="fr">Voir les services du réseau</span><span lang="en">See the network’s services</span></a></p>
-  </div>
+  </div></div>
 </section>
 <section class="band band--paper" aria-labelledby="cab-team">
-  <div class="wrap">
-    <div class="sec-head">
+  <div class="wrap split">
+    <div class="split__head">
       <h2 class="h2" id="cab-team" data-reveal><span lang="fr">L’équipe</span><span lang="en">The team</span></h2>
       
     </div>
-    <ul class="team"><li class="face"><span class="face__mono" aria-hidden="true">GC</span><p class="face__n">Gérard Catein</p></li></ul>
+    <ul class="team team--few split__body"><li class="face"><span class="face__mono" aria-hidden="true">GC</span><p class="face__n">Gérard Catein</p></li></ul>
   </div>
 </section>
 <section class="band band--paper2" aria-labelledby="cab-access">
-  <div class="wrap access access--nomap">
-    
-    <div class="prose">
+  <div class="wrap split access--split">
+    <div class="split__head prose">
       <h2 class="h2" id="cab-access" data-reveal><span lang="fr">Venir au cabinet</span><span lang="en">Getting here</span></h2>
       <p class="lead" style="color:var(--ink)">Les Jardins d’Ivandry, Tananarive, Madagascar</p>
       <p><span class="chip chip--todo"><span lang="fr">Accès, stationnement et transports en commun : à compléter</span><span lang="en">Access, parking and public transport: to be added</span></span></p>
       <a class="link-arrow" href="https://www.google.com/maps/search/?api=1&query=Exco%20GCA%20%E2%80%93%20Madagascar%20Les%20Jardins%20d%27Ivandry%2C%20Tananarive%2C%20Madagascar" target="_blank" rel="noopener"><span lang="fr">Ouvrir dans Google Maps</span><span lang="en">Open in Google Maps</span></a>
-      <h3 class="h4" style="margin-top:20px"><span lang="fr">Cabinets les plus proches</span><span lang="en">Nearest offices</span></h3>
+    </div>
+    <div class="split__body">
+      <h3 class="h4" style="margin-bottom:14px"><span lang="fr">Cabinets les plus proches</span><span lang="en">Nearest offices</span></h3>
       <div class="nearby" data-nearby></div>
     </div>
   </div>
@@ -186,7 +184,7 @@
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="../assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48" loading="lazy">
-      <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
+      <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
       <div class="ft__brands">
         <a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener"><img src="../assets/img/logos/exco-gestion-privee-blanc.svg" alt="Exco Gestion Privée" loading="lazy" width="120" height="34"></a>
         <a href="https://finance.exco.fr/" target="_blank" rel="noopener"><img src="../assets/img/logos/exco-finance-transactions-blanc.svg" alt="Exco Finance et Transactions" loading="lazy" width="120" height="34"></a>
@@ -230,6 +228,6 @@
 <script src="../assets/vendor/gsap/SplitText.min.js"></script>
 <script src="../assets/vendor/gsap/DrawSVGPlugin.min.js"></script>
 <script src="../assets/vendor/gsap/CustomEase.min.js"></script>
-<script src="../assets/js/site.js?v=6fbedb95"></script>
+<script src="../assets/js/site.js?v=2cdab217"></script>
 </body>
 </html>

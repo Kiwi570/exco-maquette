@@ -1,7 +1,7 @@
 """Pages de l'annuaire : liste des cabinets, fiche de chaque cabinet, page de chaque groupe membre."""
 import os, json, re, unicodedata
 from urllib.parse import quote
-from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, DEPTS, dept_of, initials, load, ROOT, slugify, ICONS
+from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, DEPTS, dept_of, initials, load, ROOT, slugify, ICONS, ckey
 from .partials import crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, cards_cls
 from . import blocks as B
@@ -201,11 +201,11 @@ def _services(c, fr, en, r):
             items.append(f'<li><h3><a href="{r}services/{s["slug"]}.html" data-transition>{bie(s["fr"], s["en"])}</a></h3><p>{bie(s["dfr"], s["den"])}</p></li>')
     if not items:
         return f'''<section class="band band--paper2 band--slim" aria-labelledby="cab-svc">
-  <div class="wrap prose">
+  <div class="wrap"><div class="prose">
     <h2 class="h3" id="cab-svc">{bi("Les services du cabinet", "The office’s services")}</h2>
     <p><span class="chip chip--illus review">{bi("Liste des services à compléter : absente de la fiche actuelle", "List of services to be added: missing from the current page")}</span></p>
     <p><a class="link-arrow" href="{r}services.html" data-transition>{bi("Voir les services du réseau", "See the network’s services")}</a></p>
-  </div>
+  </div></div>
 </section>'''
     lead = fr.get('svc_intro') or ''
     lead_en = (en or {}).get('svc_intro') or None
@@ -253,13 +253,14 @@ def _team(fr, en, r, c):
         faces.append(f'<li class="face">{pic}<p class="face__n">{esc(m["name"])}</p>{rl}</li>')
     lead = fr.get('team_intro') or ''
     lead_en = (en or {}).get('team_intro') or None
+    small = len(faces) <= 2
     return f'''<section class="band band--paper" aria-labelledby="cab-team">
-  <div class="wrap">
-    <div class="sec-head">
+  <div class="wrap{' split' if small else ''}">
+    <div class="{'split__head' if small else 'sec-head'}">
       <h2 class="h2" id="cab-team" data-reveal>{bi("L’équipe", "The team")}</h2>
       {f'<p class="lead">{bie(lead, lead_en)}</p>' if lead else ''}
     </div>
-    <ul class="team">{''.join(faces)}</ul>
+    <ul class="team{' team--few split__body' if small else ''}">{''.join(faces)}</ul>
   </div>
 </section>'''
 
@@ -269,6 +270,21 @@ def _access(c, r):
     addr = esc(c['a'].replace(', France', ''))
     m = f'<div class="access__map"><svg data-access-map role="img" aria-label="Plan de situation de {attr(c["n"])} et des cabinets voisins" data-en-aria-label="Location of {attr(c["n"])} and nearby offices"></svg></div>' if c['reg'] == 'fr' else ''
     cls = 'access' if m else 'access access--nomap'
+    if not m:
+        return f'''<section class="band band--paper2" aria-labelledby="cab-access">
+  <div class="wrap split access--split">
+    <div class="split__head prose">
+      <h2 class="h2" id="cab-access" data-reveal>{bi("Venir au cabinet", "Getting here")}</h2>
+      <p class="lead" style="color:var(--ink)">{addr}</p>
+      <p><span class="chip chip--todo">{bi("Accès, stationnement et transports en commun : à compléter", "Access, parking and public transport: to be added")}</span></p>
+      <a class="link-arrow" href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Ouvrir dans Google Maps", "Open in Google Maps")}</a>
+    </div>
+    <div class="split__body">
+      <h3 class="h4" style="margin-bottom:14px">{bi("Cabinets les plus proches", "Nearest offices")}</h3>
+      <div class="nearby" data-nearby></div>
+    </div>
+  </div>
+</section>'''
     return f'''<section class="band band--paper2" aria-labelledby="cab-access">
   <div class="wrap {cls}">
     {m}
@@ -354,7 +370,14 @@ def cabinet_page(c, actus):
     about = _about(fr, en)
     pl = _pluses(fr, en)
     about_sec = ''
-    if about or pl:
+    if about and not pl:
+        about_sec = f'''<section class="band band--paper2" aria-labelledby="cab-about">
+  <div class="wrap split">
+    <div class="split__head"><h2 class="h2" id="cab-about" data-reveal>{bi("Le cabinet", "The office")}</h2></div>
+    <div class="split__body prose" style="max-width:none"><div class="more" data-more>{about}</div></div>
+  </div>
+</section>'''
+    elif about or pl:
         about_sec = f'''<section class="band band--paper2" aria-labelledby="cab-about">
   <div class="wrap two-col">
     <div class="prose" style="max-width:none">
@@ -421,20 +444,20 @@ def directory(r, cabs=None):
         by.setdefault(dept_of(c), []).append(c)
     def dsort(k):
         return k.replace('2A', '20.1').replace('2B', '20.2')
-    groups_fr = ''.join(f'<div class="dir__group"><h3><b>{k}</b>{esc(DEPTS.get(k, ""))}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: x["n"]))}</ul></div>'
+    groups_fr = ''.join(f'<div class="dir__group"><h3><b>{k}</b>{esc(DEPTS.get(k, ""))}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: ckey(x["n"])))}</ul></div>'
                         for k, v in sorted(by.items(), key=lambda kv: dsort(kv[0])))
     byom = {}
     for c in om:
         byom.setdefault(c['cc'], []).append(c)
-    groups_om = ''.join(f'<div class="dir__group"><h3>{bi(*OM.get(k, (k, k)))}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: x["n"]))}</ul></div>' for k, v in sorted(byom.items(), key=lambda kv: OM.get(kv[0], (kv[0],))[0]))
+    groups_om = ''.join(f'<div class="dir__group"><h3>{bi(*OM.get(k, (k, k)))}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: ckey(x["n"])))}</ul></div>' for k, v in sorted(byom.items(), key=lambda kv: ckey(OM.get(kv[0], (kv[0],))[0])))
     byc = {}
     for c in it:
         byc.setdefault(c['co'][0], []).append(c)
-    groups_int = ''.join(f'<div class="dir__group"><h3>{bie(k, v[0]["co"][1] if len(v[0]["co"]) > 1 else None)}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: x["n"]))}</ul></div>' for k, v in sorted(byc.items()))
+    groups_int = ''.join(f'<div class="dir__group"><h3>{bie(k, v[0]["co"][1] if len(v[0]["co"]) > 1 else None)}</h3><ul>{"".join(dir_item(r, c) for c in sorted(v, key=lambda x: ckey(x["n"])))}</ul></div>' for k, v in sorted(byc.items(), key=lambda kv: ckey(kv[0])))
     def zone(zid, t, n, inner):
         if not n: return ''
         return f'''<section class="dir__zone" id="{zid}" aria-labelledby="{zid}-t">
-      <div class="dir__head"><h2 class="h3" id="{zid}-t">{t}</h2><p class="dir__count">{bi(f"{n} cabinets", f"{n} offices")}</p></div>
+      <div class="dir__head"><h2 class="h3" id="{zid}-t">{t}</h2><p class="dir__count">{bi(f"{n} cabinet" + ("s" if n > 1 else ""), f"{n} office" + ("s" if n > 1 else ""))}</p></div>
       <div class="dir__cols">{inner}</div>
     </section>'''
     return f'''<div class="dir" data-dir>
@@ -572,7 +595,11 @@ def group_page(g, content_fr=None, content_en=None):
         if G.get('addr'): rows += f'<div><dt>{bi("Siège", "Head office")}</dt><dd>{esc(G["addr"])}</dd></div>'
         if G.get('tel'): rows += f'<div><dt>{bi("Téléphone", "Phone")}</dt><dd><span class="copy" data-copy="{attr(G["tel"])}">{esc(G["tel"])}</span></dd></div>'
         contact = f'<aside class="grp-card"><h3 class="h4">{bi("Contacter le groupe", "Contact the group")}</h3><dl class="statcard__rows">{rows}</dl></aside>'
-    if ab_fr or contact:
+    if contact and not ab_fr:
+        intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
+                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2></div>'
+                 f'<div class="split__body">{contact.replace("grp-card", "grp-card grp-card--wide")}</div></div></section>')
+    elif ab_fr or contact:
         body_fr = smart(ab_fr)
         body_en = smart(ab_en) if ab_en else ''
         if body_en:
@@ -614,9 +641,10 @@ def group_page(g, content_fr=None, content_en=None):
                 pic = f'<span class="face__mono" aria-hidden="true">{esc(initials(m["name"]))}</span>'
             rl = f'<p class="face__r">{bie(*m["role"])}</p>' if m['role'][0] else ''
             faces.append(f'<li class="face">{pic}<p class="face__n">{esc(m["name"])}</p>{rl}</li>')
-        team = (f'<section class="band band--paper2" aria-labelledby="grp-team"><div class="wrap">'
-                f'<div class="sec-head"><h2 class="h2" id="grp-team" data-reveal>{bi("Les associés", "The partners")}</h2></div>'
-                f'<ul class="team">{"".join(faces)}</ul></div></section>')
+        few = len(faces) <= 2
+        team = (f'<section class="band band--paper2" aria-labelledby="grp-team"><div class="wrap{" split" if few else ""}">'
+                f'<div class="{"split__head" if few else "sec-head"}"><h2 class="h2" id="grp-team" data-reveal>{bi("Les associés", "The partners")}</h2></div>'
+                f'<ul class="team{" team--few split__body" if few else ""}">{"".join(faces)}</ul></div></section>')
     def svc_card(k):
         sv = SVC_BY_CODE[k]
         n = sum(1 for c in cabs if k in c['s'])

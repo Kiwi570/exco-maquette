@@ -133,7 +133,7 @@ def menu(r):
     svc = ''.join(f'<li><a href="{r}services/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['services'])
     sec = ''.join(f'<li><a href="{r}secteurs/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['sectors'])
     res = ''.join(f'<li><a href="{r}{h}" data-transition>{bie(tf, te)}</a></li>' for h, tf, te, _, _ in RESEAU)
-    return f'''<div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menu" hidden>
+    return f'''<div class="menu" id="menu" data-menu data-lenis-prevent role="dialog" aria-modal="true" aria-label="Menu" hidden>
   <nav class="menu__nav" aria-label="Menu">
     <details class="menu__group"><summary>{bi('Le réseau', 'Network')}</summary><ul>{res}</ul></details>
     <details class="menu__group"><summary>Services</summary><ul><li><a href="{r}services.html" data-transition>{bi('Tous les services', 'All services')}</a></li>{svc}</ul></details>
@@ -159,7 +159,7 @@ def footer(r):
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="{r}assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48" loading="lazy">
-      <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
+      <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
       <div class="ft__brands">
         <a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener"><img src="{r}assets/img/logos/exco-gestion-privee-blanc.svg" alt="Exco Gestion Privée" loading="lazy" width="120" height="34"></a>
         <a href="https://finance.exco.fr/" target="_blank" rel="noopener"><img src="{r}assets/img/logos/exco-finance-transactions-blanc.svg" alt="Exco Finance et Transactions" loading="lazy" width="120" height="34"></a>

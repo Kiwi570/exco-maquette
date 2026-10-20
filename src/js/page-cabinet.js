@@ -107,16 +107,37 @@ export async function initCabinetPage() {
     svg.appendChild(mk('rect', { x: mx - w, y: my - h, width: w * 2, height: h * 2, fill: '#0F1D2B' }));
     svg.appendChild(mk('path', { d: map.france, fill: '#1E3348', stroke: 'rgba(238,241,243,.3)', 'stroke-width': s * .15 }));
     svg.appendChild(mk('path', { d: map.deps, fill: 'none', stroke: 'rgba(238,241,243,.14)', 'stroke-width': s * .12 }));
-    const link = mk('path', { d: `M${head[0]},${head[1]} C${head[0] + (c.x - head[0]) * .3},${head[1] - h * .12} ${head[0] + (c.x - head[0]) * .7},${c.y + h * .12} ${c.x},${c.y}`, fill: 'none', stroke: '#3DB6DB', 'stroke-width': s * .5, 'stroke-linecap': 'round', pathLength: 1 });
-    svg.appendChild(link);
-    // près du bord droit de la carte, l'étiquette passe à gauche du point pour rester lisible
-    const label = (x, y, t, col = 'rgba(238,241,243,.82)', anchor = 'start', size = 2.6) => { if (anchor === 'start' && x + s * size * .55 * t.length + s * 2 > mx + w / 2) anchor = 'end'; const e = mk('text', { x: x + (anchor === 'start' ? s * 2 : -s * 2), y: y + s * .9, fill: col, 'font-size': s * size, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': anchor }); e.textContent = t; svg.appendChild(e); };
-    const seenC = new Set();
-    others.forEach(({ x }) => { svg.appendChild(mk('circle', { cx: x.x, cy: x.y, r: s * .9, fill: '#EEF1F3' })); if (!seenC.has(x.c) && Math.hypot(x.x - head[0], x.y - head[1]) > s * 3) { seenC.add(x.c); label(x.x, x.y, x.c); } });
-    svg.appendChild(mk('circle', { cx: head[0], cy: head[1], r: s * 1.1, fill: '#3DB6DB' }));
-    const hl = mk('text', { x: head[0], y: head[1] + s * 4.6, fill: '#3DB6DB', 'font-size': s * 2.6, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': 'middle' }); hl.textContent = headCity ? T(`${headCity}, siège du groupe`, `${headCity}, group head office`) : T('Siège du groupe', 'Group head office'); svg.appendChild(hl);
+    // courbure proportionnée à la distance (pas de boucle quand le siège est tout près) ; pas de liaison si le cabinet est le siège
+    const dd = Math.hypot(c.x - head[0], c.y - head[1]), bend = Math.min(h * .12, dd * .3);
+    const link = mk('path', { d: `M${head[0]},${head[1]} C${head[0] + (c.x - head[0]) * .3},${head[1] - bend} ${head[0] + (c.x - head[0]) * .7},${c.y + bend} ${c.x},${c.y}`, fill: 'none', stroke: '#3DB6DB', 'stroke-width': s * .5, 'stroke-linecap': 'round', pathLength: 1 });
+    if (dd > s * 2) svg.appendChild(link);
+    // étiquettes placées sans se chevaucher : à droite, à gauche, au-dessus ou au-dessous du point, dans le cadre
+    const vb = [mx - w / 2, my - h / 2, mx + w / 2, my + h / 2], boxes = [];
+    const out = (b) => b[0] < vb[0] + s * .4 || b[2] > vb[2] - s * .4 || b[1] < vb[1] + s * .4 || b[3] > vb[3] - s * .4;
+    const hit = (b) => out(b) || boxes.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]);
+    const dotBox = (x, y, r) => boxes.push([x - r, y - r, x + r, y + r]);
+    const place = (x, y, t, prefs, col = 'rgba(238,241,243,.82)', size = 2.6, force = false) => {
+      const tw = s * size * .56 * t.length, th = s * size;
+      const C = { r: [x + s * 2.2, y + th * .32, 'start'], l: [x - s * 2.2, y + th * .32, 'end'], b: [x, y + s * 2.8 + th * .85, 'middle'], t: [x, y - s * 2.2, 'middle'],
+        br: [x - s * 1.2, y + s * 2.8 + th * .85, 'start'], bl: [x + s * 1.2, y + s * 2.8 + th * .85, 'end'], tr: [x - s * 1.2, y - s * 2.2, 'start'], tl: [x + s * 1.2, y - s * 2.2, 'end'] };
+      const boxOf = ([tx, ty, an]) => { const x0 = an === 'start' ? tx : an === 'end' ? tx - tw : tx - tw / 2; return [x0, ty - th * .82, x0 + tw, ty + th * .22]; };
+      // étiquette obligatoire (le cabinet, le siège) : à défaut de place libre, première position dans le cadre
+      const k = prefs.find((q) => !hit(boxOf(C[q]))) || (force && prefs.find((q) => !out(boxOf(C[q])))); if (!k) return;
+      boxes.push(boxOf(C[k]));
+      const e = mk('text', { x: C[k][0], y: C[k][1], fill: col, 'font-size': th, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': C[k][2] }); e.textContent = t; svg.appendChild(e);
+    };
+    others.forEach(({ x }) => { svg.appendChild(mk('circle', { cx: x.x, cy: x.y, r: s * .9, fill: '#EEF1F3' })); dotBox(x.x, x.y, s * 1.05); });
+    svg.appendChild(mk('circle', { cx: head[0], cy: head[1], r: s * 1.1, fill: '#3DB6DB' })); dotBox(head[0], head[1], s * 1.4);
     svg.appendChild(mk('circle', { cx: c.x, cy: c.y, r: s * 1.6, fill: '#F59A00' }));
-    label(c.x, c.y, c.n.replace(/^Exco\s+/, 'Exco '), '#F59A00', 'start', 3.4);
+    // d'abord le cabinet, puis le siège (du côté opposé au cabinet), puis les voisins
+    place(c.x, c.y, c.n.replace(/^Exco\s+/, 'Exco '), c.x > head[0] ? ['r', 'l', 't', 'b', 'tr', 'tl', 'br', 'bl'] : ['l', 'r', 't', 'b', 'tl', 'tr', 'bl', 'br'], '#F59A00', 3.4, true);
+    dotBox(c.x, c.y, s * 1.8);
+    // la liaison bleue compte comme un obstacle
+    for (let i = 1; i < 12; i++) { const t = i / 12, u = 1 - t; const P = [head, [head[0] + (c.x - head[0]) * .3, head[1] - bend], [head[0] + (c.x - head[0]) * .7, c.y + bend], [c.x, c.y]]; const bx = u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0], by = u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1]; dotBox(bx, by, s * .6); }
+    const hlab = headCity ? T(`${headCity}, siège du groupe`, `${headCity}, group head office`) : T('Siège du groupe', 'Group head office');
+    if (dd > s * 2) { const away = c.x > head[0] ? 'l' : 'r', v1 = c.y > head[1] ? 't' : 'b', v2 = v1 === 't' ? 'b' : 't'; place(head[0], head[1], hlab, [v1, v1 + away, v1 + (away === 'l' ? 'r' : 'l'), away, v2, v2 + away, v2 + (away === 'l' ? 'r' : 'l')], '#3DB6DB', 2.6, true); }
+    const seenC = new Set();
+    others.forEach(({ x }) => { if (!seenC.has(x.c) && Math.hypot(x.x - head[0], x.y - head[1]) > s * 3) { seenC.add(x.c); place(x.x, x.y, x.c, ['r', 'l', 'br', 'bl', 'tr', 'tl']); } });
     if (!reduced()) { gsap.set(link, { strokeDasharray: 1, strokeDashoffset: 1 }); window.ScrollTrigger.create({ trigger: svg, start: 'top 75%', once: true, onEnter: () => gsap.to(link, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' }) }); }
   }
 
@@ -131,5 +152,5 @@ export async function initCabinetPage() {
   });
 
   // les avantages poussent l'un après l'autre
-  if (!reduced()) gsap.fromTo($$('[data-pluses] li'), { x: 40, opacity: 0 }, { x: 0, opacity: 1, stagger: .15, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: '[data-pluses]', start: 'top 80%', once: true } });
+  if (!reduced() && $('[data-pluses]')) gsap.fromTo($$('[data-pluses] li'), { y: 28, opacity: 0 }, { y: 0, opacity: 1, stagger: .15, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: '[data-pluses]', start: 'top 80%', once: true } });
 }
