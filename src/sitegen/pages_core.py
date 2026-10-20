@@ -57,12 +57,29 @@ def two(fr_html, en_html, cls='rich'):
 
 
 # ---------- accueil ----------
+def gov_home(r):
+    """Le cercle des 21 associés, version courte pour l'accueil : sans la grille des groupes, avec un lien vers la page Gouvernance."""
+    g = part('gov.html', r)
+    a = g.index('  <div class="wrap">\n    <h3 class="gov__sub">')
+    b = g.rindex('</section>')
+    g = g[:a] + g[b:]
+    g = re.sub(r'\s*<p class="chip chip--confirm">.*?</p>', '', g, count=1, flags=re.S)
+    link = f'<a class="link-arrow" href="{r}le-reseau/gouvernance.html" data-transition>{bi("Découvrir la gouvernance", "Explore our governance")}</a>'
+    g = g.replace('<div class="council" data-council>', '<div class="council" data-council>', 1)
+    i = g.index('<div class="council" data-council>')
+    j = g.rindex('</div>', 0, i)
+    g = g[:j] + link + '\n    ' + g[j:]
+    return g.replace('class="gov band band--paper2"', 'class="gov gov--home band band--paper2"')
+
+
 def home(actus):
     r = ''
     s = frag('home.html', r)
     s = s.replace('{{finder}}', part('finder.html', r))
     arts = [a for a in actus if a['cat'] != 'event'][:5]
     s = s.replace('{{articles}}', ''.join(art_card(r, a) for a in arts))
+    s = s.replace('{{kreston}}', part('kreston.html', r))
+    s = s.replace('{{gov}}', gov_home(r))
     s = s.replace('{{cta}}', cta_band(r, title=('Parlons de votre projet', 'Let’s talk about your project'),
                                       lead=('Créer, développer, transformer ou transmettre : le cabinet le plus proche de chez vous vous rappelle.', 'Start, grow, transform or hand over: your nearest office will call you back.')))
     ld = [{'@context': 'https://schema.org', '@type': 'Organization', 'name': 'Exco', 'legalName': 'Exco SAS', 'url': SITE_URL + '/',
