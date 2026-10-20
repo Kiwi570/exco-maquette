@@ -8,7 +8,7 @@ export let lenis = null;
 export function applyLang() {
   const L = lang();
   const other = L === 'en' ? 'fr' : 'en';
-  $$(`[lang="${other}"]`).forEach((n) => { if (n !== html) n.remove(); });
+  $$(`[lang="${other}"]:not([data-keep])`).forEach((n) => { if (n !== html) n.remove(); });
   if (L === 'en') {
     $$('[data-en-placeholder]').forEach((e) => (e.placeholder = e.dataset.enPlaceholder));
     $$('[data-en-alt]').forEach((e) => (e.alt = e.dataset.enAlt));
@@ -59,6 +59,9 @@ export function initScroll() {
     closeMenu();
     scrollToEl(t);
     history.replaceState(null, '', id);
+    // le focus suit l'ancre (lien d'évitement, sommaire) : le Tab suivant part de la cible
+    if (!t.matches('a, button, input, select, textarea, [tabindex]')) t.setAttribute('tabindex', '-1');
+    t.focus({ preventScroll: true });
   });
   if (location.hash && location.hash.length > 1) {
     let t = null; try { t = document.querySelector(location.hash); } catch (e) {}
@@ -86,6 +89,8 @@ export function initHeader() {
     last = y;
   };
   window.addEventListener('scroll', upd, { passive: true }); upd();
+  // au clavier, l'en-tête reste visible tant qu'un de ses liens a le focus
+  hd.addEventListener('focusin', (e) => { if (e.target.matches(':focus-visible')) hd.classList.remove('is-up'); });
   // sections actives
   const links = $$('.hd__nav a[href^="#"]');
   links.forEach((a) => {
@@ -153,8 +158,10 @@ export function initMagnetic() {
   $$('.btn').forEach((b) => b.addEventListener('pointerenter', (e) => { const r = b.getBoundingClientRect(); b.style.setProperty('--mx', `${e.clientX - r.left}px`); }));
   if (!finePointer() || reduced()) return;
   $$('[data-magnetic]').forEach((b) => {
-    const x = gsap.quickTo(b, 'x', { duration: .5, ease: 'elastic.out(1,.4)' }), y = gsap.quickTo(b, 'y', { duration: .5, ease: 'elastic.out(1,.4)' });
-    b.addEventListener('pointermove', (e) => { const r = b.getBoundingClientRect(); x((e.clientX - r.left - r.width / 2) * .28); y((e.clientY - r.top - r.height / 2) * .38); });
+    // attraction discrète : 6 px au plus, sans rebond
+    const x = gsap.quickTo(b, 'x', { duration: .4, ease: 'power3.out' }), y = gsap.quickTo(b, 'y', { duration: .4, ease: 'power3.out' });
+    const c6 = (v) => Math.max(-6, Math.min(6, v));
+    b.addEventListener('pointermove', (e) => { const r = b.getBoundingClientRect(); x(c6((e.clientX - r.left - r.width / 2) * .12)); y(c6((e.clientY - r.top - r.height / 2) * .2)); });
     b.addEventListener('pointerleave', () => { x(0); y(0); });
   });
 }
@@ -213,17 +220,18 @@ export function runIntro() {
 // ---------- titres : les lettres montent, la graisse se pose ----------
 // le découpage lettre par lettre se fait juste avant que le titre n'arrive à l'écran (et pas au chargement)
 export function revealTitles(root = document) {
-  if (!window.SplitText || reduced()) return;
+  // les titres d'ouverture sont masqués en CSS jusqu'à ce que leur découpage soit prêt (pas d'aller-retour visible)
+  const ready = () => $$('[data-hero] [data-reveal]', root).forEach((h) => h.classList.add('is-ready'));
+  if (!window.SplitText || reduced()) { ready(); return; }
   $$('[data-reveal]', root).forEach((h) => {
     if (h.dataset.split) return; h.dataset.split = '1';
     const prep = () => {
       if (h._reveal) return h._reveal;
       // mots gardés entiers (pas de coupure au milieu d'un mot), découpage retiré une fois le titre posé
       const split = new window.SplitText(h, { type: 'lines,words,chars', linesClass: 'tr-line', wordsClass: 'tr-word', charsClass: 'tr-char' });
-      const final = parseFloat(getComputedStyle(h).fontWeight) || 380;
       const tl = gsap.timeline({ paused: true, onComplete: () => { split.revert(); } });
-      tl.fromTo(split.chars, { yPercent: 118 }, { yPercent: 0, duration: 1, ease: 'exco', stagger: { each: .016, from: 'start' } })
-        .fromTo(h, { fontWeight: Math.max(300, final - 160) }, { fontWeight: final, duration: 1.6, ease: 'power2.out' }, 0);
+      tl.fromTo(split.chars, { yPercent: 118 }, { yPercent: 0, duration: 1, ease: 'exco', stagger: { each: .016, from: 'start' } });
+      h.classList.add('is-ready');
       h._reveal = tl; return tl;
     };
     if (h.closest('[data-hero]')) { prep(); return; } // déclenché après l'ouverture
@@ -263,7 +271,8 @@ export function counters() {
     n.setAttribute('aria-label', pre + fmtNum(target));
     const box = document.createElement('span'); box.setAttribute('aria-hidden', 'true'); box.className = 'count';
     box.innerHTML = fmt(pre, target); n.innerHTML = ''; n.appendChild(box);
-    if (reduced()) return;
+    // petits nombres (« 2 jours ») et chiffres déjà à l'écran au chargement : affichés tels quels, sans compteur
+    if (reduced() || target < 10 || n.getBoundingClientRect().top < window.innerHeight) return;
     const o = { v: 0 };
     box.innerHTML = fmt(pre, 0);
     window.ScrollTrigger.create({ trigger: n, start: 'top 85%', once: true, onEnter: () => {
@@ -331,10 +340,12 @@ export function initDropdowns() {
   };
   btns.forEach((b) => {
     const item = b.closest('.nav-item');
-    b.addEventListener('click', () => (open === b ? close() : show(b)));
+    // un clic juste après l'ouverture au survol ne referme pas le menu
+    let shownAt = 0;
+    b.addEventListener('click', () => { if (open === b && performance.now() - shownAt > 400) close(); else { show(b); shownAt = 0; } });
     b.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown') { e.preventDefault(); show(b); const a = panel(b).querySelector('a'); if (a) a.focus(); } });
     if (hover && item) {
-      item.addEventListener('pointerenter', () => { clearTimeout(tOut); clearTimeout(tIn); tIn = setTimeout(() => show(b), open ? 0 : 110); });
+      item.addEventListener('pointerenter', () => { clearTimeout(tOut); clearTimeout(tIn); tIn = setTimeout(() => { if (open !== b) shownAt = performance.now(); show(b); }, open ? 0 : 110); });
       item.addEventListener('pointerleave', () => { clearTimeout(tIn); tOut = setTimeout(() => { if (open === b) close(); }, 200); });
     }
   });
@@ -375,6 +386,7 @@ export function initShare() {
   $$('[data-share]').forEach((b) => b.addEventListener('click', async () => {
     const url = location.href.split('#')[0];
     const lab = b.innerHTML;
+    b.setAttribute('aria-live', 'polite');
     try { await navigator.clipboard.writeText(url); b.textContent = T('Lien copié', 'Link copied'); }
     catch (e) { b.textContent = url; }
     setTimeout(() => { b.innerHTML = lab; }, 1800);
@@ -389,5 +401,16 @@ export function initToc() {
   links.forEach((a, i) => {
     const t = document.querySelector(a.getAttribute('href')); if (!t) return;
     window.ScrollTrigger.create({ trigger: t, start: 'top 40%', onEnter: () => set(i), onLeaveBack: () => set(i - 1) });
+  });
+}
+
+// ---------- liens qui ouvrent un nouvel onglet : signalés aux lecteurs d'écran (v14) ----------
+export function newTabHints() {
+  const hint = T('nouvel onglet', 'opens in a new tab');
+  $$('a[target="_blank"]').forEach((a) => {
+    if (a.dataset.nt) return; a.dataset.nt = '1';
+    const al = a.getAttribute('aria-label');
+    if (al) a.setAttribute('aria-label', `${al} (${hint})`);
+    else a.insertAdjacentHTML('beforeend', `<span class="sr"> (${hint})</span>`);
   });
 }

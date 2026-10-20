@@ -1,6 +1,6 @@
 """Composants de page partagés : ouverture des pages intérieures, bandeau d'appel, cartes, chiffres."""
 import os
-from .common import bi, bie, esc, attr, ico, ROOT
+from .common import bi, bie, esc, attr, ico, ROOT, nbl
 from .partials import crumbs, CAT
 
 
@@ -23,7 +23,7 @@ def img_tag(r, base, w_list, alt_fr='', alt_en=None, sizes='(max-width: 900px) 9
 def ihero(r, items, title, lead=None, sub=None, media='', icon=None, actions='', facts='', plain=False, tall=False, chip='', hid='page-title', night=False):
     """Ouverture d'une page intérieure. title, lead, sub : (fr, en)."""
     cls = 'ihero' + (' ihero--plain' if plain or not media else '')
-    t = bi(*title) if isinstance(title, tuple) else title
+    t = bi(*(nbl(x) if x else x for x in title)) if isinstance(title, tuple) else title
     # avec une image, le fil d'Ariane reste en haut, sous l'en-tête, au lieu de flotter au milieu de l'ouverture
     top = f'<div class="wrap">{crumbs(r, items)}</div>' if media else ''
     parts = [] if media else [crumbs(r, items)]
@@ -92,13 +92,16 @@ def sector_card(r, x, tag='a', notes=True):
     if x['dfr'].startswith('Texte à'):  # description manquante : note de maquette, jamais dans les bandeaux « D'autres secteurs »
         d = f'<p class="review"><span class="chip chip--todo">{bie(x["dfr"], x["den"])}</span></p>' if notes else ''
     return (f'<a class="sector" href="{r}secteurs/{x["slug"]}.html" data-transition><div class="sector__img"><img src="{r}assets/img/grok/{x["img"]}.webp" alt="" loading="lazy" width="800" height="1000" style="width:100%;height:100%;object-fit:cover"></div>'
-            f'<h3 class="sector__t">{bie(x["fr"], x["en"])}</h3>{d}</a>')
+            f'<h3 class="sector__t">{bie(nbl(x["fr"]), nbl(x["en"]))}</h3>{d}</a>')
 
 
 def bi_div(fr_html, en_html, cls='rich', extra=''):
     """Bloc entier dans chaque langue (les contenus FR et EN n'ont pas la même structure)."""
     if not en_html or en_html == fr_html:
-        return f'<div class="{cls}"{extra}>{fr_html}</div>'
+        from .fixes import looks_fr
+        import re as _r
+        lk = ' lang="fr" data-keep' if looks_fr(_r.sub(r'<[^>]+>', ' ', fr_html)) else ''  # v14 : français signalé en anglais
+        return f'<div class="{cls}"{lk}{extra}>{fr_html}</div>'
     return f'<div class="{cls}" lang="fr"{extra}>{fr_html}</div><div class="{cls}" lang="en"{extra}>{en_html}</div>'
 
 

@@ -49,6 +49,19 @@ export async function resolvePlace(q) {
   if (pre) return { lat: pre[1][1], lon: pre[1][2], label: pre[1][0] };
   return null;
 }
+// v14 : lieu saisi dans le formulaire ou ailleurs : d'abord la ville ou le nom d'un cabinet (France et international), puis les communes
+const wordHitC = (c, n) => ` ${norm(`${c.n} ${c.c}`)}`.includes(` ${n}`);
+const scoreC = (c, n) => (norm(c.c) === n ? 0 : norm(c.n).endsWith(` ${n}`) || norm(c.n) === `exco ${n}` ? 1 : 2);
+export async function resolveAny(q) {
+  q = (q || '').trim(); if (!q) return null;
+  const n = norm(q);
+  if (!/^\d/.test(q) && n.length >= 3) {
+    const cabs = await loadCabinets();
+    const hits = cabs.filter((c) => wordHitC(c, n)).sort((a, b) => scoreC(a, n) - scoreC(b, n));
+    if (hits.length && scoreC(hits[0], n) < 2) { const c = hits[0]; return { lat: c.lat, lon: c.lon, label: c.c, cab: c }; }
+  }
+  return resolvePlace(q);
+}
 export function nearest(list, lat, lon, k = 3) {
   return list.map((c) => ({ c, d: haversine([lat, lon], [c.lat, c.lon]) })).sort((a, b) => a.d - b.d).slice(0, k);
 }
@@ -145,7 +158,7 @@ export async function initFinder() {
   const insets = $('[data-map-insets]', root);
   ZONES_OM.forEach(([code, cc, name]) => {
     const box = document.createElement('div'); box.className = 'inset';
-    const s = mk('svg', { viewBox: vbOf(code), preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': name });
+    const s = mk('svg', { viewBox: vbOf(code), preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': name, class: 'inset__map' });
     s.appendChild(mk('path', { d: map.dom[code] || '', class: 'dom' }));
     const vbw = map.views[code][2];
     cabs.filter((c) => c.cc === cc).forEach((c) => { const p = mk('circle', { cx: c.x, cy: c.y, r: vbw / 40, class: 'pin', 'stroke-width': vbw / 160, 'data-id': c.id }); p.addEventListener('click', () => select(c.id, true)); s.appendChild(p); });
@@ -169,9 +182,10 @@ export async function initFinder() {
   function setZone(z, fromSelect = false) {
     if (st.zone === z && !fromSelect) return;
     st.zone = z;
+    if (!fromSelect) { st.ref = null; st.match = null; }
     $$('[data-zone]', root).forEach((b) => b.setAttribute('aria-pressed', b.dataset.zone === z ? 'true' : 'false'));
     const om = z === 'om';
-    insets.hidden = !om; svg.classList.toggle('zone-fr', z === 'fr'); gsap.to(svg, { opacity: om ? 0 : 1, duration: .4 }); svg.style.pointerEvents = om ? 'none' : '';
+    insets.hidden = !om; zoom.hidden = om; svg.classList.toggle('zone-fr', z === 'fr'); gsap.to(svg, { opacity: om ? 0 : 1, duration: .4 }); svg.style.pointerEvents = om ? 'none' : '';
     if (!om) setView(vbOf(z));
     render();
   }
@@ -192,6 +206,8 @@ export async function initFinder() {
   }
   function render() {
     const L = filtered();
+    // compteurs des filtres : dans la zone affichée (ou la recherche en cours)
+    $$('button[data-k]', chips).forEach((b) => { const k = b.dataset.k; const n = cabs.filter((c) => (st.match ? st.match.has(c.id) : zoneOf(c) === st.zone) && c.s.includes(k)).length; b.textContent = `${svcLabel(k)} (${n})`; });
     fcount.textContent = st.svc.size ? String(st.svc.size) : '';
     const where = st.match ? T('correspondant à « ', 'matching "') + st.q + T(' »', '"') : st.ref ? (st.ref.dep ? T('autour du département ', 'around département ') + st.ref.label : (lang() === 'en' ? 'around ' + st.ref.label : (/^[aeiouyàâéèêîôûœ]/i.test(st.ref.label) ? 'autour d’' : 'autour de ') + st.ref.label)) : '';
     countEl.textContent = `${L.length} ${L.length > 1 ? T('cabinets', 'offices') : T('cabinet', 'office')}${where ? ' ' + where : ''}${st.svc.size && cabs.some((c) => !c.s.length) ? T('. Certains cabinets n’ont pas encore de services renseignés.', '. Some offices have no services listed yet.') : ''}`;
@@ -218,7 +234,7 @@ export async function initFinder() {
         <span><span class="cab__name" style="display:block">${c.n}</span>
         <span class="cab__meta" style="display:block">${c.c}${c.reg !== 'fr' ? ', ' + c.co[lang() === 'en' ? 1 : 0] : ''}${c._d !== undefined && c._d >= .5 ? `<span class="cab__dist">${c._d < 10 ? c._d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(c._d)} km</span>` : ''}</span>
         <span class="status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}">${s.text}</span></span></button>`;
-      li.firstElementChild.addEventListener('click', () => select(c.id, false));
+      li.firstElementChild.addEventListener('click', (e) => select(c.id, false, e.detail === 0));
       li.firstElementChild.addEventListener('mouseenter', () => pulse(c));
       list.appendChild(li);
     });
@@ -244,7 +260,7 @@ export async function initFinder() {
       el.className = `status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}`; el.textContent = s.text;
     });
   }
-  function closeCard() { card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); sizeMarks(); }
+  function closeCard() { card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); sizeMarks(); if (typeof syncURL === 'function') syncURL(); }
   function pulse(c) {
     if (reduced()) return;
     const w = svg.viewBox.baseVal.width;
@@ -253,7 +269,7 @@ export async function initFinder() {
 
   // ---------- fiche sur la carte ----------
   const card = $('[data-map-card]', root);
-  function select(id, fromMap) {
+  function select(id, fromMap, kbd = false) {
     const c = cabs.find((x) => x.id === id); if (!c) return;
     st.active = id;
     if (c.reg !== st.zone && !st.match) setZone(c.reg, true);
@@ -276,7 +292,7 @@ export async function initFinder() {
         <p class="mc__name"><a href="${base()}cabinets/${c.id}.html" data-transition style="text-decoration:none">${c.n}</a></p>
         <p class="mc__row">${c.g ? T('Groupe ', 'Group ') + c.g : ''}</p>
         <p class="mc__row"><span class="status ${s.open ? 'status--open' : ''}">${s.text}</span> <small>(${T('heure locale', 'local time')})</small></p>
-        <p class="mc__row">${c.a}<br><span class="copy" data-copy="${c.t}">${c.t}</span></p>
+        <p class="mc__row">${c.a}<br>${c.t ? `<a class="tel" href="tel:${c.t.replace(/[^0-9+]/g, '')}">${c.t}</a>` : ''}</p>
         <p class="mc__links"><a href="${base()}cabinets/${c.id}.html" data-transition>${T('Voir la fiche du cabinet', 'See the office page')}</a><a href="${maps}" target="_blank" rel="noopener">${T('Itinéraire', 'Directions')}</a><a href="${base()}contact.html#${c.id}" data-transition>${T('Prendre rendez-vous', 'Book a meeting')}</a></p>
         ${c.s.length ? `<p class="mc__svc">${c.s.map((k) => `<span>${svcLabel(k)}</span>`).join('')}</p>` : `<p class="mc__row"><span class="chip chip--todo">${T('Services à compléter', 'Services to be added')}</span></p>`}
       </div>`;
@@ -287,7 +303,9 @@ export async function initFinder() {
     if (!fromMap && window.innerWidth < 700) setTimeout(() => card.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }), 80);
     $$('[data-copy]', card).forEach((el) => el.addEventListener('click', () => navigator.clipboard?.writeText(el.dataset.copy).catch(() => {})));
     initPlaceholders();
-    try { sessionStorage.setItem('exco-last-cab', id); } catch (e) {}
+    card.tabIndex = -1; card.setAttribute('role', 'region'); card.setAttribute('aria-label', c.n);
+    if (kbd) card.focus({ preventScroll: window.innerWidth >= 700 });
+    syncURL();
   }
 
   // ---------- recherche ----------
@@ -295,12 +313,13 @@ export async function initFinder() {
   let sugItems = [], sugI = -1;
   const closeSug = () => { sug.hidden = true; sugItems = []; sugI = -1; input.setAttribute('aria-expanded', 'false'); };
   input.setAttribute('role', 'combobox'); input.setAttribute('aria-autocomplete', 'list'); input.setAttribute('aria-expanded', 'false');
+  if (sug.id || (sug.id = 'finder-suggest')) input.setAttribute('aria-controls', sug.id);
   input.addEventListener('input', async () => {
     const q = input.value.trim(); if (q.length < 2) { closeSug(); if (!q) clearQuery(); return; }
     const n = norm(q);
     const cabHits = cabs.filter((c) => wordHit(c, n) || c.pc.startsWith(q)).sort((a, b) => score(a, n) - score(b, n)).slice(0, 4).map((c) => ({ type: 'cab', label: c.n, sub: c.c, c }));
     const g = await loadGaz();
-    const townHits = /^\d/.test(q) ? [] : g.idx.filter(([k]) => k.startsWith(n)).slice(0, 4).map(([, t]) => ({ type: 'town', label: t[0], sub: T('autour de cette ville', 'around this town'), t }));
+    const townHits = /^\d/.test(q) ? [] : g.idx.filter(([k]) => k.startsWith(n)).sort((a, b) => (a[0] === n ? -1 : 0) - (b[0] === n ? -1 : 0) || a[0].length - b[0].length).slice(0, 4).map(([, t]) => ({ type: 'town', label: t[0], sub: T('autour de cette ville', 'around this town'), t }));
     sugItems = [...cabHits, ...townHits];
     if (!sugItems.length) { closeSug(); return; }
     sug.innerHTML = sugItems.map((s, i) => `<li role="option" id="sug-${i}" aria-selected="false">${s.label}<small>${s.sub}</small></li>`).join('');
@@ -320,7 +339,17 @@ export async function initFinder() {
     if (s.type === 'cab') { input.value = s.c.n; st.match = null; st.ref = null; st.q = ''; select(s.c.id, true); render(); }
     else { input.value = s.label; setRef({ lat: s.t[1], lon: s.t[2], label: s.label }); }
   }
-  function clearQuery() { st.match = null; st.ref = null; st.q = ''; render(); }
+  function clearQuery() { st.match = null; st.ref = null; st.q = ''; if (!card.hidden) closeCard(); render(); syncURL(); }
+  // l'adresse garde la recherche et le cabinet choisi : le retour depuis une fiche retrouve la liste telle qu'elle était
+  function syncURL() {
+    try {
+      const u = new URL(location.href);
+      const q = input.value.trim();
+      q ? u.searchParams.set('q', q) : u.searchParams.delete('q');
+      st.active ? u.searchParams.set('cab', st.active) : u.searchParams.delete('cab');
+      history.replaceState(history.state, '', u);
+    } catch (e) {}
+  }
   function setRef(ref) {
     st.match = null; st.ref = ref; st.q = '';
     const near = nearest(cabs, ref.lat, ref.lon, 5);
@@ -348,6 +377,14 @@ export async function initFinder() {
       if (ref) { setRef(ref); return; }
     }
     const hits = /^\d{2,3}$/.test(q) ? [] : cabs.filter((c) => wordHit(c, n)).sort((a, b) => score(a, n) - score(b, n));
+    const groupOnly = hits.length > 1 && score(hits[0], n) === 2 && hits.every((c) => c.g === hits[0].g) && !norm(hits[0].n).includes(` ${n}`);
+    if (groupOnly) {
+      st.match = new Set(hits.map((c) => c.id)); st.ref = null; if (!card.hidden) closeCard();
+      render(); syncURL();
+      const xs = hits.map((c) => c.x), ys = hits.map((c) => c.y), w = Math.max(40, (Math.max(...xs) - Math.min(...xs)) * 1.5);
+      if (hits[0].reg !== 'om') setView(`${(Math.min(...xs) + Math.max(...xs)) / 2 - w / 2} ${(Math.min(...ys) + Math.max(...ys)) / 2 - w * .36} ${w} ${w * .72}`, 1.2);
+      return;
+    }
     if (hits.length) {
       const c = hits[0];
       const tok = `${c.c} ${c.n}`.split(/[\s–-]+/).find((w) => norm(w).startsWith(n));
@@ -369,7 +406,8 @@ export async function initFinder() {
   render();
   setInterval(refreshStatus, 60000);
   // recherche transmise par l'adresse (page 404, recherche de l'accueil sans JavaScript) : cabinets.html?q=Albi
-  const qp = new URLSearchParams(location.search).get('q');
-  if (qp) { input.value = qp; query(qp); }
+  const sp = new URLSearchParams(location.search), qp = sp.get('q'), cp = sp.get('cab');
+  if (qp) { input.value = qp; await query(qp); }
+  if (cp && cabs.some((c) => c.id === cp)) select(cp, true);
   return { query: (q) => { input.value = q; query(q); }, select };
 }

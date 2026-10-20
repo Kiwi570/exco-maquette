@@ -85,7 +85,7 @@ def ledger(mode='check'):
           f'<line class="v-ink v-w5" x1="250" y1="{yt}" x2="300" y2="{yt}" data-a="draw" data-t=".7"/>',
           f'<line class="v-ink v-w1" x1="248" y1="{yt + 10}" x2="302" y2="{yt + 10}" data-a="draw" data-t="1.9"/>',
           f'<line class="v-ink v-w1" x1="248" y1="{yt + 14}" x2="302" y2="{yt + 14}" data-a="draw" data-t="2"/>',
-          '<g class="v-mag" data-loop="mag"><circle class="v-lens" cx="0" cy="0" r="24"/><line class="v-ink v-w4" x1="17" y1="17" x2="34" y2="34"/></g>']
+          '<g class="v-mag" data-loop="mag" transform="translate(268,92)"><circle class="v-lens" cx="0" cy="0" r="24"/><line class="v-ink v-w4" x1="17" y1="17" x2="34" y2="34"/></g>']
     return plate('ledger', svg(''.join(o)), mod=mode)
 
 
@@ -153,10 +153,11 @@ def path(steps):
     pts = list(zip(xs, ys))
     full = [(8, ys[0] + 6)] + pts + [(390, ys[-1] - 28)]
     o = [f'<path class="v-track" d="{_smooth(full)}"/>',
-         f'<path class="v-ink v-w2" d="{_smooth(full)}" data-a="draw" data-t="0" data-run/>']
+         f'<path class="v-ink v-w2" d="{_smooth(full)}" data-a="draw" data-t="0" data-run/>',
+         f'<circle class="v-runner" r="5" cx="8" cy="{_f(ys[0] + 6)}" opacity="0" data-loop="run"/>']
     ch = 15 if n <= 4 else 12
     for i, (x, y) in enumerate(pts):
-        t = .25 + (i + 1) / (n + 1) * 1.3
+        t = (i + 1) / (n + 1) * .85
         o.append(f'<circle class="v-node{" v-node--last" if i == n - 1 else ""}" cx="{_f(x)}" cy="{_f(y)}" r="12" data-a="pop" data-t="{t:.2f}"/>')
         o.append(f'<text class="v-nn" x="{_f(x)}" y="{_f(y + 4)}" text-anchor="middle" data-a="fade" data-t="{t + .1:.2f}">{i + 1}</text>')
         fr, en = steps[i]
@@ -164,7 +165,6 @@ def path(steps):
         below = i % 2 == 1 or i == 0
         ty = y + 30 if below else y - 22 - (lines - 1) * 13
         o.append(f'<g data-a="fade" data-t="{t + .15:.2f}">{svg_text(x, ty, fr, en, n=ch, cls="v-t", lh=13)}</g>')
-    o.append(f'<circle class="v-runner" r="5" cx="8" cy="{_f(ys[0] + 6)}" data-loop="run"/>')
     return plate('path', svg(''.join(o)))
 
 
@@ -232,12 +232,12 @@ def metiers(cur, others):
         a = -math.pi / 2 + math.pi / n + k * 2 * math.pi / n
         x, y = 200 + 106 * math.cos(a), 150 + 106 * math.sin(a) * .92
         o.append(f'<line class="v-link" x1="200" y1="150" x2="{_f(x)}" y2="{_f(y)}" data-a="draw" data-t="{.3 + k * .1:.2f}"/>')
-        o.append(f'<circle class="v-sat" cx="{_f(x)}" cy="{_f(y)}" r="36" data-a="pop" data-t="{.5 + k * .1:.2f}"/>')
+        o.append(f'<circle class="v-sat" cx="{_f(x)}" cy="{_f(y)}" r="41" data-a="pop" data-t="{.5 + k * .1:.2f}"/>')
         nl = max(len(wrap(fr, 11)), len(wrap(en, 11)))
         o.append(f'<g data-a="fade" data-t="{.65 + k * .1:.2f}">{svg_text(x, y + 4 - (nl - 1) * 6, fr, en, n=11, cls="v-t v-t--s", lh=12)}</g>')
     nl = max(len(wrap(cur[0], 12)), len(wrap(cur[1], 12)))
-    o.append('<circle class="v-ring" cx="200" cy="150" r="54" data-a="draw" data-t=".1"/>')
-    o.append('<circle class="v-fi" cx="200" cy="150" r="47" data-a="pop" data-t="0"/>')
+    o.append('<circle class="v-ring" cx="200" cy="150" r="58" data-a="draw" data-t=".1"/>')
+    o.append('<circle class="v-fi" cx="200" cy="150" r="51" data-a="pop" data-t="0"/>')
     o.append(f'<g data-a="fade" data-t=".2">{svg_text(200, 155 - (nl - 1) * 7, cur[0], cur[1], n=12, cls="v-t v-t--inv", lh=14)}</g>')
     return plate('metiers', svg(''.join(o)))
 
@@ -317,7 +317,7 @@ def gantt():
             s2 = bars[i + 1][0]; x2 = 40 + s2 * 26.5 + 3
             xe = x + w
             o.append(f'<path class="v-link" d="M{_f(xe)},{y + 8.5} h8 V{y + 37 + 8.5} H{_f(x2)}" data-a="draw" data-t="{.35 + i * .16:.2f}"/>')
-    o.append('<g data-loop="today"><line class="v-or v-w2 v-dash" x1="0" y1="32" x2="0" y2="270"/><path class="v-fo" d="M-6,28 h12 l-6,8z"/></g>')
+    o.append('<g data-loop="today" transform="translate(200,0)"><line class="v-or v-w2 v-dash" x1="0" y1="32" x2="0" y2="270"/><path class="v-fo" d="M-6,28 h12 l-6,8z"/></g>')
     return plate('gantt', svg(''.join(o)))
 
 
@@ -331,7 +331,7 @@ def cycle():
         x, y = cx + r * math.cos(a), cy + r * math.sin(a)
         tx, ty = cx + (r + 20) * math.cos(a), cy + (r + 20) * math.sin(a)
         o.append(f'<circle class="v-mdot" cx="{_f(x)}" cy="{_f(y)}" r="6" data-m="{k}" data-a="pop" data-t="{.1 + k * .05:.2f}"/>')
-        o.append(f'<text class="v-t v-t--s" x="{_f(tx)}" y="{_f(ty + 4)}" text-anchor="middle">{M[k]}</text>')
+        o.append(f'<text class="v-t v-t--s" x="{_f(tx)}" y="{_f(ty + 4)}" text-anchor="middle" data-a="fade" data-t="{.1 + k * .05:.2f}">{M[k]}</text>')
     o.append(f'<g data-loop="hand" transform="translate({cx},{cy})"><line class="v-ink v-w3" x1="0" y1="0" x2="0" y2="-84"/><circle class="v-fi" cx="0" cy="0" r="7"/></g>')
     o.append(f'<g data-a="fade" data-t=".6"><rect class="v-sheet" x="{cx - 26}" y="{cy + 22}" width="52" height="62" rx="3"/>'
              f'<line class="v-ink v-w3" x1="{cx - 16}" y1="{cy + 36}" x2="{cx + 8}" y2="{cy + 36}"/>'
@@ -394,12 +394,12 @@ def steps():
     pts.append((372, y))
     d = 'M' + ' L'.join(f'{a},{b}' for a, b in pts)
     o = [f'<path class="v-track" d="{d}" transform="translate(6,8)"/>',
-         f'<path class="v-ink v-w3" d="{d}" data-a="draw" data-t="0" data-run/>']
+         f'<path class="v-ink v-w3" d="{d}" data-a="draw" data-t="0" data-run/>',
+         '<circle class="v-runner" r="5" cx="36" cy="258" opacity="0" data-loop="run"/>']
     for k in range(5):
         cx, cy = pts[2 + 2 * k]
         o.append(f'<circle class="{"v-fo" if k == 4 else "v-node"}" cx="{cx}" cy="{cy}" r="{9 if k == 4 else 7}" data-a="pop" data-t="{.3 + k * .22:.2f}"/>')
     o.append(f'<path class="v-or v-w3" d="M356,{y - 10} L372,{y} L356,{y + 10}" data-a="draw" data-t="1.4"/>')
-    o.append('<circle class="v-runner" r="5" cx="36" cy="258" data-loop="run"/>')
     return plate('steps', svg(''.join(o)))
 
 
@@ -461,3 +461,11 @@ def map_plate(cap, **data):
     d = ''.join(f' data-{k.replace("_", "-")}="{attr(str(v))}"' for k, v in data.items() if v not in (None, ''))
     return (f'<figure class="viz viz--map" data-viz="map"{d}><div class="viz__stage"><svg class="vmap" aria-hidden="true" focusable="false"></svg></div>'
             f'<figcaption class="viz__cap">{cap}</figcaption></figure>')
+
+
+# ---------- vraie photo du réseau dans une section (v14 : moins de planches génériques) ----------
+def photo(r, base, alt, cap):
+    """base : chemin sans taille (assets/img/convention/xxx) ; alt et cap : (fr, en)."""
+    return (f'<figure class="viz viz--photo"><div class="viz__stage"><img src="{r}{base}-800.webp" srcset="{r}{base}-800.webp 800w, {r}{base}-1600.webp 1600w" '
+            f'sizes="(max-width: 900px) 92vw, 34vw" alt="{attr(alt[0])}" data-en-alt="{attr(alt[1])}" loading="lazy" width="800" height="533"></div>'
+            f'<figcaption class="viz__cap">{bie(*cap)}</figcaption></figure>')

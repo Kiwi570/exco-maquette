@@ -60,7 +60,7 @@ function extras(fig, kind, tl) {
       R.setAttribute('transform', `translate(${(200 + 116 * c).toFixed(1)},${(104 + 116 * s).toFixed(1)})`);
     };
     set();
-    tl.to(o, { a: 0, duration: 2.6, ease: 'elastic.out(1, .32)', onUpdate: set }, .3);
+    tl.to(o, { a: 0, duration: 1.5, ease: 'power3.out', onUpdate: set }, .3);
   }
   if (kind === 'doc') {
     const st = $('[data-stamp]', fig);
@@ -72,7 +72,7 @@ function extras(fig, kind, tl) {
     const mag = $('[data-loop="mag"]', fig);
     gsap.set(mag, { x: 268, y: 92 });
     tl.from(mag, { opacity: 0, duration: .5 }, .2);
-    loops.push(gsap.timeline({ paused: true, repeat: -1, yoyo: true, defaults: { duration: 1.6, ease: 'sine.inOut' } })
+    loops.push(gsap.timeline({ paused: true, repeat: 1, yoyo: true, defaults: { duration: 1.6, ease: 'sine.inOut' } })
       .to(mag, { x: 150, y: 140 }).to(mag, { x: 270, y: 186 }).to(mag, { x: 170, y: 236 }));
   }
   const run = $('[data-loop="run"]', fig), rp = $('[data-run]', fig);
@@ -80,8 +80,8 @@ function extras(fig, kind, tl) {
     // un point parcourt le chemin, du départ à l'arrivée
     const len = rp.getTotalLength(); const o = { p: 0 };
     const set = () => { const pt = rp.getPointAtLength(o.p * len); run.setAttribute('cx', pt.x.toFixed(1)); run.setAttribute('cy', pt.y.toFixed(1)); };
-    set(); gsap.set(run, { opacity: 0 });
-    loops.push(gsap.timeline({ paused: true, repeat: -1, repeatDelay: .8 })
+    set(); gsap.set(run, { opacity: 0, attr: { opacity: 1 } });
+    loops.push(gsap.timeline({ paused: true, repeat: 1, repeatDelay: .8 })
       .to(run, { opacity: 1, duration: .3 }).to(o, { p: 1, duration: 4.2, ease: 'power1.inOut', onUpdate: set }, 0).to(run, { opacity: 0, duration: .3 }, '-=.3'));
   }
   const today = $('[data-loop="today"]', fig);
@@ -89,7 +89,7 @@ function extras(fig, kind, tl) {
     // la ligne « aujourd'hui » avance sur le planning
     gsap.set(today, { x: 60, opacity: 0 });
     tl.to(today, { opacity: 1, duration: .4 }, 1.2);
-    loops.push(gsap.fromTo(today, { x: 60 }, { x: 352, duration: 9, ease: 'none', repeat: -1, paused: true }));
+    loops.push(gsap.fromTo(today, { x: 60 }, { x: 260, duration: 5, ease: 'power1.inOut', paused: true }));
   }
   const hand = $('[data-loop="hand"]', fig);
   if (hand) {
@@ -101,11 +101,13 @@ function extras(fig, kind, tl) {
       dots.forEach((d, i) => d.classList.toggle('is-on', i <= m));
     };
     set();
-    loops.push(gsap.to(o, { a: 360, duration: 12, ease: 'none', repeat: -1, paused: true, onUpdate: set }));
+    loops.push(gsap.to(o, { a: 359.9, duration: 10, ease: 'none', paused: true, onUpdate: set }));
   }
   $$('[data-spin]', fig).forEach((g) => {
-    const dir = +g.dataset.spin; const o = { a: 0 };
-    loops.push(gsap.to(o, { a: 360 * dir, duration: dir > 0 ? 60 : 80, ease: 'none', repeat: -1, paused: true, onUpdate: () => g.setAttribute('transform', `rotate(${o.a.toFixed(2)} 200 150)`) }));
+    // un quart de tour à l'entrée, puis immobile
+    const dir = +g.dataset.spin; const o = { a: -20 * dir };
+    g.setAttribute('transform', `rotate(${o.a} 200 150)`);
+    tl.to(o, { a: 0, duration: 1.6, ease: 'power3.out', onUpdate: () => g.setAttribute('transform', `rotate(${o.a.toFixed(2)} 200 150)`) }, .2);
   });
   if ($('.v-pulse', fig)) loops.push(gsap.timeline({ paused: true })); // pulsation en CSS (classe is-play)
   return loops;
@@ -141,14 +143,15 @@ function initHelix(fig) {
   gsap.set([...R.map((r) => r.l), ...R.map((r) => r.c)], { opacity: 0 });
   gsap.set(D.map((d) => d.c), { opacity: 0 });
   let run = false, last = 0, started = false;
-  const tick = (t) => { if (!run) return; const dt = Math.min(.05, (t - last) / 1000 || 0); last = t; ph += dt * .55; draw(); requestAnimationFrame(tick); };
+  let spun = 0;
+  const tick = (t) => { if (!run) return; const dt = Math.min(.05, (t - last) / 1000 || 0); last = t; spun += dt; const k = Math.max(0, 1 - Math.max(0, spun - 4) / 3); ph += dt * .55 * k; draw(); if (k > 0) requestAnimationFrame(tick); else run = false; };
   window.ScrollTrigger.create({ trigger: fig, start: 'top 84%', once: true, onEnter: () => {
     gsap.to(D.map((d) => d.c), { opacity: (i, el) => +el.getAttribute('opacity') || .7, duration: .5, stagger: .012, clearProps: 'opacity' });
     gsap.to(R.map((r) => r.c), { opacity: 1, duration: .4, stagger: .12, delay: .5 });
     gsap.to(R.map((r) => r.l), { opacity: .8, duration: .4, stagger: .12, delay: .5, onComplete: () => { started = true; if (vis) { run = true; last = performance.now(); requestAnimationFrame(tick); } }, clearProps: 'opacity' });
   } });
   let vis = false;
-  onVisible(fig, (v) => { vis = v; if (!started) return; if (v && !run) { run = true; last = performance.now(); requestAnimationFrame(tick); } else if (!v) run = false; });
+  onVisible(fig, (v) => { vis = v; if (!started || spun > 7) return; if (v && !run) { run = true; last = performance.now(); requestAnimationFrame(tick); } else if (!v) run = false; });
 }
 
 // ---------- cartes : un groupe, un service, la France ou l'international ----------
@@ -206,7 +209,8 @@ function drawMap(fig, map, cabs) {
     svg.append(ring, fdot);
   }
   // étiquettes : le cabinet de la page, sinon quelques villes du groupe (sans chevauchement)
-  const fs = w / 24, boxes = [];
+  const px = svg.getBoundingClientRect().width || 420;
+  const fs = w * 13.5 / px, boxes = []; // étiquettes à 13,5 px à l'écran, quelle que soit la taille de la carte
   const fits = (b) => b.x0 > vb[0] + fs * .3 && b.x1 < vb[0] + w - fs * .3 && b.y0 > vb[1] + fs * .2 && b.y1 < vb[1] + h - fs * .2 && !boxes.some((o) => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
   const label = (c, strong) => {
     const tw = c.c.length * fs * .56, gap = fs * .62;
@@ -224,12 +228,16 @@ function drawMap(fig, map, cabs) {
   }
   svg.appendChild(gL);
   if (reduced() || !gsap) return;
-  const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+  // entrée : le cabinet de la page d'abord (point et nom), puis son groupe, puis le reste du réseau
+  const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
   const others = [...gO.children], labs = [...gL.children];
-  tl.from(land, { opacity: 0, duration: .6 });
-  if (others.length) tl.from(others, { opacity: 0, duration: .4, stagger: { amount: .3 } }, .2);
-  if (hd.length) tl.fromTo(hd, { attr: { r: 0 } }, { attr: { r: hr }, duration: .45, ease: 'back.out(2.5)', stagger: { amount: Math.min(1.1, hd.length * .05) } }, .35);
-  if (focus) tl.fromTo(fdot, { attr: { r: 0 } }, { attr: { r: w / 62 }, duration: .5, ease: 'back.out(3)' }, '-=.2').add(() => fig.classList.add('is-play'));
-  if (labs.length) tl.from(labs, { opacity: 0, duration: .5, stagger: .08 }, '-=.2');
+  const flab = focus ? labs.filter((t) => t.classList.contains('vm-lab--f')) : [];
+  const olabs = labs.filter((t) => !flab.includes(t));
+  tl.from(land, { opacity: 0, duration: .5 });
+  if (focus) tl.fromTo(fdot, { attr: { r: 0 } }, { attr: { r: w / 62 }, duration: .45, ease: 'back.out(1.6)' }, .15).from(flab, { opacity: 0, duration: .4 }, .3).add(() => fig.classList.add('is-play'), .5);
+  if (hd.length) tl.fromTo(hd, { attr: { r: 0 } }, { attr: { r: hr }, duration: .35, ease: 'back.out(1.6)', stagger: { amount: Math.min(.6, hd.length * .03) } }, focus ? .45 : .25);
+  if (others.length) tl.from(others, { opacity: 0, duration: .4, stagger: { amount: .3 } }, .5);
+  if (olabs.length) tl.from(olabs, { opacity: 0, duration: .4, stagger: .06 }, .9);
+  window.ScrollTrigger.create({ trigger: fig, start: 'top 84%', once: true, onEnter: () => tl.play() });
   onVisible(fig, (v) => fig.classList.toggle('is-play', v && !!focus && tl.progress() === 1));
 }

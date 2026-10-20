@@ -12,21 +12,24 @@ export function initHero() {
 
   // nombre de cabinets ouverts à l'instant, à l'heure locale de chacun
   const live = $('[data-live-open]', hero);
+  let liveN = 0;
   const updLive = async () => {
     if (!live) return;
     const cabs = await loadCabinets();
     const n = cabs.filter((c) => openStatus(c).open).length;
     live.textContent = n
       ? T(`En ce moment, ${n} cabinets Exco sur ${cabs.length} sont ouverts`, `Right now, ${n} of ${cabs.length} Exco offices are open`)
-      : T(`Aucun cabinet ouvert en ce moment. Horaires des ${cabs.length} cabinets dans l’annuaire`, `No office is open right now. Opening hours of all ${cabs.length} offices in the directory`);
+      : T(`Aucun cabinet ouvert en ce moment. Voir les horaires des cabinets`, `No office is open right now. See office opening hours`);
     $('[data-hero-live]', hero)?.classList.toggle('is-open', n > 0);
+    liveN = n;
   };
   updLive(); setInterval(updLive, 60000);
 
   // lien « ouverts » : ouvre l'annuaire filtré sur les cabinets ouverts
   $('[data-hero-live]', hero)?.addEventListener('click', () => {
+    // le filtre « ouvert maintenant » n'est coché que s'il reste des cabinets ouverts (sinon la liste serait vide)
     const cb = $('[data-open-now]');
-    if (cb && !cb.checked) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+    if (cb && !cb.checked && liveN > 0) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
   });
 
   if (!reduced()) {

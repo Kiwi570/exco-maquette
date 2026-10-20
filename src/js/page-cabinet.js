@@ -62,18 +62,18 @@ export async function initCabinetPage() {
     const pt = (r, m) => { const a = (m / 1440) * Math.PI * 2 - Math.PI / 2; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]; };
     const arc = (r, a, b) => { const [x1, y1] = pt(r, a), [x2, y2] = pt(r, b); return `M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${b - a > 720 ? 1 : 0} 1 ${x2.toFixed(2)},${y2.toFixed(2)}`; };
     for (let h = 0; h < 24; h += 6) { const [x, y] = pt(r0 + gap * 7 + 10, h * 60); dial.appendChild(mk('text', { x: x.toFixed(1), y: (y + 3).toFixed(1), 'text-anchor': 'middle' })).textContent = lang() === 'en' ? `${h}:00` : `${h}h`; }
-    const arcs = [];
+    const arcs = []; const labels = mk('g', { class: 'dial__days' });
     c.h.forEach((rs, d) => {
       const r = r0 + d * gap;
       dial.appendChild(mk('circle', { cx, cy, r, fill: 'none', stroke: 'rgba(20,32,44,.1)', 'stroke-width': 1 }));
       (rs || []).forEach((q) => { const p = mk('path', { d: arc(r, q[0], q[1]), fill: 'none', stroke: d === now.day ? '#DA5914' : '#008FC3', 'stroke-width': d === now.day ? 7 : 5, 'stroke-linecap': 'round', pathLength: 1 }); dial.appendChild(p); arcs.push(p); });
-      const [lx, ly] = pt(r, 1440 * .985); dial.appendChild(mk('text', { x: (lx - 4).toFixed(1), y: (ly + 3).toFixed(1), 'text-anchor': 'end' })).textContent = dayName(d).slice(0, 2);
+      const [lx, ly] = pt(r, 1440 * .958); labels.appendChild(mk('text', { x: (lx - 3).toFixed(1), y: (ly + 3).toFixed(1), 'text-anchor': 'end' })).textContent = dayName(d).slice(0, 2);
     });
     const hand = mk('g', {}); const [hx, hy] = pt(r0 + gap * 6.6, 0);
     hand.appendChild(mk('line', { x1: cx, y1: cy, x2: hx, y2: hy, stroke: '#008FC3', 'stroke-width': 1.6, 'stroke-linecap': 'round' }));
     hand.appendChild(mk('circle', { cx: hx, cy: hy, r: 5, fill: '#F59A00' }));
     hand.appendChild(mk('circle', { cx, cy, r: 4, fill: '#0F1D2B' }));
-    dial.appendChild(hand);
+    dial.appendChild(hand); dial.appendChild(labels); // jours au-dessus de l'aiguille, détourés
     const setHand = () => { const n = localNow(c.tz); hand.setAttribute('transform', `rotate(${(n.min / 1440) * 360} ${cx} ${cy})`); };
     if (reduced()) setHand();
     else {

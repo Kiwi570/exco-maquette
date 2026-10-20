@@ -123,6 +123,6 @@ export function initTabs() {
         if (e.key === 'End') { e.preventDefault(); show(tabs.length - 1, true); }
       });
     });
-    panels.forEach((p, k) => { p.hidden = k !== 0; });
+    panels.forEach((p, k) => { p.hidden = k !== 0; p.tabIndex = 0; });
   });
 }

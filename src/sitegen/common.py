@@ -13,11 +13,26 @@ def attr(s):
     return html.escape(s or '', quote=True)
 
 
+def nbl(t):
+    """Titre court : le dernier mot (court) ne reste pas seul sur sa ligne (espace insécable)."""
+    if not t or ' ' not in t.strip(): return t
+    a, b = t.rstrip().rsplit(' ', 1)
+    return f'{a}\u00a0{b}' if len(b) <= 12 and len(t) > 12 else t
+
+
+def _looks_fr(t):
+    from .fixes import looks_fr
+    return looks_fr(t)
+
+
 def bi(fr, en=None, tag=None):
     """Texte bilingue : deux span lang, ou un seul texte si les deux langues sont identiques."""
     fr = fr or ''
     en = fr if en is None or en == '' else en
     if fr == en:
+        # v14 : texte resté en français dans la version anglaise : il reste affiché, signalé comme français (data-keep)
+        if not tag and len(fr) > 2 and _looks_fr(re.sub(r'<[^>]+>', ' ', fr)):
+            return f'<span lang="fr" data-keep>{fr}</span>'
         return fr if not tag else f'<{tag}>{fr}</{tag}>'
     return f'<span lang="fr">{fr}</span><span lang="en">{en}</span>'
 
@@ -29,7 +44,16 @@ def bie(fr, en=None):
 
 def load(name):
     p = os.path.join(ROOT, 'src', 'content', name)
-    return json.load(open(p, encoding='utf-8')) if os.path.exists(p) else None
+    if not os.path.exists(p):
+        return None
+    data = json.load(open(p, encoding='utf-8'))
+    # v14 : fautes évidentes du texte source corrigées au chargement (voir fixes.py)
+    from .fixes import fix_fr, fix_en
+    if name.endswith('_en.json'):
+        return fix_en(data, name)
+    if name in ('pages_fr.json', 'cabinets_fr.json', 'actus.json'):
+        return fix_fr(data, name)
+    return data
 
 
 def slugify(s):

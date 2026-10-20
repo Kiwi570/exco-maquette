@@ -1,5 +1,5 @@
 // Point d'entrée : initialise les modules selon la page (body[data-page]).
-import { applyLang, initScroll, initHeader, initMenu, initCursor, initMagnetic, initTransitions, runIntro, revealTitles, wordsReveal, parallax, counters, copyables, tilt, scrollToEl, initDropdowns, initFooterCols, initFilterLinks, initShare, initToc } from './core.js';
+import { applyLang, initScroll, initHeader, initMenu, initCursor, initMagnetic, initTransitions, runIntro, revealTitles, wordsReveal, parallax, counters, copyables, tilt, scrollToEl, initDropdowns, initFooterCols, initFilterLinks, initShare, initToc, newTabHints } from './core.js';
 import { initPlaceholders } from './ph.js';
 import { initHero, heroSearch } from './hero.js';
 import { initFinder } from './finder.js';
@@ -32,6 +32,7 @@ async function boot() {
   initNetmap(); initGovflow(); initTimeline(); initMarquee();
   initLiveboard(); initIdmap(); initDrawIcons(); initNfMap();
   initViz();
+  newTabHints();
   // l'annuaire (carte et liste) se prépare sans retarder l'ouverture de la page ; sur l'accueil, à l'approche de la section
   let finderP = null;
   const getFinder = () => finderP || (finderP = initFinder().catch(() => null));
@@ -42,6 +43,7 @@ async function boot() {
   }
 
   if (page === 'home') {
+    if (came) document.documentElement.classList.add('intro-seen'); // arrivée par une transition : ni rideau ni remplissage
     const hero = initHero();
     initCycle();
     heroSearch((q) => { const f = document.getElementById('cabinets'); scrollToEl((f && f.querySelector('.finder__ui')) || f); getFinder().then((fd) => fd && setTimeout(() => fd.query(q), 500)); });
@@ -56,7 +58,7 @@ async function boot() {
   if (page === 'cabinet') await initCabinetPage();
   if (page === 'service') initServicePage();
   // les polices et images chargées peuvent décaler les déclencheurs
-  window.addEventListener('load', () => window.ScrollTrigger && window.ScrollTrigger.refresh());
+  // (ScrollTrigger se recalcule déjà de lui-même au chargement complet : pas de second recalcul ici)
   document.fonts && document.fonts.ready.then(() => window.ScrollTrigger && window.ScrollTrigger.refresh());
   // la page change de hauteur après coup (carte de l'annuaire, textes dépliés, images) : les repères de défilement sont recalculés,
   // sinon une section épinglée « saute » en se libérant

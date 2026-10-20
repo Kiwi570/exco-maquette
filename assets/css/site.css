@@ -67,7 +67,7 @@ address { font-style: normal; }
 .skip:focus { top: 12px; }
 
 /* langues : la langue inactive disparaît (puis est retirée par le script) */
-html:not([data-lang="en"]) [lang="en"]:not(html), html[data-lang="en"] [lang="fr"]:not(html) { display: none !important; }
+html:not([data-lang="en"]) [lang="en"]:not(html), html[data-lang="en"] [lang="fr"]:not(html):not([data-keep]) { display: none !important; }
 
 /* ---------- typographie ---------- */
 .display, .h2, .h3, .h4, .fig__n { font-family: var(--f-display); font-optical-sizing: auto; color: inherit; }
@@ -1854,9 +1854,9 @@ html:not(.rm):not(.calm) .im-ring--2 { animation-delay: 1.4s; }
 .v-nn { font: 650 11px/1 var(--f-text); fill: var(--ink); }
 .v-node--last + .v-nn { fill: var(--night); }
 .v-t { font: 500 13px/1 var(--f-text); fill: var(--ink-soft); }
-.v-t--s { font-size: 11.5px; }
+.v-t--s { font-size: 12px; }
 .v-t--l { font-size: 12.5px; fill: var(--ink); font-weight: 600; }
-.v-t--inv { fill: #fff; font-weight: 600; font-size: 12.5px; }
+.v-t--inv { fill: #fff; font-weight: 600; font-size: 13px; }
 .v-runner { fill: var(--orange); }
 .v-coin { fill: var(--orange); stroke: #fff; stroke-width: 1.2; }
 .v-pan { fill: var(--paper-2); stroke: var(--ink); stroke-width: 1.6; }
@@ -1945,3 +1945,101 @@ html:not(.rm):not(.calm) .im-ring--2 { animation-delay: 1.4s; }
 .vfig--n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 .vfig--n3 .vfig__n { font-size: clamp(2.2rem, 1.6rem + 2vw, 3.2rem); }
 .vfig--n3 .vfig__u { width: 84px; }
+
+/* ====================================================================================
+   v14 · corrections issues de l'audit
+   ==================================================================================== */
+.statcard__note { margin: 0; font-size: var(--fs-0); line-height: 1.45; color: var(--ink-soft); }
+.viz--map .viz__cap { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.viz__item { display: inline; }
+.viz__key--s { margin-left: 0; }
+/* parcours : encarts outre-mer, fiche de la carte, en-tête et menu, cibles tactiles */
+.inset__map .dom { fill: #2F4E68; }
+.inset__map .pin { fill: var(--on-night); stroke: var(--night); cursor: pointer; transition: fill .25s; }
+.inset__map .pin.is-active { fill: var(--orange); }
+.map__zoom { right: auto; left: 12px; }
+@media (max-width: 900px) {
+  .finder__map { display: block; }
+  .finder__map .map { display: block; }
+  .map__insets { bottom: auto; height: 440px; }
+  .map__card { position: relative; right: auto; left: auto; bottom: auto; width: auto; margin: 0 10px 10px; box-shadow: none; }
+  .finder__map .map__legend { position: static; padding: 4px 14px 14px; }
+}
+.hd:has(:focus-visible) { transform: none !important; }
+html.menu-open .hd { background: var(--night); }
+.mc__links a { display: inline-flex; align-items: center; min-height: 40px; }
+.mc__close { width: 40px; height: 40px; }
+.menu__foot a, .menu__foot button { display: inline-flex; align-items: center; min-height: 40px; }
+.tel { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+.rdv__amb { font-size: var(--fs-0); color: var(--ink-soft); margin: 0 0 10px; }
+.rdv__amb .linklike { font-weight: 600; }
+@media (pointer: coarse) {
+  .finder__chips button, .btn--sm, .svc-chips a { min-height: 40px; }
+}
+/* design : cycle de vie empilé sur téléphone, recherche de l'accueil sur tablette */
+@media (max-width: 700px) {
+  .cycle__pin { min-height: 0; padding-block: 0; }
+  .cycle__track { width: auto; flex-direction: column; transform: none !important; gap: 36px; }
+  .stage { width: 100%; }
+  .stage__media { height: auto; aspect-ratio: 16 / 10; max-height: 34svh; }
+  .cycle__progress { display: none; }
+}
+.hero__text { min-width: 0; }
+.search { max-width: min(560px, 100%); }
+@media (min-width: 601px) and (max-width: 1180px) {
+  .hero .search__row { flex-direction: column; border-radius: var(--r-m); }
+  .hero .search__row .btn { justify-content: center; }
+}
+/* registre : rubriques courtes regroupées dans une seule bande (Finance, Gestion privée) */
+.lrows { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--ink); }
+.lrow { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 8px 32px; padding: 22px 0; border-bottom: 1px solid var(--line-paper); }
+.lrows { border-bottom: 4px double var(--ink); }
+.lrow:last-child { border-bottom: 0; }
+.split__lead p { margin: 0; }
+.lrow__t { margin: 0; font-family: var(--f-display); font-weight: 420; font-size: var(--fs-3); line-height: 1.2; }
+.lrow > .rich:only-child { grid-column: 1 / -1; }
+.lrow .rich > :first-child { margin-top: 0; }
+.lrow .rich ul { margin: 0; }
+@media (max-width: 700px) { .lrow { grid-template-columns: minmax(0, 1fr); } }
+.dial text { paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
+.dial-wrap .cab__meta { max-width: 60ch; }
+/* échelle typographique : les intertitres du texte restent sous le titre de section ; mesure de lecture */
+.rich > h2 { font-size: var(--fs-4); }
+.rich > h3 { font-size: var(--fs-3); }
+.rich p, .prose p, .values p, .lrow .rich li { max-width: 66ch; }
+.ihero__grid:has(.svc-media) .display { max-width: 11ch; }
+@media (min-width: 1200px) { .svc-media .statcard { left: -44px; } }
+@media (max-width: 700px) { :root { --fs-0: .8125rem; } .status, .map__legend, .ev__badge { font-size: .8125rem; } }
+@media (max-width: 900px) { .about__side > .viz, .netmap { max-width: 560px; } }
+
+.viz--photo .viz__stage { background: var(--paper-3); }
+.viz--photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.stage:first-child .stage__media img { object-position: 50% 18%; }
+/* annuaire : un département de 6 cabinets au plus ne se coupe pas entre deux colonnes */
+.dir__group:not(:has(li:nth-child(7))) { break-inside: avoid; }
+/* table ronde de l'accueil : portraits en noir et blanc, couleur pour la personne active */
+.seat img { filter: grayscale(1) contrast(1.04); }
+/* téléphone : services du cabinet en lignes compactes (deux lignes de texte), groupes membres lisibles */
+@media (max-width: 700px) {
+  .svc-list { gap: 0; }
+  .svc-list li { border-radius: 0; background: transparent; padding: 16px 0; border-top: 1px solid var(--line-night); gap: 6px; }
+  .svc-list h3 { font-size: 1.15rem; }
+  .svc-list p { -webkit-line-clamp: 2; }
+  .members span { font-size: .8125rem; }
+  .members li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+/* actualités : l'article à la une occupe deux colonnes, la grille se remplit sans carte isolée */
+@media (min-width: 1181px) {
+  .articles--all .art:first-child { grid-column: span 2; }
+  .articles--all .art:first-child a { grid-template-columns: minmax(0, 1fr); }
+}
+/* article : la colonne de texte et le sommaire restent proches */
+@media (min-width: 901px) { .article { grid-template-columns: minmax(0, 46rem) minmax(0, 300px); } }
+/* mouvement : le titre d'ouverture n'apparaît qu'une fois prêt à s'animer (secours CSS au bout de 2,5 s) */
+html.js:not(.rm):not(.calm) [data-hero] [data-reveal]:not(.is-ready) { visibility: hidden; animation: vis-on 0s linear 2.5s forwards; }
+@keyframes vis-on { to { visibility: visible; } }
+/* curseur : plus de pastille ni d'anneau qui suivent la souris ; seule l'étiquette (globe, carte) reste */
+.cursor__dot, .cursor__ring { display: none !important; }
+/* pulsations limitées à trois cycles ; coureur masqué en mouvement réduit */
+.viz.is-play .v-pulse, .viz.is-play .vm-ring { animation-iteration-count: 3; }
+html.rm .v-runner, html.calm .v-runner { display: none; }

@@ -118,7 +118,7 @@
    "src": "service-oti",
    "fr": "Vérification OTI",
    "en": "Independent third-party verification",
-   "dfr": "Vérification des reportings durabilité et ESG, et de la qualité de société à mission.",
+   "dfr": "Vérification par un organisme tiers indépendant (OTI) des reportings durabilité et ESG, et de la qualité de société à mission.",
    "den": "Verification of sustainability and ESG reports and of mission-driven company status."
   },
   {
@@ -249,7 +249,7 @@
    "word": "Libéral",
    "img": "secteur-professions-liberales-4x5",
    "fr": "Professions libérales",
-   "en": "Liberal professions",
+   "en": "Independent professions",
    "dfr": "Texte à compléter : la page actuelle décrit le médico-social",
    "den": "Copy to be written: the current page describes the care sector",
    "slug": "professions-liberales",
@@ -522,7 +522,7 @@
    "src": "metier-juriste",
    "exco": "https://exco.fr/carrieres/le-metier-de-juriste/",
    "fr": "Juriste",
-   "en": "Lawyer",
+   "en": "Legal adviser",
    "dfr": "Une filière juridique et fiscale déterminante, fondée sur une relation de confiance durable.",
    "den": "A key legal and tax field, built on long-term trust with clients.",
    "img": "site/bureau-orange-vue-dessus"

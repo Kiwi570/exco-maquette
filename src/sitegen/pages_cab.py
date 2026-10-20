@@ -53,13 +53,26 @@ def street_parts(c):
     return (parts[0] if len(parts) > 1 else a), c.get('pc', ''), c['c']
 
 
+def cab_kind(c):
+    """Nature du cabinet d'après les services de l'annuaire (v14) : « expertise comptable » seulement si l'annuaire la mentionne."""
+    sv = set(c.get('s') or [])
+    fr_p, en_p = [], []
+    if 'ec' in sv: fr_p.append('d’expertise comptable'); en_p.append('accounting')
+    if 'audit' in sv: fr_p.append('d’audit'); en_p.append('audit')
+    if 'conseil' in sv: fr_p.append('de conseil'); en_p.append('advisory')
+    if not fr_p:
+        return 'cabinet du réseau Exco', 'Exco network office', False
+    j = lambda L, et: L[0] if len(L) == 1 else ', '.join(L[:-1]) + f' {et} ' + L[-1]
+    return 'cabinet ' + j(fr_p, 'et'), j(en_p, 'and') + ' firm', 'ec' in sv
+
+
 def ld_cabinet(c, fr):
     street, pc, city = street_parts(c)
     hours = []
     for d, rs in enumerate(c.get('h') or []):
         for q in rs or []:
             hours.append({'@type': 'OpeningHoursSpecification', 'dayOfWeek': DAYS[d], 'opens': hhmm(q[0]), 'closes': hhmm(q[1])})
-    o = {'@context': 'https://schema.org', '@type': 'AccountingService', 'name': c['n'], 'url': page_url(f'cabinets/{c["id"]}.html'),
+    o = {'@context': 'https://schema.org', '@type': 'AccountingService' if cab_kind(c)[2] else 'ProfessionalService', 'name': c['n'], 'url': page_url(f'cabinets/{c["id"]}.html'),
          'telephone': c.get('t') or None,
          'address': {'@type': 'PostalAddress', 'streetAddress': street, 'postalCode': pc or None, 'addressLocality': city, 'addressCountry': c['cc']},
          'geo': {'@type': 'GeoCoordinates', 'latitude': c['lat'], 'longitude': c['lon']},
@@ -115,7 +128,7 @@ def _about(fr, en):
     if a_en:
         body = f'<div class="rich" lang="fr">{a_fr}</div><div class="rich" lang="en">{a_en}</div>'
     else:
-        body = f'<div class="rich">{a_fr}<p class="note" lang="en">Office description in French.</p></div>'
+        body = f'<div class="rich" lang="fr" data-keep>{a_fr}<p class="note" lang="en">Office description in French.</p></div>'
     return body
 
 
@@ -230,7 +243,7 @@ ROLE_EN = {
     'Commissaire aux comptes et expert-comptable': 'Statutory auditor and chartered accountant', 'Associé': 'Partner', 'Associée, pôle social': 'Partner, payroll and HR',
     'Commissaire aux comptes, expert-comptable et expert judiciaire': 'Statutory auditor, chartered accountant and court-appointed expert',
     'Associée, direction RH et finances': 'Partner, HR and finance', 'Commissaire aux comptes, responsable du département audit': 'Statutory auditor, head of audit',
-    'Juriste en droit social': 'Employment lawyer', 'Associée, directrice du développement et de l’innovation': 'Partner, head of development and innovation',
+    'Juriste en droit social': 'Employment law specialist', 'Associée, directrice du développement et de l’innovation': 'Partner, head of development and innovation',
     'Expert-comptable mémorialiste': 'Chartered accountancy candidate (dissertation stage)', 'Auditeur en systèmes d’information': 'IT systems auditor',
     'Associée et commissaire aux comptes': 'Partner and statutory auditor', 'Expert-comptable, responsable du département expertise comptable': 'Chartered accountant, head of accounting',
     'Expert-comptable et commissaire aux comptes, responsable du département consulting': 'Chartered accountant and statutory auditor, head of consulting',
@@ -271,7 +284,7 @@ def _team(fr, en, r, c):
 def _access(c, r):
     street, pc, city = street_parts(c)
     addr = esc(c['a'].replace(', France', ''))
-    m = f'<div class="access__map"><svg data-access-map role="img" aria-label="Plan de situation de {attr(c["n"])} et des cabinets voisins" data-en-aria-label="Location of {attr(c["n"])} and nearby offices"></svg></div>' if c['reg'] == 'fr' else ''
+    m = f'<div class="access__map"><svg data-access-map role="img" aria-label="Plan de situation d’{attr(c["n"])} et des cabinets voisins" data-en-aria-label="Location of {attr(c["n"])} and nearby offices"></svg></div>' if c['reg'] == 'fr' else ''
     cls = 'access' if m else 'access access--nomap'
     if not m:
         return f'''<section class="band band--paper2" aria-labelledby="cab-access">
@@ -305,7 +318,7 @@ def _access(c, r):
 
 def _contact(c, r):
     tel = c.get('t') or ''
-    tel_html = f'<p><span class="copy" data-copy="{attr(tel)}">{esc(tel)}</span></p>' if tel else ''
+    tel_html = f'<p><a class="tel" href="tel:{re.sub(r"[^0-9+]", "", tel)}">{esc(tel)}</a></p>' if tel else ''
     return f'''<section class="band band--night" id="contact" aria-labelledby="cab-contact">
   <div class="wrap two-col">
     <div class="prose">
@@ -352,7 +365,7 @@ def cabinet_page(c, actus):
     tag_fr = fr.get('tagline') or fr.get('sub') or ''
     tag_en = (en or {}).get('tagline') or (en or {}).get('sub') or None
     tel = c.get('t') or ''
-    facts_html = f'''<div class="cab-facts"><span class="copy" data-copy="{attr(c['a'])}">{esc(c['a'].replace(', France', ''))}</span>{f'<span class="copy" data-copy="{attr(tel)}">{esc(tel)}</span>' if tel else ''}</div>'''
+    facts_html = f'''<div class="cab-facts"><span class="copy" data-copy="{attr(c['a'])}">{esc(c['a'].replace(', France', ''))}</span>{f'<a class="tel" href="tel:{re.sub(r"[^0-9+]", "", tel)}">{esc(tel)}</a>' if tel else ''}</div>'''
     actions = (f'<a class="btn btn--primary" href="{r}contact.html#{c["id"]}" data-transition data-magnetic><span class="btn__dot"></span>{bi("Prendre rendez-vous", "Book a meeting")}</a>'
                f'<a class="btn btn--ghost" href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Itinéraire", "Directions")}</a>')
     hero = f'''<section class="page-hero band--paper" data-hero aria-labelledby="cab-title">
@@ -411,13 +424,18 @@ def cabinet_page(c, actus):
            + f'<a href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Itinéraire", "Directions")}</a>'
            + f'<a class="cab-bar__main" href="{r}contact.html#{c["id"]}" data-transition><span class="btn__dot"></span>{bi("Rendez-vous", "Book")}</a></nav>')
     main = '\n'.join(x for x in [hero, about_sec, _figures(fr, en), _hours(c), _services(c, fr, en, r), _team(fr, en, r, c), _access(c, r), news, _contact(c, r), bar] if x)
-    desc_fr = f'{c["n"]}, cabinet d’expertise comptable, d’audit et de conseil à {c["c"]}. Horaires, services, équipe, accès et contact.'
+    k_fr, k_en, is_ec = cab_kind(c)
+    desc_fr = f'{c["n"]}, {k_fr} à {c["c"]}. Horaires, services, équipe, accès et contact.'
     ld = [ld_cabinet(c, fr), crumbs_ld(items, out)]
     _nm = re.sub(r'[^a-z]', '', slugify(c['n'])); _ct = re.sub(r'[^a-z]', '', slugify(c['c']))
-    if _ct and _ct in _nm:
+    if not is_ec:
+        t_fr, t_en = (f'{c["n"]} : {k_fr}', f'{c["n"]}: {k_en}') if _ct and _ct in _nm else (f'{c["n"]}, {k_fr} à {c["c"]}', f'{c["n"]}, {k_en} in {c["c"]}')
+    elif _ct and _ct in _nm:
         t_fr, t_en = f'{c["n"]} : cabinet d’expertise comptable', f'{c["n"]}: accounting firm'
     else:
         t_fr, t_en = f'{c["n"]}, expert-comptable à {c["c"]}', f'{c["n"]}, accountants in {c["c"]}'
+    if len(t_fr) > 65:
+        t_fr, t_en = f'{c["n"]} | Exco', f'{c["n"]} | Exco'
     pg = dict(r=r, out=out, type='cabinet', title=t_fr, title_en=t_en,
               desc=desc_fr, ld=ld, data={'cabinet': c['id'], 'head-city': g['city'] if g else ''}, og=f'assets/img/cabinets/{c["id"]}-960.webp' if cab_photo(c) else None)
     return pg, main
@@ -607,7 +625,7 @@ def group_page(g, content_fr=None, content_en=None):
     if G.get('addr') or G.get('tel'):
         rows = ''
         if G.get('addr'): rows += f'<div><dt>{bi("Siège", "Head office")}</dt><dd>{esc(G["addr"])}</dd></div>'
-        if G.get('tel'): rows += f'<div><dt>{bi("Téléphone", "Phone")}</dt><dd><span class="copy" data-copy="{attr(G["tel"])}">{esc(G["tel"])}</span></dd></div>'
+        if G.get('tel'): rows += f'<div><dt>{bi("Téléphone", "Phone")}</dt><dd><a class="tel" href="tel:{re.sub(r"[^0-9+]", "", G["tel"])}">{esc(G["tel"])}</a></dd></div>'
         contact = f'<aside class="grp-card"><h3 class="h4">{bi("Contacter le groupe", "Contact the group")}</h3><dl class="statcard__rows">{rows}</dl></aside>'
     if contact and not ab_fr:
         intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
@@ -619,7 +637,7 @@ def group_page(g, content_fr=None, content_en=None):
         if body_en:
             body = f'<div class="rich" lang="fr">{body_fr}</div><div class="rich" lang="en">{body_en}</div>'
         else:
-            body = f'<div class="rich">{body_fr}<p class="note" lang="en">Group description in French.</p></div>'
+            body = f'<div class="rich" lang="fr" data-keep>{body_fr}<p class="note" lang="en">Group description in French.</p></div>'
         intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
                  f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{contact}{map_group(g["g"], g["name"])}</div><div class="split__body"><div class="more" data-more>{body}</div></div></div></section>')
     # chiffres : ceux de la page du groupe, sinon ceux d'une fiche cabinet
@@ -698,5 +716,5 @@ def group_page(g, content_fr=None, content_en=None):
     ld = [{'@context': 'https://schema.org', '@type': 'Organization', 'name': g['name'], 'url': page_url(out), 'parentOrganization': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'},
            'logo': f'{SITE_URL}/assets/img/membres/{g["logo"]}-480.webp'}, crumbs_ld(items, out)]
     pg = dict(r=r, out=out, type='group', title=f'{g["name"]}, groupe membre du réseau Exco', title_en=f'{g["name"]}, member group of the Exco network',
-              desc=f'{g["name"]} : {len(cabs)} cabinet{"s" if len(cabs) > 1 else ""} du réseau Exco, services, horaires et contact.', ld=ld)
+              desc=f'{g["name"]}, groupe membre du réseau Exco : {len(cabs)} cabinet{"s" if len(cabs) > 1 else ""}, leurs services, leurs horaires en direct et leurs coordonnées.', ld=ld)
     return pg, main

@@ -58,7 +58,7 @@ def two(fr_html, en_html, cls='rich'):
     if en_html:
         return bi_div(fr_html, en_html, cls)
     # pas de version anglaise sur exco.fr : on le dit en anglais plutôt que d'afficher du français sans prévenir
-    return f'<div class="{cls}"><p class="note" lang="en">This section is only available in French.</p>{fr_html}</div>' if fr_html.strip() else f'<div class="{cls}"></div>'
+    return f'<div class="{cls}" lang="fr" data-keep><p class="note" lang="en">This section is only available in French.</p>{fr_html}</div>' if fr_html.strip() else f'<div class="{cls}"></div>'
 
 
 # ---------- accueil ----------
@@ -85,6 +85,7 @@ def home(actus):
     s = s.replace('{{articles}}', ''.join(art_card(r, a) for a in arts))
     s = s.replace('{{kreston}}', part('kreston.html', r))
     s = s.replace('{{logos}}', logos_marquee(r))
+    s = s.replace('{{n_hours}}', str(sum(1 for c in CABS if any(c.get('h') or []))))  # cabinets dont les horaires sont connus
     s = s.replace('{{gov}}', gov_home(r))
     s = s.replace('{{cta}}', cta_band(r, title=('Parlons de votre projet', 'Let’s talk about your project'),
                                       lead=('Créer, développer, transformer ou transmettre : le cabinet le plus proche de chez vous vous rappelle.', 'Start, grow, transform or hand over: your nearest office will call you back.')))
@@ -125,7 +126,7 @@ def services_index():
         if not k or not cnt.get(k): continue
         n = cnt[k]
         rows.append((n, f'<tr><th scope="row"><a href="{r}services/{s["slug"]}.html" data-transition>{ico(s["icon"])}{bie(s["fr"], s["en"])}</a></th>'
-                        f'<td class="cover__bar"><span style="--v:{n / len(CABS):.3f}"></span></td><td class="cover__n"><a href="{r}cabinets.html#cabinets" data-filter="{k}" data-transition title="{attr("Voir ces cabinets sur la carte")}">{n}<span class="sr"> {bi("cabinets : les voir sur la carte", "offices: see them on the map")}</span><span aria-hidden="true" class="cover__go">→</span></a></td></tr>'))
+                        f'<td class="cover__bar"><span style="--v:{n / len(CABS):.3f}"></span></td><td class="cover__n"><a href="{r}cabinets.html#cabinets" data-filter="{k}" data-transition title="{attr("Voir ces cabinets sur la carte")}" data-en-title="See these offices on the map">{n}<span class="sr"> {bi("cabinets : les voir sur la carte", "offices: see them on the map")}</span><span aria-hidden="true" class="cover__go">→</span></a></td></tr>'))
     rows.sort(key=lambda x: -x[0])
     cover = f'''<section class="band band--paper" aria-labelledby="cover-title"><div class="wrap split">
     <div class="split__head"><h2 class="h2" id="cover-title" data-reveal>{bi('Où trouver chaque service', 'Where to find each service')}</h2>
@@ -148,7 +149,7 @@ def sectors_index():
     sub = src.t(src.idx('Notre Cabinet Comptable')) if src.idx('Notre Cabinet Comptable') is not None else None
     mos = ''.join(f'<span><img src="{r}assets/img/grok/{x["img"]}.webp" alt="" width="800" height="1000" fetchpriority="high"></span>' for x in CAT['sectors'][:3])
     hero = ihero(r, items, ('Nos secteurs', 'Our sectors'), media=f'<div class="ihero__mosaic" aria-hidden="true">{mos}</div>',
-                 lead=('Les experts de tous les cabinets se retrouvent en commissions sectorielles pour partager leurs pratiques : une connaissance fine de votre métier, partout en France.', 'Experts from every office meet in sector committees to share their practice: a close understanding of your trade, everywhere in France.'),
+                 lead=('Les experts des cabinets se retrouvent en commissions sectorielles pour partager leurs pratiques : une connaissance fine de votre métier, partout en France.', 'Experts from the offices meet in sector committees to share their practice: a close understanding of your trade, everywhere in France.'),
                  facts=fact(len(CAT['sectors']), 'secteurs', 'sectors') + fact(len(CABS), 'cabinets', 'offices'))
     grid = f'''<section class="band band--paper2" aria-labelledby="sec-all"><div class="wrap">
     <h2 class="sr" id="sec-all">{bi('Les quatorze secteurs', 'The fourteen sectors')}</h2>
@@ -411,7 +412,7 @@ def rse():
     <ul class="checks">{''.join(cells)}</ul></div></section>'''
     # quatre axes
     axes = []
-    for k, name in enumerate(['Environnement', 'Social', 'Economique', 'Éthique et Transparence']):
+    for k, name in enumerate(['Environnement', 'Social', 'Économique', 'Éthique et Transparence']):
         i = None
         for j, b in enumerate(s.fr):
             if b['k'] == 'p' and b['t'] == name: i = j; break
@@ -496,7 +497,7 @@ def carrieres():
     env_fr, env_en = s.slice('Des valeurs humaines', 'Découvrez nos métiers')
     comm = f'''<section class="band band--paper" aria-labelledby="cc-title"><div class="wrap split">
     <div class="split__head"><h2 class="h2" id="cc-title" data-reveal>{bie(*s.t(s.idx('Une communauté de talents')))}</h2>
-      <figure class="team-mosaic" aria-label="{attr('Collaborateurs du réseau Exco')}" data-en-aria-label="Exco network staff"><span class="team-mosaic__i team-mosaic__i--1"><img src="{r}assets/img/site/video-equipe-1-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--2"><img src="{r}assets/img/site/video-equipe-2-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--3"><img src="{r}assets/img/site/video-equipe-3-800.webp" alt="" width="800" height="450" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--4"><img src="{r}assets/img/site/video-equipe-4-800.webp" alt="" width="800" height="450" loading="lazy"></span><figcaption>{bi('Collaborateurs du réseau, extraits des vidéos d’Exco.', 'Network staff, stills from Exco’s videos.')}</figcaption></figure></div>
+      <figure class="team-mosaic" aria-label="{attr('Collaborateurs du réseau Exco')}" data-en-aria-label="Exco network staff"><span class="team-mosaic__i team-mosaic__i--1"><img src="{r}assets/img/site/video-equipe-1-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--2"><img src="{r}assets/img/site/video-equipe-2-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--3"><img src="{r}assets/img/site/equipe-ordinateur-800.webp" alt="" width="800" height="450" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--4"><img src="{r}assets/img/site/video-equipe-4-800.webp" alt="" width="800" height="450" loading="lazy"></span><figcaption>{bi('Collaborateurs du réseau, extraits des vidéos d’Exco.', 'Network staff, stills from Exco’s videos.')}</figcaption></figure></div>
     {two(smart(com_fr[1:] + env_fr), smart(com_en[1:] + env_en) if com_en and env_en else None)}</div></section>'''
     careers_part = part('careers.html', r)
     met = f'''<section class="band band--paper2" id="metiers" aria-labelledby="met-title"><div class="wrap">
@@ -525,7 +526,7 @@ def contact():
     hq = f'''<section class="band band--paper" aria-labelledby="hq-title"><div class="wrap two-col">
     <div class="prose"><h2 class="h2" id="hq-title" data-reveal>{bi('Exco France', 'Exco France')}</h2>
       <p class="lead" style="color:var(--ink)">42 avenue de la Grande Armée<br>75017 Paris</p>
-      <p><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></p>
+      <p><a class="tel" href="tel:+33158052290">+33 1 58 05 22 90</a><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></p>
       <p class="note">{bi('Le siège du réseau ne tient pas de dossiers clients : pour un rendez-vous, adressez-vous à un cabinet.', 'The network head office does not handle client files: to book a meeting, contact an office.')} <span class="chip chip--confirm">{bi('À confirmer', 'To confirm')}</span></p></div>
     <div class="prose"><h2 class="h3">{bi('Déjà client ?', 'Already a client?')}</h2><p>{bi('Retrouvez vos documents et vos outils dans votre espace client.', 'Find your documents and tools in your client area.')}</p>
       <p><a class="link-arrow" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener">{bi('Accéder à mon espace client', 'Go to my client area')}</a></p>

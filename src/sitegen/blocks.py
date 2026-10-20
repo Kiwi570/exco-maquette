@@ -17,9 +17,12 @@ def _img(b, r, cls=''):
         w, h = Image.open(p).size
     except Exception:
         w, h = 1200, 800
-    alt = attr(b.get('alt', ''))
+    from .fixes import alt_of
+    af, ae = alt_of(loc)
+    alt = attr(b.get('alt', '') or af)
+    en = f' data-en-alt="{attr(ae)}"' if ae and not b.get('alt') else ''
     return (f'<figure{cls}><img src="{r}{base}-1200.webp" srcset="{r}{base}-800.webp 800w, {r}{base}-1200.webp {w}w" '
-            f'sizes="(max-width: 900px) 92vw, 60vw" alt="{alt}" loading="lazy" width="{w}" height="{h}"></figure>')
+            f'sizes="(max-width: 900px) 92vw, 60vw" alt="{alt}"{en} loading="lazy" width="{w}" height="{h}"></figure>')
 
 
 def li_inner(b):

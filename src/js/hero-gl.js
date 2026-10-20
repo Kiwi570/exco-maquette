@@ -134,7 +134,9 @@ export function initHeroGL(canvas, img) {
   });
   box.addEventListener('pointerleave', () => { m.ton = 0; });
 
-  let raf = 0, visible = true, t0 = 0, intro = 0, started = false;
+  // le remplissage des cellules ne se joue qu'avec le rideau d'ouverture : si la photo est déjà visible, elle reste telle quelle
+  const playFill = !document.documentElement.classList.contains('intro-seen');
+  let raf = 0, visible = true, t0 = 0, intro = playFill ? 0 : 1, started = false;
   const loop = (now) => {
     raf = requestAnimationFrame(loop);
     if (!visible || !texture.image) return;

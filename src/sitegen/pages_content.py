@@ -16,6 +16,11 @@ CATS = {'exco': ('Réseau Exco', 'Exco network'), 'fso': ('Exco Fiduciaire du Su
         'agri': ('Agriculture', 'Agriculture'), 'event': ('Événement', 'Event')}
 
 
+def lc1(t):
+    """Minuscule initiale après un deux-points (sauf sigle)."""
+    return t[:1].lower() + t[1:] if t and not (len(t) > 1 and t[1].isupper()) else t
+
+
 def date_bi(iso):
     y, m, d = (int(x) for x in iso.split('-'))
     return bi(f'{d}{"er" if d == 1 else ""} {MONTHS_FR[m - 1]} {y}', f'{d} {MONTHS_EN[m - 1]} {y}')
@@ -33,17 +38,33 @@ def svc_counts():
 LIST_TITLE = re.compile(r'missions|prestations|nos services|domaines|interventions|services proposés|our services|assignments', re.I)
 
 
+ACRO = {'IT', 'RH', 'TPE', 'PME', 'ETI', 'RSE', 'ESG', 'M&A', 'HCR', 'BTP'}
+
+
+def sentence_case(t):
+    """Libellé tout en capitales (« SANTÉ », « IT / MÉDIA ») : casse de phrase, sigles conservés."""
+    if not t or not t.isupper():
+        return t
+    ws = re.split(r'(\W+)', t)
+    out = [w if w in ACRO else w.lower() for w in ws]
+    for k, w in enumerate(out):
+        if w.strip() and re.match(r'\w', w):
+            if w not in ACRO: out[k] = w[:1].upper() + w[1:]
+            break
+    return ''.join(out)
+
+
 def smart(blocks, r=''):
     """Rend des blocs en repérant les listes déguisées en paragraphes après un intertitre."""
-    blocks = B.dedupe(blocks)
+    blocks = B.dedupe([b for b in blocks if b['k'] != 'img' or b.get('local')])  # pictogrammes distants (non repris) ignorés
     out, i, n = [], 0, len(blocks)
     while i < n:
         b = blocks[i]
         # suite de titres courts sans texte entre eux : c'est une liste
         j = i
-        while j < n and blocks[j]['k'] in ('h3', 'h4', 'h5') and len(blocks[j]['t']) <= 40: j += 1
-        if j - i >= 3 and (j >= n or blocks[j]['k'] in ('h2', 'h3', 'h4', 'h5', 'img') or len(blocks[j].get('t', '')) > 40):
-            out.append('<ul class="ledger">' + ''.join(f'<li>{esc(x["t"])}</li>' for x in blocks[i:j]) + '</ul>')
+        while j < n and blocks[j]['k'] in ('h3', 'h4', 'h5') and len(blocks[j]['t']) <= 48: j += 1
+        if j - i >= 3 and (j >= n or blocks[j]['k'] in ('h2', 'h3', 'h4', 'h5', 'img') or len(blocks[j].get('t', '')) > 48):
+            out.append('<ul class="ledger">' + ''.join(f'<li>{esc(sentence_case(x["t"]))}</li>' for x in blocks[i:j]) + '</ul>')
             i = j; continue
         if b['k'] in ('h3', 'h4', 'h5') and len(b['t']) <= 110:
             j = i + 1
@@ -108,9 +129,62 @@ def _split_lead(html):
     return (m.group(1), m.group(2)) if m else (None, html)
 
 
-def render_sections(pairs, start_bg=0, first_lead=True, viz=None):
+def _plain_len(h):
+    return len(re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', h or '')).strip())
+
+
+def render_compact(pairs, start_bg=0, viz=None):
+    """Pages faites de nombreuses rubriques courtes (Finance, Gestion privée) : au lieu d'une bande par rubrique,
+    une bande par groupe, les rubriques en lignes de registre (titre à gauche, texte à droite, filets), v14."""
+    bgs = ['band--paper2', 'band--paper']
+    n = len(pairs)
+    items, i = [], 0
+    short = lambda j: bool(pairs[j][0]) and 0 < _plain_len(pairs[j][2]) < 650
+    while i < n:
+        hf, he, bf, be = pairs[i]; L = _plain_len(bf)
+        if hf and L == 0:  # titre sans texte : il ouvre un groupe
+            j = i + 1; rows = []
+            while j < n and short(j): rows.append(pairs[j]); j += 1
+            items.append(('group', i, (hf, he), None, rows)); i = j; continue
+        if not hf and 0 < L < 320:  # chapeau seul suivi de rubriques courtes
+            j = i + 1; rows = []
+            while j < n and short(j): rows.append(pairs[j]); j += 1
+            if len(rows) >= 2:
+                items.append(('group', i, None, (bf, be), rows)); i = j; continue
+        if not hf and L == 0: i += 1; continue
+        items.append(('single', i, pairs[i])); i += 1
+    out = []
+    for k, it in enumerate(items):
+        bg = bgs[(start_bg + k) % 2]
+        if it[0] == 'single':
+            out.append(render_sections([it[2]], start_bg=start_bg + k, first_lead=False, viz=(lambda _k, i0=it[1]: viz(i0)) if viz else None, ids_from=it[1]))
+            continue
+        _, i0, head, lead, rows = it
+        vz = viz(i0) if viz else ''
+        sid = f'sec-{i0 + 1}'
+        if head:
+            hf, he = fix_case(head[0]), fix_case(head[1])
+            hc = 'h2' if len(hf) <= 60 else 'h3'
+            h = f'<h2 class="{hc}" id="{sid}" data-reveal>{bie(hf, he)}</h2>'
+        else:
+            h = f'<div class="split__lead">{bi_div(lead[0], lead[1]) if lead[1] else lead[0]}</div>'
+        lis = []
+        for (rf, re_, rb, rbe) in rows:
+            t = fix_case(rf); te = fix_case(re_)
+            dup = head and (t or '')[:40] == fix_case(head[0])[:40]
+            tt = '' if dup else f'<h3 class="lrow__t">{bie(t, te)}</h3>'
+            body = bi_div(rb, rbe) if rbe else f'<div class="rich" lang="fr" data-keep>{rb}</div>'
+            lis.append(f'<li class="lrow">{tt}{body}</li>')
+        lab = f' aria-labelledby="{sid}"' if head else ''
+        out.append(f'<section class="band {bg}"{lab}><div class="wrap split"><div class="split__head">{h}{vz}</div><ul class="lrows">{"".join(lis)}</ul></div></section>')
+    return '\n'.join(out)
+
+
+def render_sections(pairs, start_bg=0, first_lead=True, viz=None, ids_from=0):
     """Chaque section : bande avec titre à gauche (collant) et texte à droite. Fond alterné.
     Une section sans titre (introduction) met son chapeau à gauche."""
+    if len(pairs) >= 7:
+        return render_compact(pairs, start_bg, viz)
     bgs = ['band--paper2', 'band--paper']
     out = []
     k = 0
@@ -118,7 +192,7 @@ def render_sections(pairs, start_bg=0, first_lead=True, viz=None):
         if not bf.strip() and not hf: continue
         hf, he = fix_case(hf), fix_case(he)
         bg = bgs[(start_bg + k) % 2]; k += 1
-        sid = f'sec-{i + 1}'
+        sid = f'sec-{i + 1 + ids_from}'
         vz = viz(k - 1) if viz else ''  # visuel animé de la section (v13), sous le titre
         if not hf:
             lf, rf = _split_lead(bf)
@@ -134,7 +208,7 @@ def render_sections(pairs, start_bg=0, first_lead=True, viz=None):
         hc = 'h2' if len(hf or '') <= 60 else 'h3'
         head = f'<div class="split__head"><h2 class="{hc}" id="{sid}" data-reveal>{bie(hf, he)}</h2>{vz}</div>' if hf else f'<div class="split__head">{vz}</div>'
         note = '<p class="note" lang="en">This section is only available in French.</p>' if hf else ''
-        body = bi_div(bf, be) if be else f'<div class="rich">{bf}{note}</div>'
+        body = bi_div(bf, be) if be else f'<div class="rich" lang="fr" data-keep>{bf}{note}</div>'
         # texte très long : replié derrière « Lire la suite » (le titre et le début restent visibles)
         if len(re.sub(r'<[^>]+>', '', bf)) > 1500:
             body = f'<div class="split__body"><div class="more" data-more>{body}</div></div>'
@@ -158,7 +232,8 @@ def statcard(r, code, label):
     <div><dt>{bi("Outre-mer", "Overseas France")}</dt><dd>{z["om"]}</dd></div>
     <div><dt>International</dt><dd>{z["int"]}</dd></div>
   </dl>
-  <a class="btn btn--primary" href="{r}cabinets.html" data-filter="{code}" data-transition><span class="btn__dot"></span>{bi("Voir ces cabinets", "See these offices")}</a>
+  <p class="statcard__note">{bi(f"Services non renseignés dans l’annuaire pour {sum(1 for c in CABS if not c['s'])} cabinets.", f"No services listed in the directory for {sum(1 for c in CABS if not c['s'])} offices.")}</p>
+  <a class="btn btn--primary" href="{r}cabinets.html#cabinets" data-filter="{code}" data-transition><span class="btn__dot"></span>{bi("Voir ces cabinets", "See these offices")}</a>
 </aside>'''
 
 
@@ -220,14 +295,17 @@ def service_page(s, idx):
     others = [x['slug'] for x in CAT['services'] if x['slug'] != s['slug']]
     k = idx % len(others)
     rel = (others[k:] + others[:k])[:4]
-    related = f'''<section class="band band--paper" aria-labelledby="rel-title"><div class="wrap">
+    import re as _re
+    _bands = _re.findall(r'class="band (band--paper2?|band--night)', body)
+    rel_bg = 'band--paper2' if _bands and _bands[-1] == 'band--paper' else 'band--paper'  # jamais deux bandes identiques à la suite
+    related = f'''<section class="band {rel_bg}" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="rel-title" data-reveal>{bi("D’autres services du réseau", "More services from the network")}</h2><a class="link-arrow" href="{r}services.html" data-transition>{bi("Tous les services", "All services")}</a></div>
     {svc_cards(r, rel, svc_counts())}</div></section>'''
     main = '\n'.join([hero, body, related, cta_band(r, title=('Trouvez un cabinet qui propose ce service', 'Find an office offering this service'),
                                                      lead=('La carte s’ouvre filtrée sur ce service, avec les horaires en direct de chaque cabinet.', 'The map opens filtered on this service, with each office’s live opening hours.'), filt=s.get('code', ''))])
     ld = [{'@context': 'https://schema.org', '@type': 'Service', 'name': s['fr'], 'serviceType': s['fr'], 'description': s['dfr'], 'url': page_url(out),
            'provider': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'}, 'areaServed': ['FR', 'Europe', 'Afrique']}, crumbs_ld(items, out)]
-    pg = dict(r=r, out=out, type='service-generic', title=(f'{s["fr"]} avec les cabinets Exco' if len(s['fr']) < 20 else f'{s["fr"]} | Exco'), title_en=(f'{s["en"]} with Exco offices' if len(s['en']) < 20 else f'{s["en"]} | Exco'), desc=f'{s["fr"]} : {s["dfr"]}', ld=ld)
+    pg = dict(r=r, out=out, type='service-generic', title=(f'{s["fr"]} avec les cabinets Exco' if len(s['fr']) < 20 else f'{s["fr"]} | Exco'), title_en=(f'{s["en"]} with Exco offices' if len(s['en']) < 20 else f'{s["en"]} | Exco'), desc=f'{s["fr"]} : {lc1(s["dfr"])}', ld=ld)
     return pg, main
 
 
@@ -275,7 +353,7 @@ def sector_page(x, idx):
     core = ['expertise-comptable', 'audit', 'conseil', 'juridique-fiscal', 'social-paie-rh', 'evaluation-entreprise']
     chips = ''.join(f'<li><a href="{r}services/{y["slug"]}.html" data-transition>{ico(y["icon"])}{bie(y["fr"], y["en"])}</a></li>' for y in CAT['services'] if y['slug'] in core)
     svc = f'''<section class="band band--paper2 band--slim" aria-labelledby="svc-title"><div class="wrap svc-row">
-    <h2 class="h3" id="svc-title">{bi("Les services les plus sollicités", "The most requested services")}</h2>
+    <h2 class="h3" id="svc-title">{bi("Les services du réseau pour votre secteur", "Network services for your sector")}</h2>
     <ul class="svc-chips">{chips}</ul></div></section>'''
     # actualités du secteur, quand des articles y sont rattachés
     ACT_BY_SECTOR = {'agriculture-agroalimentaire': ('agri',)}
@@ -288,8 +366,8 @@ def sector_page(x, idx):
     main = '\n'.join([hero, body, svc, news, related, cta_band(r, title=('Parlons de votre activité', 'Let’s talk about your business'),
                                                         lead=('Les experts des cabinets partagent leurs pratiques en commissions sectorielles : le cabinet le plus proche vous rappelle.', 'Office experts share their practice in sector committees: your nearest office will call you back.'))])
     ld = [crumbs_ld(items, out)]
-    pg = dict(r=r, out=out, type='sector', title=f'{x["fr"]} : expert-comptable spécialisé | Exco', title_en=f'{x["en"]}: specialist accountants | Exco',
-              desc=f'{x["fr"]} : {x["dfr"]}', ld=ld, og=f'assets/img/grok/{x["img"]}.webp')
+    pg = dict(r=r, out=out, type='sector', title=(f'{x["fr"]} : expert-comptable spécialisé | Exco' if len(x["fr"]) <= 22 else f'{x["fr"]} : expert-comptable | Exco'), title_en=f'{x["en"]}: specialist accountants | Exco',
+              desc=f'{x["fr"]} : {lc1(x["dfr"])}', ld=ld, og=f'assets/img/grok/{x["img"]}.webp')
     return pg, main
 
 
@@ -325,7 +403,7 @@ def metier_page(m, idx):
     <div class="prose"><h2 class="h2" id="jobs-title" data-reveal>{bi("Postulez chez Exco", "Apply to Exco")}</h2><p class="lead">{bi("Les offres de tous les cabinets du réseau sont publiées sur le site dédié au recrutement.", "Openings from every office in the network are published on the recruitment site.")}</p></div>
     <div class="cta-band__actions">{btn("https://exco.flatchr.io/fr/company/exco/", "Voir les offres", "See the offers", ext=True)}</div></div></section>'''
     main = '\n'.join([hero, body, rel, jobs])
-    pg = dict(r=r, out=out, type='metier', title=f'{m["fr"]} : carrière chez Exco', title_en=f'{m["en"]}: careers at Exco', desc=f'{m["fr"]} chez Exco : {m["dfr"]}', ld=[crumbs_ld(items, out)])
+    pg = dict(r=r, out=out, type='metier', title=f'{m["fr"]} : carrière chez Exco', title_en=f'{m["en"]}: careers at Exco', desc=f'{m["fr"]} chez Exco : {lc1(m["dfr"])}', ld=[crumbs_ld(items, out)])
     return pg, main
 
 
@@ -338,7 +416,7 @@ def metier_card(r, m):
 
 
 # ---------- actualités ----------
-def art_img(r, a, sizes='(max-width: 900px) 92vw, 30vw'):
+def art_img(r, a, sizes='(max-width: 900px) 92vw, 30vw', alt=False):
     img = a['img']
     if img.startswith('../'):
         base = 'assets/img/' + img[3:]
@@ -347,7 +425,10 @@ def art_img(r, a, sizes='(max-width: 900px) 92vw, 30vw'):
     # variantes plus grandes quand elles existent (couverture nette sur grand écran)
     vs = [(w, f'{r}{base}-{w}.webp') for w in (800, 1200, 1600) if os.path.exists(os.path.join(ROOT, f'{base}-{w}.webp'))]
     srcset = f' srcset="{", ".join(f"{u} {w}w" for w, u in vs)}" sizes="{sizes}"' if len(vs) > 1 else ''
-    return f'<img src="{r}{base}-800.webp"{srcset} alt="" loading="lazy" width="800" height="533">'
+    from .fixes import alt_of
+    af, ae = alt_of(base) if alt else ('', None)
+    en = f' data-en-alt="{attr(ae)}"' if ae else ''
+    return f'<img src="{r}{base}-800.webp"{srcset} alt="{attr(af)}"{en} loading="lazy" width="800" height="533">'
 
 
 def art_card(r, a):
@@ -393,7 +474,7 @@ def article_page(a, actus):
         html_fr = re.sub(r'(<h2\b)', lambda m: av + m.group(1), html_fr, count=1) if '<h2' in html_fr else re.sub(r'(</p>)', lambda m: m.group(1) + av, html_fr, count=1)
     en = a.get('en')
     html_en = B.render(_drop_cover_dupes(a, en['body']), r, lead_first=True, ids=True) if en else ''
-    rich = bi_div(html_fr, html_en) if en else f'<div class="rich"><p class="note" lang="en">This article is only available in French.</p>{html_fr}</div>'
+    rich = bi_div(html_fr, html_en) if en else f'<div class="rich" lang="fr" data-keep><p class="note" lang="en">This article is only available in French.</p>{html_fr}</div>'
     toc_html = ''
     if len(toc) >= 2:
         links = ''.join(f'<a href="#{i}">{esc(t)}</a>' for i, t in toc)
@@ -403,7 +484,7 @@ def article_page(a, actus):
     meta = f'''<div class="article__meta"><span><b>{bi("Événement le" if is_event else "Publié le", "Event on" if is_event else "Published on")}</b> {when}</span><span><b>{bi("Rubrique", "Section")}</b> {bi(*cat)}</span><span><a href="{a["url"]}" target="_blank" rel="noopener">{bi("Article d’origine sur exco.fr", "Original article on exco.fr")}</a></span></div>'''
     share = f'<div class="share"><button type="button" data-share>{bi("Copier le lien", "Copy link")}</button><a href="https://www.linkedin.com/sharing/share-offsite/?url={page_url(out)}" target="_blank" rel="noopener">LinkedIn</a></div>'
     aside = f'<aside class="article__aside">{meta}{toc_html}{share}<a class="link-arrow" href="{r}actualites.html" data-transition>{bi("Toutes les actualités", "All news")}</a></aside>'
-    cover_img = art_img(r, a, sizes='(max-width: 900px) 92vw, 1320px').replace(' loading="lazy"', ' fetchpriority="high" data-parallax="0.06"')
+    cover_img = art_img(r, a, sizes='(max-width: 900px) 92vw, 1320px', alt=True).replace(' loading="lazy"', ' fetchpriority="high" data-parallax="0.06"')
     cover = f'<figure class="article__cover">{cover_img}</figure>'
     hero = f'''<section class="ihero ihero--plain" data-hero aria-labelledby="page-title">
   <div class="wrap ihero__grid"><div class="ihero__text">

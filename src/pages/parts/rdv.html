@@ -12,7 +12,7 @@
           <div><dt><span lang="fr">Cabinet proposé</span><span lang="en">Suggested office</span></dt><dd data-r="cabinet">—</dd></div>
         </dl>
       </aside>
-      <p class="rdv__direct"><span lang="fr">Ou appelez Exco France :</span><span lang="en">Or call Exco France:</span> <span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span></p>
+      <p class="rdv__direct"><span lang="fr">Ou appelez Exco France :</span><span lang="en">Or call Exco France:</span> <a class="tel" href="tel:+33158052290">+33 1 58 05 22 90</a></p>
     </div>
     <form class="steps" data-steps novalidate>
       <ol class="steps__nav" aria-hidden="true"><li class="is-on">1</li><li>2</li><li>3</li><li>4</li></ol>
@@ -55,7 +55,7 @@
           <label class="field field--half"><span lang="fr">Téléphone</span><span lang="en">Phone</span><input type="tel" id="rdv-tel" name="tel" autocomplete="tel"></label>
           <label class="field"><span lang="fr">Votre message (facultatif)</span><span lang="en">Your message (optional)</span><textarea id="rdv-msg" name="message" rows="3"></textarea></label>
         </div>
-        <p class="rgpd"><span lang="fr">Les informations recueillies sur ce formulaire sont enregistrées dans un fichier informatisé par la société Exco SAS, 42 avenue de la Grande Armée 75017 Paris, pour la gestion de vos demandes d'informations. Voir la <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span><span lang="en">The information collected in this form is stored by Exco SAS, 42 avenue de la Grande Armée 75017 Paris, to handle your request. See the <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">privacy policy</a> (in French).</span></p>
+        <p class="rgpd"><span lang="fr">Les informations recueillies sur ce formulaire sont enregistrées dans un fichier informatisé par la société Exco SAS, 42 avenue de la Grande Armée 75017 Paris, pour la gestion de vos demandes d'informations, puis transmises au cabinet choisi, responsable de leur traitement pour la suite de votre demande. Voir la <a href="{{r}}mentions-legales.html" data-transition>protection des données</a>.</span><span lang="en">The information collected in this form is stored by Exco SAS, 42 avenue de la Grande Armée 75017 Paris, to handle your request, then passed on to the office you chose, which is the controller for the follow-up of your request. See <a href="{{r}}mentions-legales.html" data-transition>data protection</a>.</span></p>
         <p class="step__err" data-err role="alert" hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
       </fieldset>
       <div class="step step--done" data-step="done">
@@ -63,10 +63,11 @@
         <p class="h4"><span lang="fr">Demande prête</span><span lang="en">Request ready</span></p>
         <p data-done-text tabindex="-1"></p>
         <p class="chip chip--illus"><span lang="fr">Maquette : aucune donnée n'est envoyée.</span><span lang="en">Mock-up: no data is sent.</span></p>
+        <p><button type="button" class="linklike" data-restart><span lang="fr">Faire une nouvelle demande</span><span lang="en">Make a new request</span></button></p>
       </div>
       <div class="steps__ctrl">
         <button type="button" class="btn btn--ghost btn--sm" data-prev hidden><span lang="fr">Retour</span><span lang="en">Back</span></button>
-        <button type="button" class="btn btn--primary" data-next data-magnetic><span class="btn__dot"></span><span lang="fr" data-next-fr>Continuer</span><span lang="en" data-next-en>Continue</span></button>
+        <button type="submit" class="btn btn--primary" data-next data-magnetic><span class="btn__dot"></span><span lang="fr" data-next-fr>Continuer</span><span lang="en" data-next-en>Continue</span></button>
       </div>
     </form>
   </div>

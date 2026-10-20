@@ -1,7 +1,8 @@
 // Sections de l'accueil : cycle de vie, services, secteurs, gouvernance, globe Kreston, RSE, actualités, rendez-vous.
-import { $, $$, T, lang, reduced, finePointer, fitCanvas, getJSON, fmtDate, base, onVisible, haversine } from './util.js';
-import { loadCabinets, resolvePlace, nearest, SVC } from './finder.js';
+import { $, $$, T, lang, reduced, finePointer, fitCanvas, getJSON, fmtDate, base, onVisible, haversine, norm } from './util.js';
+import { loadCabinets, resolvePlace, resolveAny, nearest, SVC } from './finder.js';
 import { cursorText } from './fx.js';
+import { lenis, scrollToEl } from './core.js';
 
 const gsap = window.gsap;
 const ST = () => window.ScrollTrigger;
@@ -14,9 +15,14 @@ export function initCycle() {
   const drawDash = () => { if (!dash || reduced()) return; const l = $('.mini-dash__line', dash); gsap.fromTo(l, { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.6, ease: 'power2.inOut' }); gsap.fromTo($('.mini-dash__area', dash), { opacity: 0 }, { opacity: 1, duration: 1, delay: .8 }); gsap.fromTo($('.mini-dash__end', dash), { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, delay: 1.5, ease: 'back.out(3)' }); };
   if (reduced()) { track.style.flexWrap = 'wrap'; track.style.width = 'auto'; return; }
   const mm = gsap.matchMedia();
-  mm.add('(min-width: 0px)', () => {
+  // téléphone : pas d'épinglage, les étapes se suivent à la verticale (le panneau épinglé dépassait l'écran)
+  mm.add('(max-width: 700px)', () => {
+    $$('.stage', track).forEach((st, i) => gsap.fromTo(st, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .8, ease: 'power3.out', scrollTrigger: { trigger: st, start: 'top 85%', once: true, onEnter: () => { if (i === 1) drawDash(); } } }));
+    return () => {};
+  });
+  mm.add('(min-width: 701px)', () => {
     const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-    const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${Math.min(dist() * 1.05, window.innerHeight * 1.3)}`, pin: $('.cycle__pin', sec), scrub: .8, invalidateOnRefresh: true, anticipatePin: 1 } });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${Math.min(dist() * 1.05, window.innerHeight * 1.3)}`, pin: $('.cycle__pin', sec), pinType: 'transform', scrub: .8, invalidateOnRefresh: true } });
     tl.to(track, { x: () => -dist(), ease: 'none' }, 0)
       .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
     // chaque étape : son numéro apparaît, son image s'éclaire
@@ -24,6 +30,14 @@ export function initCycle() {
       gsap.fromTo(s, { opacity: i ? .35 : 1 }, { opacity: 1, ease: 'none', scrollTrigger: { trigger: s, containerAnimation: tl, start: 'left 85%', end: 'left 45%', scrub: true } });
       gsap.fromTo($('.stage__n', s), { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, ease: 'back.out(2)', scrollTrigger: { trigger: s, containerAnimation: tl, start: 'left 70%', toggleActions: 'play none none reverse' } });
       if (i === 1) ST().create({ trigger: s, containerAnimation: tl, start: 'left 60%', once: true, onEnter: drawDash });
+    });
+    // au clavier : un lien qui reçoit le focus dans une étape hors champ fait défiler la page jusqu'à cette étape
+    track.addEventListener('focusin', (e) => {
+      const st = tl.scrollTrigger, s = e.target.closest('.stage'); if (!st || !s) return;
+      const d = dist(); if (!d) return;
+      const p = Math.min(1, Math.max(0, (s.offsetLeft - 24) / d));
+      const y = st.start + p * (st.end - st.start);
+      if (lenis) lenis.scrollTo(y, { immediate: true }); else window.scrollTo(0, y);
     });
     return () => {};
   });
@@ -81,6 +95,8 @@ export function initGov() {
   let running = false;
   const wave = () => {
     if (reduced() || running) return; running = true;
+    // pendant le tour automatique, la zone n'est plus annoncée aux lecteurs d'écran (21 changements en 6 s)
+    const live = center.getAttribute('aria-live'); center.removeAttribute('aria-live');
     const R = () => council.clientWidth * .42;
     const o = { a: 0 };
     gsap.set(token, { opacity: 1 });
@@ -90,7 +106,7 @@ export function initGov() {
       const k = Math.min(20, Math.floor(o.a * 21));
       seats.forEach((s, i) => s.classList.toggle('is-on', i === k));
       if (seats[k] && center.dataset.k !== String(k)) { center.dataset.k = k; showSeat(seats[k]); }
-    }, onComplete: () => { gsap.to(token, { opacity: 0, duration: .4 }); seats.forEach((s) => s.classList.remove('is-on')); center.innerHTML = def; delete center.dataset.k; running = false; } });
+    }, onComplete: () => { gsap.to(token, { opacity: 0, duration: .4 }); seats.forEach((s) => s.classList.remove('is-on')); center.innerHTML = def; delete center.dataset.k; running = false; if (live) center.setAttribute('aria-live', live); } });
   };
   $('[data-gov-wave]', sec)?.addEventListener('click', wave);
   if (!reduced()) {
@@ -126,25 +142,31 @@ export async function initGlobe() {
     const P = [A[0] * s1 + B[0] * s2, A[1] * s1 + B[1] * s2, A[2] * s1 + B[2] * s2];
     return [Math.asin(P[2]) / toR, Math.atan2(P[1], P[0]) / toR];
   };
+  // v14 : arcs précalculés, points regroupés par intensité, taille du canevas recalculée seulement au redimensionnement
+  const arcsLL = targets.map((tg) => Array.from({ length: 41 }, (_, k) => { const q = slerp(paris, tg, k / 40); return [q[0], q[1], 1 + Math.sin(Math.PI * k / 40) * .12]; }));
+  let dim = fitCanvas(c, 1.5);
+  window.addEventListener('resize', () => { dim = fitCanvas(c, 1.5); if (!raf) draw(performance.now()); });
+  const buckets = [[], [], [], []];
   const draw = (now) => {
-    const { w, h, dpr } = fitCanvas(c, 2);
+    const { w, h, dpr } = dim;
     const R = Math.min(w, h) * .44, cx = w / 2, cy = h / 2;
     ctx.clearRect(0, 0, w, h);
     const g = ctx.createRadialGradient(cx - R * .3, cy - R * .3, R * .1, cx, cy, R * 1.05);
     g.addColorStop(0, 'rgba(61,182,219,.10)'); g.addColorStop(1, 'rgba(61,182,219,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * 1.04, 0, 6.283); ctx.fill();
     ctx.strokeStyle = 'rgba(238,241,243,.12)'; ctx.lineWidth = dpr; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.stroke();
+    buckets.forEach((b) => (b.length = 0));
     for (const p of pts) {
       const [x, y, z] = project(p[0], p[1], R, cx, cy); if (z < 0) continue;
-      ctx.fillStyle = `rgba(238,241,243,${.12 + z * .5})`; ctx.fillRect(x - dpr * .9, y - dpr * .9, dpr * 1.8, dpr * 1.8);
+      buckets[Math.min(3, Math.floor(z * 4))].push(x, y);
     }
+    const ds = dpr * 1.8, dh = dpr * .9;
+    buckets.forEach((b, k) => { ctx.fillStyle = `rgba(238,241,243,${.12 + (k + .5) / 4 * .5})`; for (let i = 0; i < b.length; i += 2) ctx.fillRect(b[i] - dh, b[i + 1] - dh, ds, ds); });
     const t = ((now - t0) / 2600) % 1;
     targets.forEach((tg, i) => {
       ctx.beginPath(); let started = false;
-      const seg = 40;
-      for (let k = 0; k <= seg; k++) {
-        const q = slerp(paris, tg, k / seg); const lift = 1 + Math.sin(Math.PI * k / seg) * .12;
-        const [x, y, z] = project(q[0], q[1], R * lift, cx, cy);
+      for (const q of arcsLL[i]) {
+        const [x, y, z] = project(q[0], q[1], R * q[2], cx, cy);
         if (z < -.05) { started = false; continue; }
         if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
       }
@@ -159,12 +181,21 @@ export async function initGlobe() {
   };
   // on peut saisir le globe et le lancer : il garde son élan puis reprend sa rotation lente
   let vel = 0, drag = null;
-  const loop = (now) => { raf = 0; if (!vis) return; if (!drag) { rot += .12 + vel; vel *= .95; if (Math.abs(vel) < .01) vel = 0; } draw(now); raf = requestAnimationFrame(loop); };
+  // 30 images par seconde au plus ; sur écran tactile, le globe ne tourne que lorsqu'on le fait tourner
+  const auto = finePointer(); let last = 0;
+  const loop = (now) => {
+    raf = 0; if (!vis) return;
+    if (now - last < 32) { raf = requestAnimationFrame(loop); return; }
+    last = now;
+    if (!drag) { rot += (auto ? .24 : 0) + vel; vel *= .93; if (Math.abs(vel) < .01) vel = 0; }
+    draw(now);
+    if (auto || drag || vel) raf = requestAnimationFrame(loop);
+  };
   if (reduced()) { rot = -8; draw(performance.now()); window.addEventListener('resize', () => draw(performance.now())); return; }
   onVisible(c, (v) => { vis = v; if (v && !raf) raf = requestAnimationFrame(loop); });
   const box = c.parentElement; box.classList.add('is-grab');
   cursorText(box, 'Faire tourner', 'Drag to spin');
-  c.addEventListener('pointerdown', (e) => { if (e.button) return; drag = { x: e.clientX, id: e.pointerId }; vel = 0; box.classList.add('is-dragging'); try { c.setPointerCapture(e.pointerId); } catch (er) { /* rien */ } });
+  c.addEventListener('pointerdown', (e) => { if (e.button) return; drag = { x: e.clientX, id: e.pointerId }; vel = 0; if (!raf) raf = requestAnimationFrame(loop); box.classList.add('is-dragging'); try { c.setPointerCapture(e.pointerId); } catch (er) { /* rien */ } });
   c.addEventListener('pointermove', (e) => { if (!drag || e.pointerId !== drag.id) return; const d = (e.clientX - drag.x) * .32; drag.x = e.clientX; rot += d; vel = vel * .5 + d * .5; });
   const end = () => { if (!drag) return; drag = null; box.classList.remove('is-dragging'); vel = Math.max(-6, Math.min(6, vel)); };
   c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end); c.addEventListener('lostpointercapture', end);
@@ -269,20 +300,44 @@ export function initRdv() {
     clearTimeout(tmo);
     tmo = setTimeout(async () => {
       const q = town.value.trim(); if (q.length < 2) { match.innerHTML = ''; chosen = null; updRecap(); return; }
-      const [ref, cabs] = await Promise.all([resolvePlace(q), loadCabinets()]);
-      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville ou un code postal.', 'Place not recognised: try a town or a postcode.')}</p>`; chosen = null; updRecap(); return; }
-      const needs = $$('[name="besoin"]:checked', form).map((i) => i.value);
-      let pool = cabs.filter((c) => needs.every((k) => c.s.includes(k)));
-      if (!pool.length) pool = cabs;
-      const near = nearest(pool, ref.lat, ref.lon, 3);
-      chosen = near[0].c;
-      match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinets les plus proches de ', 'Nearest offices to ')}${ref.label}</p>` + near.map((n, i) => `<label class="match"><input type="radio" name="cabinet" value="${n.c.id}" ${i === 0 ? 'checked' : ''}><span>${n.c.n} <small>${n.c.a}${n.d >= .5 ? `, ${n.d < 10 ? n.d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(n.d)} km` : ''}</small></span></label>`).join('');
-      $$('input[name="cabinet"]', match).forEach((r) => r.addEventListener('change', () => { chosen = near.find((n) => n.c.id === r.value).c; updRecap(); }));
+      const [ref0, alt, cabs] = await Promise.all([resolveAny(q), resolvePlace(q), loadCabinets()]);
+      let ref = ref0;
+      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville, un code postal ou le nom d’un cabinet.', 'Place not recognised: try a town, a postcode or an office name.')}</p>`; chosen = null; updRecap(); return; }
+      // même nom pour une ville d'un cabinet et une commune éloignée (Saint-Denis…) : on laisse choisir
+      const amb = ref.cab && alt && !alt.dep && norm(alt.label) === norm(q) && haversine([ref.lat, ref.lon], [alt.lat, alt.lon]) > 150 ? alt : null;
+      const draw = (r) => {
+        const needs = $$('[name="besoin"]:checked', form).map((i) => i.value);
+        // un cabinet sans services renseignés n'est pas écarté : l'annuaire est incomplet
+        const ok = (c) => !c.s.length || needs.every((k) => c.s.includes(k));
+        const all = nearest(cabs, r.lat, r.lon, cabs.length);
+        const near = all.filter((n) => ok(n.c)).slice(0, 3);
+        const list = near.length ? near : all.slice(0, 3);
+        const first = all[0];
+        const km = (d) => (d < 10 ? d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(d));
+        const de = (l) => (lang() === 'en' ? 'to ' : /^[aeiouyàâéèêîôûœh]/i.test(l) ? 'd’' : 'de ') + l;
+        const note = near.length && first.c.id !== list[0].c.id && first.d < list[0].d * .7
+          ? `<p class="cab__meta">${T(`Le cabinet le plus proche, ${first.c.n} (${km(first.d)} km), n’indique pas ces services dans l’annuaire.`, `The nearest office, ${first.c.n} (${km(first.d)} km), does not list these services in the directory.`)}</p>` : '';
+        const choice = amb ? `<p class="rdv__amb">${T('Vous voulez dire :', 'Did you mean:')} <button type="button" class="linklike" data-amb="0">${ref0.label}${ref0.cab && ref0.cab.reg !== 'fr' ? ` (${ref0.cab.co[lang() === 'en' ? 1 : 0] || ref0.cab.a.split(',').pop().trim()})` : ''}</button> · <button type="button" class="linklike" data-amb="1">${alt.label} (${T('métropole', 'mainland France')})</button></p>` : '';
+        chosen = list[0].c;
+        match.innerHTML = choice + `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinets les plus proches ', 'Nearest offices ')}${de(r.label)}</p>` + note
+          + list.map((n, i) => `<label class="match"><input type="radio" name="cabinet" value="${n.c.id}" ${i === 0 ? 'checked' : ''}><span>${n.c.n} <small>${n.c.a}${n.d >= .5 ? `, ${km(n.d)} km` : ''}</small></span></label>`).join('');
+        $$('input[name="cabinet"]', match).forEach((rd) => rd.addEventListener('change', () => { chosen = list.find((n) => n.c.id === rd.value).c; updRecap(); }));
+        $$('[data-amb]', match).forEach((b) => b.addEventListener('click', () => { ref = b.dataset.amb === '1' ? alt : ref0; draw(ref); updRecap(); }));
+      };
+      draw(ref);
       updRecap();
     }, 250);
   });
-  next.addEventListener('click', () => {
-    if (!valid(cur)) { err(cur, true); return; }
+  const go = () => {
+    if (!valid(cur)) {
+      err(cur, true);
+      if (cur === 3) {
+        const bad = [form.nom.value.trim() ? null : form.nom, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value.trim()) ? null : form.email].filter(Boolean);
+        [form.nom, form.email].forEach((f) => f.setAttribute('aria-invalid', bad.includes(f) ? 'true' : 'false'));
+        bad[0] && bad[0].focus();
+      }
+      return;
+    }
     err(cur, false);
     if (cur === 3) {
       const done = $('[data-done-text]', form);
@@ -294,11 +349,12 @@ export function initRdv() {
       return;
     }
     show(cur + 1);
-  });
+  };
   prev.addEventListener('click', () => show(Math.max(0, cur - 1)));
   form.addEventListener('change', () => { err(cur, false); updRecap(); });
   form.addEventListener('input', updRecap);
-  form.addEventListener('submit', (e) => e.preventDefault());
+  form.addEventListener('submit', (e) => { e.preventDefault(); if (cur < 4) go(); });
+  $('[data-restart]', form)?.addEventListener('click', () => { form.reset(); chosen = null; match.innerHTML = ''; $$('[aria-invalid]', form).forEach((f) => f.removeAttribute('aria-invalid')); updRecap(); show(0); });
   show(0);
   const pre = decodeURIComponent(location.hash.slice(1));
   if (/^exco-[\w-]+$/.test(pre)) loadCabinets().then((cabs) => {
@@ -311,5 +367,6 @@ export function initRdv() {
     $('button', pb).addEventListener('click', () => { chosen = null; town.value = ''; match.innerHTML = ''; pb.remove(); updRecap(); });
     steps[0].insertBefore(pb, $('legend', steps[0]).nextSibling);
     updRecap();
+    setTimeout(() => scrollToEl(form.closest('section') || form), 350);
   });
 }
