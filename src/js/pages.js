@@ -7,6 +7,17 @@ const gsap = window.gsap;
 // annuaire : chaque ligne reçoit le statut du cabinet à son heure locale
 export async function initDirectory() {
   const dir = $('[data-dir]'); if (!dir) return;
+  // téléphone : chaque département se déplie à la demande (l'annuaire complet ferait 15 000 px)
+  if (window.innerWidth < 700 && $$('[data-cab]', dir).length > 24) {
+    $$('.dir__group', dir).forEach((g) => {
+      const h = $('h3', g), ul = $('ul', g); if (!h || !ul) return;
+      const n = ul.children.length;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'dir__toggle'; b.setAttribute('aria-expanded', 'false');
+      b.innerHTML = h.innerHTML + `<span class="dir__nb">${n}</span>`;
+      h.innerHTML = ''; h.appendChild(b); ul.hidden = true;
+      b.addEventListener('click', () => { const open = ul.hidden; ul.hidden = !open; b.setAttribute('aria-expanded', String(open)); window.ScrollTrigger && window.ScrollTrigger.refresh(); });
+    });
+  }
   const cabs = await loadCabinets();
   const by = Object.fromEntries(cabs.map((c) => [c.id, c]));
   const upd = () => $$('[data-cab]', dir).forEach((a) => {
@@ -42,5 +53,22 @@ export function initGrids() {
   });
   $$('.cover__bar span, .statcard__bar span').forEach((b) => {
     gsap.fromTo(b, { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: b, start: 'top 92%', once: true } });
+  });
+}
+
+// équipes nombreuses (groupes) : 12 visages, 8 sur téléphone, puis « Voir toute l'équipe »
+export function initTeams() {
+  $$('[data-page="group"] .team').forEach((ul) => {
+    const items = Array.from(ul.children); const lim = window.innerWidth < 700 ? 8 : 12;
+    if (items.length <= lim + 2) return;
+    items.slice(lim).forEach((li) => { li.hidden = true; });
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'more__btn team-more'; b.setAttribute('aria-expanded', 'false');
+    b.textContent = T(`Voir toute l’équipe (${items.length})`, `See the whole team (${items.length})`);
+    b.addEventListener('click', () => {
+      items.forEach((li) => { li.hidden = false; }); b.remove();
+      window.ScrollTrigger && window.ScrollTrigger.refresh();
+      if (!reduced()) gsap.fromTo(items.slice(lim), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, stagger: .02, ease: 'power3.out' });
+    });
+    ul.after(b);
   });
 }

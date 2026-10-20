@@ -12,6 +12,8 @@ export const SVC = {
   gp: ['Gestion privée', 'Wealth management'], intl: ['International', 'International'], form: ['Formation', 'Training'],
   oti: ['Vérification OTI', 'Third-party verification'], rse: ['RSE', 'CSR'], forensics: ['Forensics', 'Forensics'],
 };
+// monogramme de la ville pour les cabinets sans photo
+const mono = (c) => (c || '').split(/[\s'’-]+/).filter((w) => w && !/^(de|la|le|les|du|des|sur|en|l|d|et|lès|aux)$/i.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 const svcLabel = (k) => (SVC[k] ? SVC[k][lang() === 'en' ? 1 : 0] : k);
 const ZONES_OM = [['971', 'GP', 'Guadeloupe'], ['972', 'MQ', 'Martinique'], ['974', 'RE', 'La Réunion'], ['987', 'PF', T('Polynésie française', 'French Polynesia')]];
 
@@ -186,7 +188,7 @@ export async function initFinder() {
   function render() {
     const L = filtered();
     fcount.textContent = st.svc.size ? String(st.svc.size) : '';
-    const where = st.match ? T('correspondant à « ', 'matching "') + st.q + T(' »', '"') : st.ref ? (st.ref.dep ? T('autour du département ', 'around département ') : T('autour de ', 'around ')) + st.ref.label : '';
+    const where = st.match ? T('correspondant à « ', 'matching "') + st.q + T(' »', '"') : st.ref ? (st.ref.dep ? T('autour du département ', 'around département ') + st.ref.label : (lang() === 'en' ? 'around ' + st.ref.label : (/^[aeiouyàâéèêîôûœ]/i.test(st.ref.label) ? 'autour d’' : 'autour de ') + st.ref.label)) : '';
     countEl.textContent = `${L.length} ${L.length > 1 ? T('cabinets', 'offices') : T('cabinet', 'office')}${where ? ' ' + where : ''}${st.svc.size && cabs.some((c) => !c.s.length) ? T('. Certains cabinets n’ont pas encore de services renseignés.', '. Some offices have no services listed yet.') : ''}`;
     const ids = new Set(L.map((c) => c.id));
     pins.forEach((p, id) => { p.classList.toggle('is-dim', !ids.has(id)); p.classList.toggle('is-open', ids.has(id) && st.open); });
@@ -194,14 +196,14 @@ export async function initFinder() {
     list.innerHTML = '';
     if (!L.length) {
       const li = document.createElement('li'); li.className = 'cab__meta';
-      li.textContent = st.open ? T('Aucun cabinet ouvert en ce moment avec ces critères. Décochez « Ouvert maintenant » pour voir tous les cabinets.', 'No office is open right now with these filters. Untick "Open now" to see every office.') : T('Aucun cabinet avec ces critères. Retirez un filtre ou changez de zone.', 'No office matches. Remove a filter or change area.');
+      li.textContent = st.open ? T('Aucun cabinet ouvert en ce moment avec ces critères. Décochez « Ouvert maintenant » pour voir tous les cabinets.', 'No office is open right now with these filters. Untick "Open now" to see every office.') : T('Aucun cabinet avec ces critères. Retirez un filtre ou changez de zone.', 'No office matches. Remove a filter or change area.');
       list.appendChild(li); return;
     }
     L.forEach((c) => {
       const s = openStatus(c);
       const li = document.createElement('li');
       li.innerHTML = `<button type="button" class="cab${st.active === c.id ? ' is-active' : ''}" data-id="${c.id}">
-        <span class="cab__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-480.webp" alt="" loading="lazy">` : '<span class="ph ph--mini"></span>'}</span>
+        <span class="cab__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-480.webp" alt="" loading="lazy">` : `<span class="cab__mono" aria-hidden="true">${mono(c.c)}</span>`}</span>
         <span><span class="cab__name" style="display:block">${c.n}</span>
         <span class="cab__meta" style="display:block">${c.c}${c.reg !== 'fr' ? ', ' + c.co[lang() === 'en' ? 1 : 0] : ''}${c._d !== undefined ? `<span class="cab__dist">${c._d < 10 ? c._d.toFixed(1) : Math.round(c._d)} km</span>` : ''}</span>
         <span class="status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}">${s.text}</span></span></button>`;
@@ -242,8 +244,8 @@ export async function initFinder() {
         <p class="mc__row">${c.g ? T('Groupe ', 'Group ') + c.g : ''}</p>
         <p class="mc__row"><span class="status ${s.open ? 'status--open' : ''}">${s.text}</span> <small>(${T('heure locale', 'local time')})</small></p>
         <p class="mc__row">${c.a}<br><span class="copy" data-copy="${c.t}">${c.t}</span></p>
-        ${c.s.length ? `<p class="mc__svc">${c.s.map((k) => `<span>${svcLabel(k)}</span>`).join('')}</p>` : `<p class="mc__row"><span class="chip chip--todo">${T('Services à compléter', 'Services to be added')}</span></p>`}
         <p class="mc__links"><a href="${base()}cabinets/${c.id}.html" data-transition>${T('Voir la fiche du cabinet', 'See the office page')}</a><a href="${maps}" target="_blank" rel="noopener">${T('Itinéraire', 'Directions')}</a><a href="${base()}contact.html#${c.id}" data-transition>${T('Prendre rendez-vous', 'Book a meeting')}</a></p>
+        ${c.s.length ? `<p class="mc__svc">${c.s.map((k) => `<span>${svcLabel(k)}</span>`).join('')}</p>` : `<p class="mc__row"><span class="chip chip--todo">${T('Services à compléter', 'Services to be added')}</span></p>`}
       </div>`;
     card.hidden = false;
     if (!reduced()) gsap.fromTo(card, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' });
@@ -313,19 +315,19 @@ export async function initFinder() {
     const hits = /^\d{2,3}$/.test(q) ? [] : cabs.filter((c) => wordHit(c, n)).sort((a, b) => score(a, n) - score(b, n));
     if (hits.length) {
       const c = hits[0];
-      setRef({ lat: c.lat, lon: c.lon, label: hits.length === 1 || score(c, n) < 2 ? c.c : q });
+      setRef({ lat: c.lat, lon: c.lon, label: score(c, n) === 0 ? c.c : q.charAt(0).toUpperCase() + q.slice(1) });
       select(c.id, true); return;
     }
     const ref = await resolvePlace(q);
     if (ref) setRef(ref);
-    else { st.match = new Set(); st.ref = null; render(); countEl.textContent = T(`Aucun lieu trouvé pour « ${q} ». Essayez une ville, un code postal ou un numéro de département.`, `No place found for "${q}". Try a town, a postcode or a département number.`); }
+    else { st.match = new Set(); st.ref = null; card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); render(); countEl.textContent = T(`Aucun lieu trouvé pour « ${q} ». Essayez une ville, un code postal ou un numéro de département.`, `No place found for "${q}". Try a town, a postcode or a département number.`); }
   }
   // autour de moi
   $('[data-geoloc]', root).addEventListener('click', () => {
-    if (!navigator.geolocation) { countEl.textContent = T('Localisation indisponible : saisissez votre ville.', 'Location unavailable: type your town.'); return; }
+    if (!navigator.geolocation) { countEl.textContent = T('Localisation indisponible : saisissez votre ville.', 'Location unavailable: type your town.'); return; }
     countEl.textContent = T('Localisation en cours…', 'Locating…');
     navigator.geolocation.getCurrentPosition((p) => setRef({ lat: p.coords.latitude, lon: p.coords.longitude, label: T('votre position', 'your location') }),
-      () => { countEl.textContent = T('Localisation refusée ou indisponible : saisissez votre ville.', 'Location refused or unavailable: type your town.'); }, { timeout: 8000 });
+      () => { countEl.textContent = T('Localisation refusée ou indisponible : saisissez votre ville.', 'Location refused or unavailable: type your town.'); }, { timeout: 8000 });
   });
 
   render();

@@ -10,7 +10,7 @@ def ver(rel):
 
 CAT = load('catalog.json')
 
-HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>"""
+HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>"""
 
 
 def head(r, pg):
@@ -119,7 +119,7 @@ def header(r, section=''):
       <a class="nav-link" href="{r}actualites.html" data-transition{cur('actualites')}>{bi('Actualités', 'News')}</a>
     </nav>
     <div class="hd__tools">
-      <button class="hd__lang" type="button" data-lang-toggle><span lang="fr" aria-label="Switch to English">EN</span><span lang="en" aria-label="Passer en français">FR</span></button>
+      <button class="hd__lang" type="button" data-lang-toggle aria-label="Passer en anglais" data-en-aria-label="Switch to French"><span lang="fr" aria-hidden="true">EN</span><span lang="en" aria-hidden="true">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener">{bi('Accès client', 'Client access')}</a>
       <a class="btn btn--primary btn--sm hd__cta" href="{r}contact.html" data-transition data-magnetic{cur('contact')}><span class="btn__dot"></span><span class="hd__cta-long">{bi('Prendre rendez-vous', 'Book a meeting')}</span><span class="hd__cta-short">{bi('Rendez-vous', 'Meeting')}</span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr">Menu</span></button>
@@ -192,6 +192,7 @@ def footer(r):
     <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">{bi('Confidentialité', 'Privacy')}</a>
     <a href="{r}plan-du-site.html" data-transition>{bi('Plan du site', 'Site map')}</a>
     <button type="button" class="linklike" data-calm-toggle>{bi('Réduire les animations', 'Reduce motion')}</button>
+    <button type="button" class="linklike" data-notes-toggle>{bi('Masquer les notes de maquette', 'Hide mock-up notes')}</button>
     <button type="button" class="linklike" data-lang-toggle>{bi('English', 'Français')}</button>
     <p class="ft__mock">{bi('Maquette de refonte, contenus repris d’exco.fr le 19 octobre 2026.', 'Redesign mock-up, content taken from exco.fr on 19 October 2026.')}</p>
   </div>
@@ -225,11 +226,37 @@ def crumbs_ld(items, out):
     return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': el}
 
 
+# ---------- typographie française : espaces insécables, apostrophes, milliers ----------
+import re as _re
+_TAGS = _re.compile(r'(<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->|<[^>]*>)', _re.S | _re.I)
+_NB, _NNB = ' ', ' '
+_L = 'A-Za-zÀ-ÖØ-öø-ÿŒœ'
+
+
+def typo(doc):
+    """Corrige la typographie du texte visible (jamais les balises, scripts ni attributs)."""
+    parts = _TAGS.split(doc)
+    for i in range(0, len(parts), 2):
+        t = parts[i]
+        if not t.strip():
+            continue
+        t = _re.sub(rf"(?<=[{_L}])'(?=[{_L}0-9])", '’', t)
+        t = _re.sub(r'[ \t\n]+:(?=[\s<]|$)', _NB + ':', t)
+        t = _re.sub(r'[ \t\n]+([;!?])', _NNB + r'\1', t)
+        t = _re.sub(r'«[ \t\n]+', '«' + _NB, t)
+        t = _re.sub(r'[ \t\n]+»', _NB + '»', t)
+        for _ in range(2):
+            t = _re.sub(r'(?<![\d,.])(\d{1,3}) (\d{3})(?!\d)', r'\1' + _NNB + r'\2', t)
+        t = _re.sub(r'(\d) (%|€|k€|M€)', r'\1' + _NB + r'\2', t)
+        parts[i] = t
+    return ''.join(parts)
+
+
 def page(pg, main_html, section='', home=False):
     """Assemble une page complète."""
     r = pg['r']
     extra = ''.join(f' data-{k}="{attr(v)}"' for k, v in pg.get('data', {}).items())
-    return f'''{head(r, pg)}
+    return typo(f'''{head(r, pg)}
 <body data-page="{pg['type']}" data-base="{r}"{extra}>
 {chrome(r)}
 {intro(r) if home else ''}
@@ -242,4 +269,4 @@ def page(pg, main_html, section='', home=False):
 {scripts(r)}
 </body>
 </html>
-'''
+''')

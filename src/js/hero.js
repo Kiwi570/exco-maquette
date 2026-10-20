@@ -40,7 +40,7 @@ export function initHero() {
       if (reduced()) return;
       if (h && h._reveal) h._reveal.play();
       gl && gl.start();
-      gsap.fromTo(rest, { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 1, stagger: .12, delay: .45, ease: 'power3.out' });
+      gsap.fromTo(rest, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .1, delay: .3, ease: 'power3.out' });
       if (!gl) gsap.fromTo($('.hero__img', hero), { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 1.4, ease: 'power3.inOut' });
     },
   };

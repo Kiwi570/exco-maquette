@@ -20,6 +20,13 @@ export function applyLang() {
     try { localStorage.setItem('exco-lang', L === 'en' ? 'fr' : 'en'); } catch (e) {}
     leave(location.href.split('#')[0] + location.hash, true);
   }));
+  // notes de maquette (à compléter, à confirmer) : affichées par défaut, masquables pour une présentation
+  $$('[data-notes-toggle]').forEach((b) => {
+    const off = html.classList.contains('notes-off');
+    b.setAttribute('aria-pressed', off ? 'true' : 'false');
+    if (off) b.textContent = T('Afficher les notes de maquette', 'Show mock-up notes');
+    b.addEventListener('click', () => { try { localStorage.setItem('exco-notes', off ? '1' : '0'); } catch (e) {} location.reload(); });
+  });
   $$('[data-calm-toggle]').forEach((b) => {
     const on = html.classList.contains('calm');
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -72,8 +79,8 @@ export function initHeader() {
   let last = 0;
   const upd = () => {
     const y = window.scrollY;
-    hd.classList.toggle('is-solid', y > 40 && (!hero || y > hero.offsetHeight - 80));
-    if (hero && y <= hero.offsetHeight - 80) hd.classList.remove('is-solid');
+    // fond dès le premier défilement : le contenu ne passe jamais sous des liens transparents
+    hd.classList.toggle('is-solid', y > 8);
     if (!html.classList.contains('menu-open')) hd.classList.toggle('is-up', y > 400 && y > last + 2);
     if (y < last - 2) hd.classList.remove('is-up');
     last = y;
@@ -123,6 +130,8 @@ export function initCursor() {
   document.addEventListener('pointerover', (e) => {
     const t = e.target.closest('a, button, label, summary, [data-tilt], [data-cursor-text], input, select, textarea');
     cur.classList.toggle('is-link', !!t && !t.matches('input, select, textarea'));
+    // dans l'en-tête et les menus, l'anneau s'efface : il ne doit jamais couvrir un libellé
+    cur.classList.toggle('in-ui', !!e.target.closest('.hd, .dd, [data-menu], .cab-bar'));
     const txt = e.target.closest('[data-cursor-text]');
     if (txt) { lab.textContent = txt.getAttribute('data-cursor-text'); cur.classList.add('has-label'); } else cur.classList.remove('has-label');
   });
@@ -140,16 +149,18 @@ export function initMagnetic() {
 }
 
 // ---------- transitions de page ----------
+const VT = 'onpagereveal' in window;
 export function leave(url, force = false) {
   const v = $('[data-veil]');
   // même page (changement de langue) : on recharge, sinon le navigateur ne ferait que suivre l'ancre
   const go = () => { if (force && url.split('#')[0] === location.href.split('#')[0]) location.reload(); else location.href = url; };
-  if (reduced() || !v) { go(); return; }
+  // navigateurs récents : fondu enchaîné natif entre les pages (View Transitions), sans rideau
+  if (reduced() || !v || VT) { go(); return; }
   html.classList.add('is-leaving');
   try { sessionStorage.setItem('exco-veil', '1'); } catch (e) {}
   const lg = $('.veil__logo', v);
-  gsap.fromTo(v, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: .65, ease: 'power3.inOut', onComplete: go });
-  if (lg) gsap.fromTo(lg, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .4, delay: .35 });
+  gsap.fromTo(v, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: .34, ease: 'power2.in', onComplete: go });
+  if (lg) gsap.fromTo(lg, { opacity: 0 }, { opacity: 1, duration: .2, delay: .14 });
 }
 export function initTransitions() {
   document.addEventListener('click', (e) => {
@@ -163,7 +174,7 @@ export function initTransitions() {
   let came = false; try { came = sessionStorage.getItem('exco-veil') === '1'; sessionStorage.removeItem('exco-veil'); } catch (e) {}
   if (v && came && !reduced()) {
     gsap.set(v, { clipPath: 'inset(0% 0 0 0)' });
-    gsap.to(v, { clipPath: 'inset(0 0 100% 0)', duration: .9, delay: .1, ease: 'power3.inOut' });
+    gsap.to(v, { clipPath: 'inset(0 0 100% 0)', duration: .5, ease: 'power3.out' });
     return true;
   }
   window.addEventListener('pageshow', (e) => { if (e.persisted) { html.classList.remove('is-leaving'); gsap.set(v, { clipPath: 'inset(100% 0 0 0)' }); } });
@@ -179,10 +190,12 @@ export function runIntro() {
     try { sessionStorage.setItem('exco-intro', '1'); } catch (e) {}
     if (lenis) lenis.stop();
     const logo = $('.intro__logo', intro), rules = $$('.intro__rule span', intro);
-    const tl = gsap.timeline({ onComplete: () => { intro.remove(); if (lenis) lenis.start(); resolve(); } });
-    tl.fromTo(logo, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .55, ease: 'power3.out' })
-      .fromTo(rules, { scaleX: 0 }, { scaleX: 1, duration: .5, stagger: .12, ease: 'power3.inOut' }, .3)
-      .to(intro, { clipPath: 'inset(0 0 100% 0)', duration: .8, ease: 'power4.inOut' }, 1.15);
+    // ouverture courte (1,3 s) : la page commence à se poser pendant que le rideau se lève
+    const tl = gsap.timeline({ onComplete: () => { intro.remove(); if (lenis) lenis.start(); } });
+    tl.fromTo(logo, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .45, ease: 'power3.out' })
+      .fromTo(rules, { scaleX: 0 }, { scaleX: 1, duration: .4, stagger: .1, ease: 'power3.inOut' }, .2)
+      .add(resolve, .7)
+      .to(intro, { clipPath: 'inset(0 0 100% 0)', duration: .6, ease: 'power4.inOut' }, .7);
   });
 }
 
@@ -212,7 +225,7 @@ export function wordsReveal() {
   if (!window.SplitText || reduced()) return;
   $$('[data-words]').forEach((p) => {
     const s = new window.SplitText(p, { type: 'words', wordsClass: 'w' });
-    gsap.fromTo(s.words, { opacity: .16 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: p, start: 'top 80%', end: 'bottom 45%', scrub: true } });
+    gsap.fromTo(s.words, { opacity: .25 }, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: p, start: 'top 88%', end: 'top 42%', scrub: .4 } });
   });
 }
 
@@ -235,7 +248,7 @@ export function counters() {
     const target = +n.dataset.count, pre = n.dataset.prefix || '';
     const str = pre + fmtNum(target);
     n.setAttribute('aria-label', str);
-    n.innerHTML = str.split('').map((ch) => `<span class="digit" aria-hidden="true">${ch === ' ' || ch === ' ' || ch === ' ' ? '&#8239;' : ch}</span>`).join('');
+    n.innerHTML = str.split('').map((ch) => (/\s/.test(ch) ? '<span class="digit digit--sp" aria-hidden="true">&#8239;</span>' : `<span class="digit" aria-hidden="true">${ch}</span>`)).join('');
     if (reduced()) return;
     const ds = $$('.digit', n);
     const tl = gsap.timeline({ paused: true });

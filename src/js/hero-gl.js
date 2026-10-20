@@ -82,7 +82,7 @@ export function initHeroGL(canvas, img) {
   try { const t = document.createElement('canvas'); if (!(t.getContext('webgl') || t.getContext('experimental-webgl'))) return null; } catch (e) { return null; }
   let renderer;
   try {
-    renderer = new Renderer({ canvas, width: box.clientWidth || 300, height: box.clientHeight || 150, dpr: Math.min(window.devicePixelRatio || 1, 2), alpha: false, antialias: false, powerPreference: 'high-performance' });
+    renderer = new Renderer({ canvas, width: box.clientWidth || 300, height: box.clientHeight || 150, dpr: Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.5 : 2), alpha: false, antialias: false, powerPreference: 'high-performance' });
   } catch (e) { return null; }
   const gl = renderer.gl;
   if (!gl) return null;
@@ -138,7 +138,7 @@ export function initHeroGL(canvas, img) {
   const loop = (now) => {
     raf = requestAnimationFrame(loop);
     if (!visible || !texture.image) return;
-    if (started && intro < 1) { if (!t0) t0 = now; intro = Math.min(1, (now - t0) / 1900); dirty = true; }
+    if (started && intro < 1) { if (!t0) t0 = now; intro = Math.min(1, (now - t0) / 1400); dirty = true; }
     const px = m.x, py = m.y, po = m.on;
     m.x += (m.tx - m.x) * .22; m.y += (m.ty - m.y) * .22; m.on += (m.ton - m.on) * .12;
     if (Math.abs(m.x - px) + Math.abs(m.y - py) + Math.abs(m.on - po) > 1e-4) dirty = true;

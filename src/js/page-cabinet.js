@@ -6,7 +6,49 @@ const gsap = window.gsap;
 const NS = 'http://www.w3.org/2000/svg';
 const mk = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
 
+// textes de service longs : quatre lignes, puis « Lire la suite »
+function initSvcMore() {
+  $$('.svc-list li').forEach((li) => {
+    const p = $('p', li); if (!p || p.scrollHeight <= p.clientHeight + 4) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'svc-list__more'; b.setAttribute('aria-expanded', 'false');
+    const lab = () => (li.classList.contains('is-open') ? T('Réduire', 'Show less') : T('Lire la suite', 'Read more'));
+    b.textContent = lab();
+    b.addEventListener('click', () => { li.classList.toggle('is-open'); b.setAttribute('aria-expanded', String(li.classList.contains('is-open'))); b.textContent = lab(); window.ScrollTrigger && window.ScrollTrigger.refresh(); });
+    li.appendChild(b);
+  });
+}
+
+// description longue du cabinet : repliée au-delà d'une hauteur confortable
+function initMore() {
+  $$('[data-more]').forEach((box) => {
+    const lim = window.innerWidth < 700 ? 560 : 760;
+    if (box.scrollHeight < lim * 1.35) return;
+    box.style.setProperty('--more-h', lim + 'px'); box.classList.add('is-clamped');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'more__btn'; b.setAttribute('aria-expanded', 'false');
+    if (!box.id) box.id = 'more-' + Math.random().toString(36).slice(2, 7);
+    b.setAttribute('aria-controls', box.id);
+    const lab = () => (box.classList.contains('is-clamped') ? T('Lire la suite', 'Read more') : T('Réduire', 'Show less'));
+    b.textContent = lab();
+    b.addEventListener('click', () => {
+      const open = box.classList.toggle('is-clamped') === false;
+      b.setAttribute('aria-expanded', String(open)); b.textContent = lab();
+      if (!open) box.scrollIntoView({ block: 'nearest' });
+      window.ScrollTrigger && window.ScrollTrigger.refresh();
+    });
+    box.after(b);
+  });
+}
+
+// la barre d'actions s'efface quand le formulaire de contact est à l'écran
+function initBar() {
+  const bar = $('.cab-bar'), form = $('#contact'); if (!bar || !form || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver((es) => es.forEach((e) => bar.classList.toggle('is-away', e.isIntersecting)), { threshold: .15 }).observe(form);
+}
+
 export async function initCabinetPage() {
+  initSvcMore(); initMore(); initBar();
+  // le bouton « Prendre rendez-vous » de l'en-tête ouvre la demande avec ce cabinet déjà choisi
+  $$('.hd__cta, .menu .btn--primary').forEach((a) => { if (a.tagName === 'A') a.setAttribute('href', base() + 'contact.html#' + document.body.dataset.cabinet); });
   const id = document.body.dataset.cabinet;
   const cabs = await loadCabinets();
   const c = cabs.find((x) => x.id === id); if (!c) return;
@@ -28,7 +70,7 @@ export async function initCabinetPage() {
   // liste des horaires
   const now = localNow(c.tz);
   const ul = $('[data-hours]');
-  if (ul && c.h) ul.innerHTML = c.h.map((rs, d) => `<li class="${d === now.day ? 'is-today' : ''}"><span>${dayName(d).replace(/^./, (m) => m.toUpperCase())}</span><span>${rs && rs.length ? rs.map((r) => `${hhmm(r[0])} – ${hhmm(r[1])}`).join(T(' puis ', ', then ')) : T('Fermé', 'Closed')}</span></li>`).join('');
+  if (ul && c.h) ul.innerHTML = c.h.map((rs, d) => `<li class="${d === now.day ? 'is-today' : ''}"><span>${dayName(d).replace(/^./, (m) => m.toUpperCase())}</span><span>${rs && rs.length ? rs.map((r) => `<span class="nw">${hhmm(r[0])}–${hhmm(r[1])}</span>`).join(' · ') : T('Fermé', 'Closed')}</span></li>`).join('');
 
   // cadran : 7 anneaux (lundi au centre), arcs d'ouverture, aiguille de l'heure
   const dial = $('[data-dial]');

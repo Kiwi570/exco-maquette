@@ -1,9 +1,9 @@
 """Pages de l'annuaire : liste des cabinets, fiche de chaque cabinet, page de chaque groupe membre."""
 import os, json, re, unicodedata
 from urllib.parse import quote
-from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, DEPTS, dept_of, initials, load, ROOT
+from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, DEPTS, dept_of, initials, load, ROOT, slugify, ICONS
 from .partials import crumbs_ld, CAT
-from .ui import ihero, fact, btn, cta_band, exists, img_tag
+from .ui import ihero, fact, btn, cta_band, exists, img_tag, cards_cls
 from . import blocks as B
 
 CABS = json.load(open(os.path.join(ROOT, 'assets', 'data', 'cabinets.json'), encoding='utf-8'))
@@ -87,7 +87,7 @@ def _idcard(c):
     {dep_row}<div><dt>{bi("Heure locale", "Local time")}</dt><dd><span class="idcard__clock" data-clock>--:--</span></dd></div>
     <div><dt>{bi("Statut", "Status")}</dt><dd><span class="badge-live" data-live-status>{bi("Horaires", "Opening hours")}</span></dd></div>
   </dl>
-  <span class="chip chip--illus" style="width:fit-content">{bi("Photo du cabinet à compléter", "Office photo to be added")}</span>
+  <span class="chip chip--illus review" style="width:fit-content">{bi("Photo du cabinet à compléter", "Office photo to be added")}</span>
 </aside>'''
 
 
@@ -202,7 +202,7 @@ def _services(c, fr, en, r):
         return f'''<section class="band band--night" aria-labelledby="cab-svc">
   <div class="wrap prose">
     <h2 class="h2" id="cab-svc" data-reveal>{bi("Les services du cabinet", "The office’s services")}</h2>
-    <p><span class="chip chip--illus">{bi("Liste des services à compléter : absente de la fiche actuelle", "List of services to be added: missing from the current page")}</span></p>
+    <p><span class="chip chip--illus review">{bi("Liste des services à compléter : absente de la fiche actuelle", "List of services to be added: missing from the current page")}</span></p>
     <p><a class="link-arrow" href="{r}services.html" data-transition>{bi("Voir les services du réseau", "See the network’s services")}</a></p>
   </div>
 </section>'''
@@ -297,8 +297,7 @@ def _contact(c, r):
     </div>
     <form class="steps" data-contact novalidate style="color:var(--ink)">
       <div class="fields">
-        <label class="field field--half">{bi("Civilité", "Title")}<select name="civilite"><option value="">—</option><option lang="fr">Madame</option><option lang="fr">Monsieur</option><option lang="en">Ms</option><option lang="en">Mr</option></select></label>
-        <label class="field field--half">{bi("Nom", "Name")}<input name="nom" type="text" autocomplete="name" required></label>
+        <label class="field">{bi("Nom", "Name")}<input name="nom" type="text" autocomplete="name" required></label>
         <label class="field field--half">{bi("E-mail", "Email")}<input name="email" type="email" autocomplete="email" required></label>
         <label class="field field--half">{bi("Téléphone", "Phone")}<input name="tel" type="tel" autocomplete="tel"></label>
         <label class="field">{bi("Votre message", "Your message")}<textarea name="message" rows="4" required></textarea></label>
@@ -359,7 +358,7 @@ def cabinet_page(c, actus):
   <div class="wrap two-col">
     <div class="prose" style="max-width:none">
       <h2 class="h2" id="cab-about" data-reveal>{bi("Le cabinet", "The office")}</h2>
-      {about}
+      <div class="more" data-more>{about}</div>
     </div>
     {pl or ''}
   </div>
@@ -376,10 +375,21 @@ def cabinet_page(c, actus):
     <ul class="articles articles--3">{''.join(art_card(r, a) for a in arts)}</ul>
   </div>
 </section>'''
-    main = '\n'.join(x for x in [hero, about_sec, _figures(fr, en), _hours(c), _services(c, fr, en, r), _team(fr, en, r, c), _access(c, r), news, _contact(c, r)] if x)
+    # barre d'actions fixe sur téléphone : appeler, itinéraire, rendez-vous
+    tel_href = re.sub(r'[^\d+]', '', tel)
+    bar = ('<nav class="cab-bar" aria-label="' + attr('Actions rapides') + '" data-en-aria-label="Quick actions">'
+           + (f'<a href="tel:{tel_href}">{ico("phone", "ico") if "phone" in ICONS else ""}{bi("Appeler", "Call")}</a>' if tel_href else '')
+           + f'<a href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Itinéraire", "Directions")}</a>'
+           + f'<a class="cab-bar__main" href="#contact"><span class="btn__dot"></span>{bi("Rendez-vous", "Meeting")}</a></nav>')
+    main = '\n'.join(x for x in [hero, about_sec, _figures(fr, en), _hours(c), _services(c, fr, en, r), _team(fr, en, r, c), _access(c, r), news, _contact(c, r), bar] if x)
     desc_fr = f'{c["n"]}, cabinet d’expertise comptable, d’audit et de conseil à {c["c"]}. Horaires, services, équipe, accès et contact.'
     ld = [ld_cabinet(c, fr), crumbs_ld(items, out)]
-    pg = dict(r=r, out=out, type='cabinet', title=f'{c["n"]}, expert-comptable à {c["c"]} | Exco', title_en=f'{c["n"]}, accountants in {c["c"]} | Exco',
+    _nm = re.sub(r'[^a-z]', '', slugify(c['n'])); _ct = re.sub(r'[^a-z]', '', slugify(c['c']))
+    if _ct and _ct in _nm:
+        t_fr, t_en = f'{c["n"]} : cabinet d’expertise comptable', f'{c["n"]}: accounting firm'
+    else:
+        t_fr, t_en = f'{c["n"]}, expert-comptable à {c["c"]}', f'{c["n"]}, accountants in {c["c"]}'
+    pg = dict(r=r, out=out, type='cabinet', title=t_fr, title_en=t_en,
               desc=desc_fr, ld=ld, data={'cabinet': c['id'], 'head-city': g['city'] if g else ''}, og=f'assets/img/cabinets/{c["id"]}-960.webp' if cab_photo(c) else None)
     return pg, main
 
@@ -449,6 +459,10 @@ def cabinets_index(actus):
                  lead=('Cherchez par ville, code postal, département ou nom. Chaque fiche donne les horaires en direct, les services, l’équipe et l’accès.', 'Search by town, postcode, département or name. Each page shows live opening hours, services, the team and directions.'),
                  facts=facts, plain=True)
     finder = finder_section().replace('{{r}}', r)
+    # le titre de la page présente déjà l'annuaire : l'en-tête du module devient un titre pour lecteurs d'écran
+    finder = re.sub(r'<div class="sec-head sec-head--row">\s*<h2 class="h2" id="finder-title" data-reveal>(.*?)</h2>.*?</div>',
+                    r'<h2 class="sr" id="finder-title">\1</h2>', finder, count=1, flags=re.S)
+    finder = finder.replace('class="finder band band--night"', 'class="finder finder--page band band--night"', 1)
     dir_sec = f'''<section class="band band--paper" aria-labelledby="dir-title">
   <div class="wrap">
     <div class="sec-head sec-head--row">
@@ -624,7 +638,7 @@ def group_page(g, content_fr=None, content_en=None):
         svc_sec = f'''<section class="band band--paper2" aria-labelledby="grp-svc">
   <div class="wrap">
     <div class="sec-head"><h2 class="h2" id="grp-svc" data-reveal>{bi("Les services du groupe", "The group’s services")}</h2><p class="lead">{bi("Nombre de cabinets du groupe qui proposent chaque service, d’après l’annuaire.", "Number of the group’s offices offering each service, according to the directory.")}</p></div>
-    <ul class="cards">{svc_html}</ul>
+    <ul class="{cards_cls(svc_html.count('<li'))}">{svc_html}</ul>
   </div>
 </section>'''
     main = '\n'.join(x for x in [hero, intro, figs, adn, team, dir_sec, svc_sec, cta_band(r)] if x)

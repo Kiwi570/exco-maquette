@@ -1,5 +1,5 @@
 """Rendu des blocs de contenu repris d'exco.fr (titres, paragraphes, listes, citations, images) en HTML."""
-import os
+import os, re
 from .common import esc, attr, ROOT
 
 
@@ -54,6 +54,22 @@ def render(blocks, r='', lead_first=False, ids=False, demote=0):
         elif figs:
             out.append(figs[0])
 
+    LV = {'h1': 2, 'h2': 2, 'h3': 3, 'h4': 4, 'h5': 4, 'h6': 4}
+    # intertitres réduits à un numéro (« 1. ») : on les retire, le court libellé qui suit devient un intitulé en gras
+    nb, lab = [], False
+    for b in blocks:
+        if b['k'] in LV and re.fullmatch(r'\s*\d{1,2}\s*[.)]?\s*', b.get('t', '')):
+            lab = True; continue
+        if lab and b['k'] == 'p' and len(b['t']) <= 40:
+            nb.append({'k': 'label', 't': b['t']}); lab = False; continue
+        lab = False; nb.append(b)
+    blocks = nb
+    prev = 1 + demote
+    # niveaux continus : le plus haut intertitre du contenu prend le niveau attendu (pas de saut h2 > h4)
+    used = [LV[b['k']] for b in blocks if b['k'] in LV and len(b.get('t', '')) <= 110]
+    shift = (2 + demote) - min(used) if used else demote
+    lead_done = not lead_first
+
     for b in blocks:
         k = b['k']
         if k == 'img':
@@ -66,22 +82,27 @@ def render(blocks, r='', lead_first=False, ids=False, demote=0):
             out.append('<ul>' + ''.join(f'<li>{esc(t)}</li>' for t in b['items']) + '</ul>')
         elif k in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             t = b['t']
-            lvl = {'h1': 2, 'h2': 2, 'h3': 3, 'h4': 4, 'h5': 4, 'h6': 4}[k] + demote
-            lvl = min(lvl, 4)
-            # sur exco.fr, des phrases entières sont mises en titre pour la graisse : on les traite en chapeau
+            lvl = max(2, min(LV[k] + shift, 4, prev + 1))
+            # sur exco.fr, des phrases entières sont mises en titre pour la graisse : la première devient le chapeau, les suivantes un paragraphe appuyé
             if len(t) > 110:
-                out.append(f'<p class="rich__lead">{esc(t)}</p>'); continue
+                if not lead_done or first_p or not out:
+                    out.append(f'<p class="rich__lead">{esc(t)}</p>'); first_p = False; lead_done = True
+                else:
+                    out.append(f'<p class="rich__em">{esc(t)}</p>')
+                continue
             idattr = ''
             if ids and lvl == 2:
                 n_h += 1
                 idattr = f' id="s{n_h}"'
-            out.append(f'<h{lvl}{idattr}>{esc(t)}</h{lvl}>')
+            out.append(f'<h{lvl}{idattr}>{esc(t)}</h{lvl}>'); prev = lvl
+        elif k == 'label':
+            out.append(f'<p class="rich__k">{esc(b["t"])}</p>')
         elif k == 'quote':
             out.append(f'<blockquote>{esc(b["t"])}</blockquote>')
         else:
             cls = ''
             if first_p:
-                cls = ' class="rich__lead"'; first_p = False
+                cls = ' class="rich__lead"'; first_p = False; lead_done = True
             out.append(f'<p{cls}>{esc(b["t"])}</p>')
     flush(); flush_imgs()
     return ''.join(x for x in out if x)

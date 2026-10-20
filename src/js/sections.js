@@ -172,9 +172,9 @@ export function initRse() {
 
 // ---------- actualités : dates réelles, à venir / passées triées automatiquement ----------
 const EVENTS = [
-  { start: '2026-11-19T18:30:00+01:00', fr: 'Transmission d’entreprise : une soirée dédiée aux dirigeants, La Rochelle (Bio’Pôle, Périgny)', en: 'Business transfer: an evening for business owners, La Rochelle (Bio’Pôle, Périgny)', local: 'actualites/soiree-transmission-la-rochelle.html' },
+  { start: '2026-11-19T18:30:00+01:00', fr: 'Transmission d’entreprise : une soirée dédiée aux dirigeants, La Rochelle (Bio’Pôle, Périgny)', en: 'Business transfer: an evening for business owners, La Rochelle (Bio’Pôle, Périgny)', local: 'actualites/soiree-transmission-la-rochelle.html' },
   { start: '2026-05-18', end: '2026-05-22', fr: 'Exco s’engage pour les Journées de la sécurité routière au travail', en: 'Exco supports Road Safety at Work Days', url: 'https://exco.fr/evenement/exco-sengage-pour-les-journees-de-la-securite-routiere-au-travail-2026/' },
-  { start: '2026-03-31', fr: 'Facturation électronique : de la théorie à la pratique, comment réussir sa transition ? (webinaire)', en: 'E-invoicing: from theory to practice (webinar)', url: 'https://exco.fr/evenement/la-facturation-electronique-pme-tpe-structurees-daf-de-la-theorie-a-la-pratique-comment-reussir-sa-transition/' },
+  { start: '2026-03-31', fr: 'Facturation électronique : de la théorie à la pratique, comment réussir sa transition ? (webinaire)', en: 'E-invoicing: from theory to practice (webinar)', url: 'https://exco.fr/evenement/la-facturation-electronique-pme-tpe-structurees-daf-de-la-theorie-a-la-pratique-comment-reussir-sa-transition/' },
   { start: '2026-02-23', end: '2026-02-25', fr: 'Exco Fiduciaire du Sud-Ouest, membre d’AGIRAGRI, au SIA’PRO 2026', en: 'Exco Fiduciaire du Sud-Ouest, an AGIRAGRI member, at SIA’PRO 2026', url: 'https://exco.fr/evenement/exco-fiduciaire-du-sud-ouest-membre-dagiragri-participe-au-siapro-2026/' },
 ];
 export function countdownText(iso, now = new Date()) {
@@ -245,7 +245,7 @@ export function initRdv() {
     tmo = setTimeout(async () => {
       const q = town.value.trim(); if (q.length < 2) { match.innerHTML = ''; chosen = null; updRecap(); return; }
       const [ref, cabs] = await Promise.all([resolvePlace(q), loadCabinets()]);
-      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville ou un code postal.', 'Place not recognised: try a town or a postcode.')}</p>`; chosen = null; updRecap(); return; }
+      if (!ref) { match.innerHTML = `<p class="cab__meta" style="color:var(--ink-soft)">${T('Lieu non reconnu : essayez une ville ou un code postal.', 'Place not recognised: try a town or a postcode.')}</p>`; chosen = null; updRecap(); return; }
       const needs = $$('[name="besoin"]:checked', form).map((i) => i.value);
       let pool = cabs.filter((c) => needs.every((k) => c.s.includes(k)));
       if (!pool.length) pool = cabs;

@@ -24,7 +24,9 @@ def ihero(r, items, title, lead=None, sub=None, media='', icon=None, actions='',
     """Ouverture d'une page intérieure. title, lead, sub : (fr, en)."""
     cls = 'ihero' + (' ihero--plain' if plain or not media else '')
     t = bi(*title) if isinstance(title, tuple) else title
-    parts = [crumbs(r, items)]
+    # avec une image, le fil d'Ariane reste en haut, sous l'en-tête, au lieu de flotter au milieu de l'ouverture
+    top = f'<div class="wrap">{crumbs(r, items)}</div>' if media else ''
+    parts = [] if media else [crumbs(r, items)]
     if chip: parts.append(chip)
     if icon: parts.append(ico(icon, 'ico ihero__icon'))
     parts.append(f'<h1 class="display" id="{hid}" data-reveal>{t}</h1>')
@@ -35,7 +37,7 @@ def ihero(r, items, title, lead=None, sub=None, media='', icon=None, actions='',
     m = ''
     if media:
         m = media if media.lstrip().startswith(('<figure', '<div', '<aside')) else f'<figure class="ihero__media{" ihero__media--tall" if tall else ""}">{media}</figure>'
-    return f'''<section class="{cls}" data-hero aria-labelledby="{hid}">
+    return f'''<section class="{cls}" data-hero aria-labelledby="{hid}">{top}
   <div class="wrap ihero__grid">
     <div class="ihero__text">{''.join(parts)}</div>{m}
   </div>
@@ -73,12 +75,21 @@ def svc_cards(r, slugs, counts=None):
         if counts is not None and k and counts.get(k):
             n = f'<span class="card__n">{bi(str(counts[k]) + " cabinets", str(counts[k]) + " offices")}</span>'
         out.append(f'<li><a class="card" href="{r}services/{s["slug"]}.html" data-transition>{ico(s["icon"])}<span class="card__t">{bie(s["fr"], s["en"])}</span><span class="card__d">{bie(s["dfr"], s["den"])}</span>{n}</a></li>')
-    return '<ul class="cards">' + ''.join(out) + '</ul>'
+    return f'<ul class="{cards_cls(len(out))}">' + ''.join(out) + '</ul>'
 
 
-def sector_card(r, x, tag='a'):
+def cards_cls(n):
+    """Colonnes choisies d'après le nombre de cartes : jamais de rangée orpheline."""
+    cols = {1: 2, 2: 2, 3: 3, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 9: 3, 10: 5, 11: 4, 12: 4}.get(n, 0)
+    return f'cards cards--c{cols}' if cols else 'cards'
+
+
+def sector_card(r, x, tag='a', notes=True):
+    d = f'<p>{bie(x["dfr"], x["den"])}</p>'
+    if x['dfr'].startswith('Texte à'):  # description manquante : note de maquette, jamais dans les bandeaux « D'autres secteurs »
+        d = f'<p class="review"><span class="chip chip--todo">{bie(x["dfr"], x["den"])}</span></p>' if notes else ''
     return (f'<a class="sector" href="{r}secteurs/{x["slug"]}.html" data-transition><div class="sector__img"><img src="{r}assets/img/grok/{x["img"]}.webp" alt="" loading="lazy" width="800" height="1000" style="width:100%;height:100%;object-fit:cover"></div>'
-            f'<h3 class="sector__t">{bie(x["fr"], x["en"])}</h3><p>{bie(x["dfr"], x["den"])}</p></a>')
+            f'<h3 class="sector__t">{bie(x["fr"], x["en"])}</h3>{d}</a>')
 
 
 def bi_div(fr_html, en_html, cls='rich', extra=''):

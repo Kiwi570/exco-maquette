@@ -2,7 +2,7 @@
 import os, json, re
 from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT
 from .partials import crumbs_ld, CAT
-from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div
+from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
 
 PAGES_FR = load('pages_fr.json') or {}
@@ -175,7 +175,7 @@ def service_page(s, idx):
     main = '\n'.join([hero, body, related, cta_band(r, filt=s.get('code', ''))])
     ld = [{'@context': 'https://schema.org', '@type': 'Service', 'name': s['fr'], 'serviceType': s['fr'], 'description': s['dfr'], 'url': page_url(out),
            'provider': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'}, 'areaServed': ['FR', 'Europe', 'Afrique']}, crumbs_ld(items, out)]
-    pg = dict(r=r, out=out, type='service-generic', title=f'{s["fr"]} | Exco', title_en=f'{s["en"]} | Exco', desc=f'{s["fr"]} : {s["dfr"]}', ld=ld)
+    pg = dict(r=r, out=out, type='service-generic', title=(f'{s["fr"]} avec les cabinets Exco' if len(s['fr']) < 20 else f'{s["fr"]} | Exco'), title_en=(f'{s["en"]} with Exco offices' if len(s['en']) < 20 else f'{s["en"]} | Exco'), desc=f'{s["fr"]} : {s["dfr"]}', ld=ld)
     return pg, main
 
 
@@ -217,7 +217,7 @@ def sector_page(x, idx):
     rel = (others[k:] + others[:k])[:4]
     related = f'''<section class="band band--paper" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="rel-title" data-reveal>{bi("D’autres secteurs", "Other sectors")}</h2><a class="link-arrow" href="{r}secteurs.html" data-transition>{bi("Tous les secteurs", "All sectors")}</a></div>
-    <div class="sec-grid">{''.join(sector_card(r, y) for y in rel)}</div></div></section>'''
+    <div class="sec-grid">{''.join(sector_card(r, y, notes=False) for y in rel)}</div></div></section>'''
     core = ['expertise-comptable', 'audit', 'conseil', 'juridique-fiscal', 'social-paie-rh', 'evaluation-entreprise']
     svc = f'''<section class="band band--paper2" aria-labelledby="svc-title"><div class="wrap">
     <div class="sec-head"><h2 class="h2" id="svc-title" data-reveal>{bi("Les services les plus demandés", "The most requested services")}</h2><p class="lead">{bi("Les métiers proposés dans la majorité des cabinets du réseau.", "The services offered by most offices in the network.")}</p></div>
@@ -247,7 +247,7 @@ def metier_page(m, idx):
     others = [y for y in CAT['metiers'] if y['slug'] != m['slug']]
     rel = f'''<section class="band band--paper" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head"><h2 class="h2" id="rel-title" data-reveal>{bi("Les autres métiers", "Other careers")}</h2></div>
-    <ul class="cards">{''.join(metier_card(r, y) for y in others)}</ul></div></section>'''
+    <ul class="{cards_cls(len(others))}">{''.join(metier_card(r, y) for y in others)}</ul></div></section>'''
     jobs = f'''<section class="band band--night" aria-labelledby="jobs-title"><div class="wrap cta-band">
     <div class="prose"><h2 class="h2" id="jobs-title" data-reveal>{bi("Postulez chez Exco", "Apply to Exco")}</h2><p class="lead">{bi("Les offres de tous les cabinets du réseau sont publiées sur le site dédié au recrutement.", "Openings from every office in the network are published on the recruitment site.")}</p></div>
     <div class="cta-band__actions">{btn("https://exco.flatchr.io/fr/company/exco/", "Voir les offres", "See the offers", ext=True)}</div></div></section>'''
@@ -267,7 +267,10 @@ def art_img(r, a, sizes='(max-width: 900px) 92vw, 30vw'):
         base = 'assets/img/' + img[3:]
     else:
         base = 'assets/img/actus/' + img
-    return f'<img src="{r}{base}-800.webp" alt="" loading="lazy" width="800" height="533">'
+    # variantes plus grandes quand elles existent (couverture nette sur grand écran)
+    vs = [(w, f'{r}{base}-{w}.webp') for w in (800, 1200, 1600) if os.path.exists(os.path.join(ROOT, f'{base}-{w}.webp'))]
+    srcset = f' srcset="{", ".join(f"{u} {w}w" for w, u in vs)}" sizes="{sizes}"' if len(vs) > 1 else ''
+    return f'<img src="{r}{base}-800.webp"{srcset} alt="" loading="lazy" width="800" height="533">'
 
 
 def art_card(r, a):
@@ -276,16 +279,40 @@ def art_card(r, a):
             f'<span><span class="art__d" style="display:block">{date_bi(a["date"])} · {bi(*cat)}</span><span class="art__t" style="display:block">{esc(a["fr"]["title"])}</span></span></a></li>')
 
 
+def _drop_cover_dupes(a, body):
+    """Retire de la galerie la photo déjà utilisée en couverture (comparaison des vignettes)."""
+    try:
+        from PIL import Image, ImageChops
+        img = a['img']
+        cov = os.path.join(ROOT, 'assets/img/' + (img[3:] if img.startswith('../') else 'actus/' + img) + '-800.webp')
+        th = lambda p: Image.open(p).convert('L').resize((32, 24))
+        c = th(cov)
+    except Exception:
+        return body
+    out = []
+    for b in body:
+        if b['k'] == 'img' and b.get('local'):
+            p = os.path.join(ROOT, f'assets/img/actus/{b["local"]}-800.webp')
+            try:
+                d = ImageChops.difference(c, th(p))
+                if sum(d.getdata()) / (32 * 24) < 12:
+                    continue
+            except Exception:
+                pass
+        out.append(b)
+    return out
+
+
 def article_page(a, actus):
     r = '../'
     out = f'actualites/{a["slug"]}.html'
     items = [('Accueil', 'Home', 'index.html'), ('Actualités', 'News', 'actualites.html'), (a['fr']['title'], None, None)]
     cat = CATS.get(a['cat'])
-    body = a['fr']['body']
+    body = _drop_cover_dupes(a, a['fr']['body'])
     toc = B.toc(body)
     html_fr = B.render(body, r, lead_first=True, ids=True)
     en = a.get('en')
-    html_en = B.render(en['body'], r, lead_first=True, ids=True) if en else ''
+    html_en = B.render(_drop_cover_dupes(a, en['body']), r, lead_first=True, ids=True) if en else ''
     rich = bi_div(html_fr, html_en) if en else f'<div class="rich"><p class="note" lang="en">This article is only available in French.</p>{html_fr}</div>'
     toc_html = ''
     if len(toc) >= 2:
@@ -296,7 +323,7 @@ def article_page(a, actus):
     meta = f'''<div class="article__meta"><span><b>{bi("Événement le" if is_event else "Publié le", "Event on" if is_event else "Published on")}</b> {when}</span><span><b>{bi("Rubrique", "Section")}</b> {bi(*cat)}</span><span><a href="{a["url"]}" target="_blank" rel="noopener">{bi("Article d’origine sur exco.fr", "Original article on exco.fr")}</a></span></div>'''
     share = f'<div class="share"><button type="button" data-share>{bi("Copier le lien", "Copy link")}</button><a href="https://www.linkedin.com/sharing/share-offsite/?url={page_url(out)}" target="_blank" rel="noopener">LinkedIn</a></div>'
     aside = f'<aside class="article__aside">{meta}{toc_html}{share}<a class="link-arrow" href="{r}actualites.html" data-transition>{bi("Toutes les actualités", "All news")}</a></aside>'
-    cover_img = art_img(r, a).replace(' loading="lazy"', ' fetchpriority="high" data-parallax="0.06"')
+    cover_img = art_img(r, a, sizes='(max-width: 900px) 92vw, 1320px').replace(' loading="lazy"', ' fetchpriority="high" data-parallax="0.06"')
     cover = f'<figure class="article__cover">{cover_img}</figure>'
     hero = f'''<section class="ihero ihero--plain" data-hero aria-labelledby="page-title">
   <div class="wrap ihero__grid"><div class="ihero__text">
@@ -321,8 +348,16 @@ def article_page(a, actus):
                    'location': {'@type': 'Place', 'name': 'Bio’Pôle', 'address': {'@type': 'PostalAddress', 'addressLocality': 'Périgny', 'addressCountry': 'FR'}}})
     else:
         ld['datePublished'] = a['date']
-    pg = dict(r=r, out=out, type='article', title=a['fr']['title'] + ' | Exco', title_en=a['fr']['title'] + ' | Exco',
-              desc=(next((b['t'] for b in body if b['k'] == 'p'), '')[:155]), ld=[ld, crumbs_ld(items, out)], og_type='article',
+    _t = a['fr']['title']
+    if ' : ' in _t and len(_t.split(' : ')[0]) >= 18:
+        _t = _t.split(' : ')[0] + ' | Exco'
+    elif len(_t) <= 58:
+        _t += ' | Exco'
+    _d = next((b['t'] for b in body if b['k'] == 'p'), '')
+    if len(_d) > 158:
+        _d = _d[:155].rsplit(' ', 1)[0].rstrip(' ,;:') + '…'
+    pg = dict(r=r, out=out, type='article', title=_t, title_en=_t,
+              desc=_d, ld=[ld, crumbs_ld(items, out)], og_type='article',
               og=('assets/img/' + (a['img'][3:] if a['img'].startswith('../') else 'actus/' + a['img']) + '-800.webp'))
     return pg, main
 
