@@ -10,7 +10,7 @@ def ver(rel):
 
 CAT = load('catalog.json')
 
-HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>"""
+HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm';var v=0;try{v=sessionStorage.getItem('exco-vt')==='1';sessionStorage.removeItem('exco-vt')}catch(e){}addEventListener('pagereveal',function(e){var t=e.viewTransition,m=null;if(!t||/(^| )(calm|rm)( |$)/.test(d.className))return;try{if(v&&!location.hash){v=0;m=document.querySelector('[data-hero] .ihero__media,[data-hero] .cab-hero__media,[data-hero] .article__cover')}else{var a=navigation.activation,p=performance.getEntriesByType('navigation')[0];if(a&&a.navigationType==='traverse'&&a.from&&!(p&&p.type==='back_forward')){var u=a.from.url.split('#')[0],L=document.links;for(var k=0;k<L.length&&!m;k++)if(L[k].href.split('#')[0]===u)m=L[k].querySelector('.sector__img,.art__img,.tile__img')}}if(m){var r=m.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>innerHeight)m=null}}catch(x){m=null}if(m){m.style.viewTransitionName='vt-media';t.finished.then(function(){m.style.viewTransitionName=''})}})})()</script>"""
 
 
 def head(r, pg):
@@ -45,6 +45,7 @@ def head(r, pg):
 <link rel="preload" href="{r}assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{r}assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
 {HEAD_SCRIPT}
+<link rel="expect" href="#vt-end" blocking="render">
 <link rel="stylesheet" href="{r}assets/css/site.css?v={ver('assets/css/site.css')}">
 {ld}
 </head>'''
@@ -154,10 +155,10 @@ def footer(r):
     svc = ''.join(f'<li><a href="{r}services/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['services'])
     sec = ''.join(f'<li><a href="{r}secteurs/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['sectors'])
     return f'''<footer class="ft" data-footer>
+  <div class="wrap ft__sign"><p class="ft__sign-t"><span class="ft__sign-in">{bi('Rendre simple et naturel l’entrepreneuriat.', 'Making entrepreneurship simple and natural.')}</span></p></div>
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="{r}assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48" loading="lazy">
-      <p class="ft__claim">{bi('Les experts de nos cabinets vous aident à rendre simple et naturel l’entrepreneuriat.', 'Our experts help make entrepreneurship simple and natural.')}</p>
       <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
       <div class="ft__brands">
         <a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener"><img src="{r}assets/img/logos/exco-gestion-privee-blanc.svg" alt="Exco Gestion Privée" loading="lazy" width="120" height="34"></a>
@@ -263,6 +264,12 @@ def typo(doc):
     return ''.join(parts)
 
 
+def hero_mark(h):
+    """Repère placé juste après l’en-tête de page : la page d’arrivée attend qu’il soit lu avant de s’afficher (passage d’image entre pages)."""
+    i = h.find('</section>')
+    return h[:i + 10] + '<span id="vt-end" hidden></span>' + h[i + 10:] if i >= 0 else h
+
+
 def page(pg, main_html, section='', home=False):
     """Assemble une page complète."""
     r = pg['r']
@@ -274,7 +281,7 @@ def page(pg, main_html, section='', home=False):
 {header(r, section)}
 {menu(r)}
 <main id="contenu">
-{main_html}
+{hero_mark(main_html)}
 </main>
 {footer(r)}
 {scripts(r)}

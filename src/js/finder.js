@@ -196,7 +196,8 @@ export async function initFinder() {
     cabLinks.forEach((p) => { p.style.opacity = ids.has(p.dataset.id) ? '' : '.08'; });
     if (st.active && !ids.has(st.active) && !card.hidden) closeCard();
     const sig = [st.zone, st.q, [...st.svc].join(), st.open, st.ref && st.ref.label].join('|');
-    if (sig !== st.sig) { st.sig = sig; st.all = false; }
+    const fresh = sig !== st.sig;
+    if (fresh) { st.sig = sig; st.all = false; }
     list.innerHTML = '';
     if (!L.length) {
       const li = document.createElement('li'); li.className = 'cab__meta';
@@ -225,6 +226,9 @@ export async function initFinder() {
       li.appendChild(b); list.appendChild(li);
     }
     initPlaceholders();
+    // nouvelle recherche ou nouveau filtre : les résultats arrivent l'un après l'autre
+    if (fresh && st.ready && !reduced()) gsap.fromTo(Array.from(list.children).slice(0, 10), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .4, stagger: .035, ease: 'power2.out', clearProps: 'opacity,transform' });
+    st.ready = true;
   }
   // statuts « ouvert / fermé » mis à jour sur place chaque minute (sans reconstruire la liste ni perdre le focus)
   function refreshStatus() {

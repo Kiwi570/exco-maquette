@@ -21,8 +21,9 @@
 <link rel="icon" href="../assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="../assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="../assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
-<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>
-<link rel="stylesheet" href="../assets/css/site.css?v=6e90054b">
+<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm';var v=0;try{v=sessionStorage.getItem('exco-vt')==='1';sessionStorage.removeItem('exco-vt')}catch(e){}addEventListener('pagereveal',function(e){var t=e.viewTransition,m=null;if(!t||/(^| )(calm|rm)( |$)/.test(d.className))return;try{if(v&&!location.hash){v=0;m=document.querySelector('[data-hero] .ihero__media,[data-hero] .cab-hero__media,[data-hero] .article__cover')}else{var a=navigation.activation,p=performance.getEntriesByType('navigation')[0];if(a&&a.navigationType==='traverse'&&a.from&&!(p&&p.type==='back_forward')){var u=a.from.url.split('#')[0],L=document.links;for(var k=0;k<L.length&&!m;k++)if(L[k].href.split('#')[0]===u)m=L[k].querySelector('.sector__img,.art__img,.tile__img')}}if(m){var r=m.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>innerHeight)m=null}}catch(x){m=null}if(m){m.style.viewTransitionName='vt-media';t.finished.then(function(){m.style.viewTransitionName=''})}})})()</script>
+<link rel="expect" href="#vt-end" blocking="render">
+<link rel="stylesheet" href="../assets/css/site.css?v=5b9be38e">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Finance et transactions","serviceType":"Finance et transactions","description":"Des fusions et acquisitions rendues simples et accessibles, avec un haut niveau de compétences sur les territoires.","url":"https://exco-maquette.vercel.app/services/finance-transactions","provider":{"@type":"Organization","name":"Exco","url":"https://exco-maquette.vercel.app/"},"areaServed":["FR","Europe","Afrique"]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://exco-maquette.vercel.app/"},{"@type":"ListItem","position":2,"name":"Services","item":"https://exco-maquette.vercel.app/services"},{"@type":"ListItem","position":3,"name":"Finance et transactions","item":"https://exco-maquette.vercel.app/services/finance-transactions"}]}</script>
 </head>
 <body data-page="service-generic" data-base="../">
@@ -91,7 +92,7 @@
   <a class="btn btn--primary" href="../cabinets.html" data-filter="ft" data-transition><span class="btn__dot"></span><span lang="fr">Voir ces cabinets</span><span lang="en">See these offices</span></a>
 </aside>
   </div>
-</section>
+</section><span id="vt-end" hidden></span>
 <section class="band band--paper2"><div class="wrap split"><div class="split__head"><p class="split__lead">Rendre simple et accessible les services fusions et acquisitions avec un haut niveau de compétences sur les territoires.</p></div><div class="rich"></div></div></section>
 <section class="band band--paper" aria-labelledby="sec-2"><div class="wrap split"><div class="split__head"><h2 class="h2" id="sec-2" data-reveal>Transmission / cession</h2></div><div class="rich"><ul><li>Accompagnement sur les transmissions et cessions</li><li>Cessions de groupes familiaux</li></ul><p class="note" lang="en">This section is only available in French.</p></div></div></section>
 <section class="band band--paper2" aria-labelledby="sec-3"><div class="wrap split"><div class="split__head"><h2 class="h2" id="sec-3" data-reveal>Acquisition</h2></div><div class="rich"><ul><li>Fusions et rapprochements avec stratégie d’acquisition</li><li>Recherche de cibles</li><li>Accompagnement dans les négociations</li></ul></div></div></section>
@@ -114,10 +115,10 @@
 </section>
 </main>
 <footer class="ft" data-footer>
+  <div class="wrap ft__sign"><p class="ft__sign-t"><span class="ft__sign-in"><span lang="fr">Rendre simple et naturel l’entrepreneuriat.</span><span lang="en">Making entrepreneurship simple and natural.</span></span></p></div>
   <div class="wrap ft__grid">
     <div class="ft__brand">
       <img class="ft__logo" src="../assets/img/logos/exco-logo-blanc.svg" alt="Exco" width="180" height="48" loading="lazy">
-      <p class="ft__claim"><span lang="fr">Les experts de nos cabinets vous aident à rendre simple et naturel l’entrepreneuriat.</span><span lang="en">Our experts help make entrepreneurship simple and natural.</span></p>
       <address class="ft__addr">Exco France<br>42 avenue de la Grande Armée, 75017 Paris<br><span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span><br><span class="copy" data-copy="info@exco.fr">info@exco.fr</span></address>
       <div class="ft__brands">
         <a href="https://gestionprivee.exco.fr/" target="_blank" rel="noopener"><img src="../assets/img/logos/exco-gestion-privee-blanc.svg" alt="Exco Gestion Privée" loading="lazy" width="120" height="34"></a>
@@ -162,6 +163,6 @@
 <script src="../assets/vendor/gsap/SplitText.min.js"></script>
 <script src="../assets/vendor/gsap/DrawSVGPlugin.min.js"></script>
 <script src="../assets/vendor/gsap/CustomEase.min.js"></script>
-<script src="../assets/js/site.js?v=79bfb888"></script>
+<script src="../assets/js/site.js?v=6fbedb95"></script>
 </body>
 </html>

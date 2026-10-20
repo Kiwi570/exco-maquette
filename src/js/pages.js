@@ -1,6 +1,7 @@
 // Pages de liste : statut d'ouverture dans l'annuaire, filtre des actualités, animations d'entrée des grilles.
 import { $, $$, T, reduced, openStatus } from './util.js';
 import { loadCabinets } from './finder.js';
+import { foldTo } from './fx.js';
 
 const gsap = window.gsap;
 
@@ -85,10 +86,14 @@ export function initMore() {
     const lab = () => (box.classList.contains('is-clamped') ? T('Lire la suite', 'Read more') : T('Réduire', 'Show less'));
     b.textContent = lab();
     b.addEventListener('click', () => {
-      const open = box.classList.toggle('is-clamped') === false;
-      b.setAttribute('aria-expanded', String(open)); b.textContent = lab();
-      if (!open) box.scrollIntoView({ block: 'nearest' });
-      window.ScrollTrigger && window.ScrollTrigger.refresh();
+      const open = box.classList.contains('is-clamped');
+      b.setAttribute('aria-expanded', String(open));
+      b.textContent = open ? T('Réduire', 'Show less') : T('Lire la suite', 'Read more');
+      // le texte se déplie (ou se replie) en douceur
+      foldTo(box, open, () => {
+        if (!open) box.scrollIntoView({ block: 'nearest' });
+        window.ScrollTrigger && window.ScrollTrigger.refresh();
+      });
     });
     box.after(b);
   });

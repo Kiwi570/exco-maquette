@@ -1,6 +1,7 @@
 // Sections de l'accueil : cycle de vie, services, secteurs, gouvernance, globe Kreston, RSE, actualités, rendez-vous.
 import { $, $$, T, lang, reduced, finePointer, fitCanvas, getJSON, fmtDate, base, onVisible, haversine } from './util.js';
 import { loadCabinets, resolvePlace, nearest, SVC } from './finder.js';
+import { cursorText } from './fx.js';
 
 const gsap = window.gsap;
 const ST = () => window.ScrollTrigger;
@@ -156,9 +157,17 @@ export async function initGlobe() {
     const [px, py, pz] = project(paris[0], paris[1], R, cx, cy);
     if (pz > 0) { ctx.fillStyle = '#F59A00'; ctx.beginPath(); ctx.arc(px, py, 4 * dpr, 0, 6.283); ctx.fill(); }
   };
-  const loop = (now) => { raf = 0; if (!vis) return; rot += .12; draw(now); raf = requestAnimationFrame(loop); };
+  // on peut saisir le globe et le lancer : il garde son élan puis reprend sa rotation lente
+  let vel = 0, drag = null;
+  const loop = (now) => { raf = 0; if (!vis) return; if (!drag) { rot += .12 + vel; vel *= .95; if (Math.abs(vel) < .01) vel = 0; } draw(now); raf = requestAnimationFrame(loop); };
   if (reduced()) { rot = -8; draw(performance.now()); window.addEventListener('resize', () => draw(performance.now())); return; }
   onVisible(c, (v) => { vis = v; if (v && !raf) raf = requestAnimationFrame(loop); });
+  const box = c.parentElement; box.classList.add('is-grab');
+  cursorText(box, 'Faire tourner', 'Drag to spin');
+  c.addEventListener('pointerdown', (e) => { if (e.button) return; drag = { x: e.clientX, id: e.pointerId }; vel = 0; box.classList.add('is-dragging'); try { c.setPointerCapture(e.pointerId); } catch (er) { /* rien */ } });
+  c.addEventListener('pointermove', (e) => { if (!drag || e.pointerId !== drag.id) return; const d = (e.clientX - drag.x) * .32; drag.x = e.clientX; rot += d; vel = vel * .5 + d * .5; });
+  const end = () => { if (!drag) return; drag = null; box.classList.remove('is-dragging'); vel = Math.max(-6, Math.min(6, vel)); };
+  c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end); c.addEventListener('lostpointercapture', end);
   // le défilement fait tourner le globe
   ST().create({ trigger: c, start: 'top bottom', end: 'bottom top', onUpdate: (s) => { rot += s.getVelocity() * .0012; } });
 }
