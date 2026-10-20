@@ -12,10 +12,10 @@
           <button type="button" class="btn btn--ghost btn--sm" data-geoloc><span lang="fr">Autour de moi</span><span lang="en">Near me</span></button>
           <ul class="finder__suggest" data-finder-suggest role="listbox" hidden></ul>
         </form>
-        <div class="finder__tabs" role="tablist" aria-label="Zone" data-en-aria-label="Area">
-          <button role="tab" aria-selected="true" data-zone="fr"><span lang="fr">France</span><span lang="en">France</span></button>
-          <button role="tab" aria-selected="false" data-zone="om"><span lang="fr">Outre-mer</span><span lang="en">Overseas</span></button>
-          <button role="tab" aria-selected="false" data-zone="int"><span lang="fr">International</span><span lang="en">International</span></button>
+        <div class="finder__tabs" role="group" aria-label="Zone" data-en-aria-label="Area">
+          <button type="button" aria-pressed="true" data-zone="fr"><span lang="fr">France</span><span lang="en">France</span></button>
+          <button type="button" aria-pressed="false" data-zone="om"><span lang="fr">Outre-mer</span><span lang="en">Overseas</span></button>
+          <button type="button" aria-pressed="false" data-zone="int"><span lang="fr">International</span><span lang="en">International</span></button>
         </div>
         <details class="finder__filters">
           <summary><span lang="fr">Filtrer par service</span><span lang="en">Filter by service</span> <span class="finder__fcount" data-fcount></span></summary>

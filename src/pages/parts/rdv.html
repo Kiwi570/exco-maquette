@@ -25,7 +25,7 @@
           <label><input type="radio" name="profil" value="liberal"><span lang="fr">Profession libérale ou commerçant</span><span lang="en">Self-employed professional or retailer</span></label>
           <label><input type="radio" name="profil" value="association"><span lang="fr">Association, ESS ou secteur public</span><span lang="en">Non-profit or public body</span></label>
         </div>
-        <p class="step__err" data-err hidden><span lang="fr">Choisissez une réponse pour continuer.</span><span lang="en">Choose an answer to continue.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Choisissez une réponse pour continuer.</span><span lang="en">Choose an answer to continue.</span></p>
       </fieldset>
       <fieldset class="step" data-step="2">
         <legend class="h4"><span lang="fr">Votre besoin</span><span lang="en">What you need</span></legend>
@@ -38,13 +38,13 @@
           <label><input type="checkbox" name="besoin" value="ft"><span lang="fr">Cession, transmission</span><span lang="en">Selling or handing over</span></label>
           <label><input type="checkbox" name="besoin" value="rse"><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></label>
         </div>
-        <p class="step__err" data-err hidden><span lang="fr">Cochez au moins un besoin.</span><span lang="en">Tick at least one need.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Cochez au moins un besoin.</span><span lang="en">Tick at least one need.</span></p>
       </fieldset>
       <fieldset class="step" data-step="3">
         <legend class="h4"><span lang="fr">Où se trouve votre entreprise ?</span><span lang="en">Where is your business?</span></legend>
         <label class="field"><span lang="fr">Ville ou code postal</span><span lang="en">Town or postcode</span><input type="text" id="rdv-ville" name="ville" autocomplete="address-level2" required data-rdv-town></label>
         <div class="rdv__match" data-rdv-match aria-live="polite"></div>
-        <p class="step__err" data-err hidden><span lang="fr">Indiquez une ville ou un code postal.</span><span lang="en">Enter a town or postcode.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Indiquez une ville ou un code postal.</span><span lang="en">Enter a town or postcode.</span></p>
       </fieldset>
       <fieldset class="step" data-step="4">
         <legend class="h4"><span lang="fr">Vos coordonnées</span><span lang="en">Your details</span></legend>
@@ -56,11 +56,11 @@
           <label class="field"><span lang="fr">Votre message (facultatif)</span><span lang="en">Your message (optional)</span><textarea id="rdv-msg" name="message" rows="3"></textarea></label>
         </div>
         <p class="rgpd"><span lang="fr">Les informations recueillies sur ce formulaire sont enregistrées dans un fichier informatisé par la société Exco SAS, 42 avenue de la Grande Armée 75017 Paris, pour la gestion de vos demandes d'informations. Voir la <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span><span lang="en">The information collected in this form is stored by Exco SAS, 42 avenue de la Grande Armée 75017 Paris, to handle your request. See the <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">privacy policy</a> (in French).</span></p>
-        <p class="step__err" data-err hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
       </fieldset>
       <div class="step step--done" data-step="done">
         <p class="h4"><span lang="fr">Demande prête</span><span lang="en">Request ready</span></p>
-        <p data-done-text></p>
+        <p data-done-text tabindex="-1"></p>
         <p class="chip chip--illus"><span lang="fr">Maquette : aucune donnée n'est envoyée.</span><span lang="en">Mock-up: no data is sent.</span></p>
       </div>
       <div class="steps__ctrl">

@@ -109,9 +109,10 @@ def services_index():
         <span class="svc-feature__desc">{bie(ec['dfr'], ec['den'])}</span>
         <span class="svc-feature__cta"><span class="btn__dot"></span>{bi('Découvrir le service', 'Explore the service')}</span></a>'''
     idx = ''.join(f'<li><a href="{r}services/{s["slug"]}.html" data-transition>{ico(s["icon"])}<span class="svc-index__name">{bie(s["fr"], s["en"])}</span><span class="svc-index__desc">{bie(s["dfr"], s["den"])}</span></a></li>' for s in svcs[1:])
-    hero = ihero(r, items, ('Nos services', 'Our services'),
+    smedia = img_tag(r, 'assets/img/site/dossiers-vue-dessus', ['800', '1600'], 'Dossiers et ordinateurs sur une table de travail, vus du dessus', 'Files and laptops on a work table, seen from above', lazy=False, extra=' data-parallax="0.06"')
+    hero = ihero(r, items, ('Nos services', 'Our services'), media=smedia,
                  lead=('Expertise comptable, audit, conseil, juridique, social : treize services, assurés dans chaque cabinet ou mutualisés par le réseau.', 'Accounting, audit, advisory, legal and HR: thirteen services, offered in each office or shared across the network.'),
-                 facts=fact(13, 'services', 'services') + fact(len(CABS), 'cabinets', 'offices') + fact(cnt.get('ec', 0), 'cabinets en expertise comptable', 'offices offering accounting'), plain=True)
+                 facts=fact(13, 'services', 'services') + fact(len(CABS), 'cabinets', 'offices') + fact(cnt.get('ec', 0), 'cabinets en expertise comptable', 'offices offering accounting'))
     grid = f'''<section class="services band band--paper2" aria-labelledby="svc-all"><div class="wrap">
     <h2 class="sr" id="svc-all">{bi('Les treize services', 'The thirteen services')}</h2>
     <div class="services__grid">{feature}<ul class="svc-index">{idx}</ul></div></div></section>'''
@@ -142,9 +143,10 @@ def sectors_index():
     items = [('Accueil', 'Home', 'index.html'), ('Secteurs', 'Sectors', None)]
     src = Src('page-secteurs')
     sub = src.t(src.idx('Notre Cabinet Comptable')) if src.idx('Notre Cabinet Comptable') is not None else None
-    hero = ihero(r, items, ('Nos secteurs', 'Our sectors'),
+    mos = ''.join(f'<span><img src="{r}assets/img/grok/{x["img"]}.webp" alt="" width="800" height="1000" fetchpriority="high"></span>' for x in CAT['sectors'][:3])
+    hero = ihero(r, items, ('Nos secteurs', 'Our sectors'), media=f'<div class="ihero__mosaic" aria-hidden="true">{mos}</div>',
                  lead=('Les experts de tous les cabinets se retrouvent en commissions sectorielles pour partager leurs pratiques : une connaissance fine de votre métier, partout en France.', 'Experts from every office meet in sector committees to share their practice: a close understanding of your trade, everywhere in France.'),
-                 facts=fact(len(CAT['sectors']), 'secteurs', 'sectors') + fact(len(CABS), 'cabinets', 'offices'), plain=True)
+                 facts=fact(len(CAT['sectors']), 'secteurs', 'sectors') + fact(len(CABS), 'cabinets', 'offices'))
     grid = f'''<section class="band band--paper2" aria-labelledby="sec-all"><div class="wrap">
     <h2 class="sr" id="sec-all">{bi('Les quatorze secteurs', 'The fourteen sectors')}</h2>
     <div class="sec-grid sec-grid--all">{''.join(sector_card(r, x) for x in CAT['sectors'])}
@@ -214,7 +216,8 @@ def reseau():
     </ol>'''
     hist = f'''<section class="band band--paper" aria-labelledby="hist-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="hist-title" data-reveal>{bie(*T(s.idx('Une histoire portée')))}</h2>
-      <p class="lead">{bie(*T(s.idx('Nous sommes une entreprise qui grandit')))}</p></div>
+      <p class="lead">{bie(*T(s.idx('Nous sommes une entreprise qui grandit')))}</p>
+      <p><span class="chip chip--confirm">{bi('À confirmer : « depuis 30 ans », alors que le réseau est né en 2002.', 'To confirm: “for 30 years”, whereas the network was founded in 2002.')}</span></p></div>
     {tl}
     <div class="two-col" style="margin-top:56px">{two(B.render([b for b in hist_fr[5:] if b['k'] != 'li']), B.render([b for b in hist_en[5:] if b['k'] != 'li']) if hist_en else None)}
       {two(B.render([b for b in hist_fr if b['k'] == 'li'][2:]), B.render([b for b in hist_en if b['k'] == 'li'][2:]) if hist_en else None, 'rich')}</div>
@@ -268,6 +271,9 @@ def gouvernance():
     items = [('Accueil', 'Home', 'index.html'), ('Le réseau', 'Network', 'le-reseau.html'), ('Gouvernance', 'Governance', None)]
     s = Src('page-gouvernance')
     gov = part('gov.html', r)
+    # la grille des 23 groupes figure déjà sur « Nous connaître » : ici, un lien suffit
+    a = gov.index('  <div class="wrap">\n    <h3 class="gov__sub">'); b = gov.rindex('</section>')
+    gov = gov[:a] + f'  <div class="wrap"><a class="link-arrow" href="{r}le-reseau.html#membres" data-transition>{bi("Voir les 23 groupes membres", "See the 23 member groups")}</a></div>\n' + gov[b:]
     hero = ihero(r, items, ('La gouvernance Exco', 'Exco governance'), sub=('D’un homme, une voix', 'One partner, one vote'),
                  lead=('Une gouvernance décentralisée pour rester au plus près des clients : la stratégie du réseau est définie par les associés des cabinets.', 'Decentralised governance to stay close to clients: the network’s strategy is set by the firms’ partners.'),
                  plain=True)
@@ -332,7 +338,7 @@ def rse():
     items = [('Accueil', 'Home', 'index.html'), ('Le réseau', 'Network', 'le-reseau.html'), ('Engagements RSE', 'CSR commitments', None)]
     s = Src('page-rse')
     T = s.t
-    media = img_tag(r, 'assets/img/rse/collecte-jouets-noel', ['800', '1600'], 'La collecte de jouets de Noël « Exco a du cœur »', 'The “Exco has heart” Christmas toy collection', lazy=False, extra=' data-parallax="0.06"')
+    media = img_tag(r, 'assets/img/rse/evenement-sportif-equipes', ['800', '1600'], 'Équipes Exco lors du challenge sportif Exco United', 'Exco teams at the Exco United sports challenge', lazy=False, extra=' data-parallax="0.06"')
     hero = ihero(r, items, ('Nos engagements RSE', 'Our CSR commitments'), lead=T(1) if s.fr else ('', None), media=media)
     # principes
     pr_fr = [b for b in s.slice('Principes fondamentaux', 'Télécharger')[0] if b['k'] == 'li']
@@ -384,9 +390,15 @@ def rse():
         else:
             html_fr = B.render(bl, demote=-1)
             html_en = B.render(be, demote=-1) if be else None
-        secs.append(f'''<section class="band {'band--paper' if len(secs) % 2 == 0 else 'band--paper2'}" aria-labelledby="rse-{slugify(tf)}"><div class="wrap split">
-      <div class="split__head"><h2 class="h2" id="rse-{slugify(tf)}" data-reveal>{bi(tf, te)}</h2></div>{two(html_fr, html_en)}</div></section>''')
-    main = '\n'.join([hero, principles, axes_html, rse_part, *secs, cta_band(r)])
+        secs.append((slugify(tf), tf, te, two(html_fr, html_en)))
+    # les quatre volets détaillés en onglets (sans JavaScript, ils restent tous affichés les uns sous les autres)
+    tabs = ''.join(f'<button type="button" role="tab" id="tab-{k}" aria-controls="pan-{k}" aria-selected="{"true" if i == 0 else "false"}" tabindex="{0 if i == 0 else -1}">{bi(tf, te)}</button>' for i, (k, tf, te, _) in enumerate(secs))
+    panels = ''.join(f'<div class="tabs__panel" id="pan-{k}" role="tabpanel" aria-labelledby="tab-{k}"><h3 class="h3 tabs__h">{bi(tf, te)}</h3>{body}</div>' for k, tf, te, body in secs)
+    detail = f'''<section class="band band--paper" aria-labelledby="rse-detail"><div class="wrap">
+    <div class="sec-head"><h2 class="h2" id="rse-detail" data-reveal>{bi('Nos actions en détail', 'Our actions in detail')}</h2></div>
+    <div class="tabs" data-tabs><div class="tabs__list" role="tablist" aria-label="{attr('Volets de la démarche RSE')}" data-en-aria-label="Areas of the CSR approach">{tabs}</div><div class="tabs__panels">{panels}</div></div>
+  </div></section>''' if secs else ''
+    main = '\n'.join([hero, principles, axes_html, rse_part, detail, cta_band(r)])
     pg = dict(r=r, out='le-reseau/engagements-rse.html', type='rse', title='Engagements RSE du réseau Exco', title_en='Exco network CSR commitments',
               desc='Environnement, social, économie locale, éthique : les engagements RSE et les actions concrètes du réseau Exco.', ld=[crumbs_ld(items, 'le-reseau/engagements-rse.html')],
               og='assets/img/rse/collecte-jouets-noel-1600.webp')
@@ -410,7 +422,8 @@ def carrieres():
             lab = s.t(j + 1)
             dp = f' data-prefix="{m.group(1)}"' if m and m.group(1) else ''
             num = f'<p class="fig__n" data-count="{m.group(2)}"{dp}>{esc(b["t"])}</p>' if m else f'<p class="fig__n">{esc(b["t"])}</p>'
-            figs.append(f'<div class="fig fig--sm">{num}<p class="fig__l">{bie(lab[0][:1].upper() + lab[0][1:], (lab[1][:1].upper() + lab[1][1:]) if lab[1] else None)}</p></div>')
+            conflict = ' fig--conflict' if re.fullmatch(r'\s*(cabinets|collaborateurs|pays)\s*', lab[0], re.I) else ''  # chiffres contredits par l'accueil
+            figs.append(f'<div class="fig fig--sm{conflict}">{num}<p class="fig__l">{bie(lab[0][:1].upper() + lab[0][1:], (lab[1][:1].upper() + lab[1][1:]) if lab[1] else None)}</p></div>')
     figs_html = f'''<section class="figures band band--night" aria-labelledby="cf-title"><div class="wrap">
     <h2 class="h3 figures__title" id="cf-title">{bi('Le réseau en chiffres', 'The network in figures')}</h2>
     <div class="figures__grid figures__grid--6">{''.join(figs)}</div>
@@ -505,6 +518,11 @@ def not_found():
     <p class="nf__n" aria-hidden="true">404</p>
     <h1 class="h2" id="page-title">{bi('Cette page n’existe pas ou a changé d’adresse.', 'This page does not exist or has moved.')}</h1>
     <p class="lead">{bi('Le site a été réorganisé : les cabinets, les services et les secteurs ont maintenant chacun leur page.', 'The site has been reorganised: offices, services and sectors now each have their own page.')}</p>
+    <form class="search" action="{r}cabinets.html" method="get" role="search">
+      <label class="search__label" for="nf-q">{bi('Vous cherchiez un cabinet ?', 'Looking for an office?')}</label>
+      <div class="search__row"><input class="search__input" id="nf-q" name="q" type="search" autocomplete="off" placeholder="Ville, code postal ou nom du cabinet" data-en-placeholder="Town, postcode or office name">
+      <button class="btn btn--primary" type="submit"><span class="btn__dot"></span>{bi('Trouver', 'Find')}</button></div>
+    </form>
     <div class="ihero__actions">{btn(r + 'index.html', 'Retour à l’accueil', 'Back to the home page')}{btn(r + 'cabinets.html', 'Trouver un cabinet', 'Find an office', ghost=True)}{btn(r + 'plan-du-site.html', 'Plan du site', 'Site map', ghost=True)}</div>
   </div></section>'''
     pg = dict(r=r, out='404.html', type='404', title='Page introuvable | Exco', title_en='Page not found | Exco', desc='Cette page n’existe pas ou a été déplacée. Retrouvez un cabinet Exco, nos services et nos actualités depuis l’accueil.', ld=[])

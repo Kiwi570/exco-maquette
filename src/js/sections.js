@@ -15,7 +15,7 @@ export function initCycle() {
   const mm = gsap.matchMedia();
   mm.add('(min-width: 0px)', () => {
     const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-    const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${dist() * 1.05}`, pin: $('.cycle__pin', sec), scrub: .8, invalidateOnRefresh: true, anticipatePin: 1 } });
+    const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${Math.min(dist() * 1.05, window.innerHeight * 1.3)}`, pin: $('.cycle__pin', sec), scrub: .8, invalidateOnRefresh: true, anticipatePin: 1 } });
     tl.to(track, { x: () => -dist(), ease: 'none' }, 0)
       .fromTo(bar, { scaleX: 0 }, { scaleX: 1, ease: 'none' }, 0);
     // chaque étape : son numéro apparaît, son image s'éclaire
@@ -94,7 +94,8 @@ export function initGov() {
   $('[data-gov-wave]', sec)?.addEventListener('click', wave);
   if (!reduced()) {
     gsap.fromTo(seats, { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, duration: .7, ease: 'back.out(2)', clearProps: 'transform,opacity', stagger: { each: .04 }, scrollTrigger: { trigger: council, start: 'top 75%', once: true, onEnter: () => setTimeout(wave, 1300) } });
-    gsap.fromTo($$('.members li', sec), { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .025, duration: .6, scrollTrigger: { trigger: '[data-members]', start: 'top 85%', once: true } });
+    const mem = $('[data-members]', sec);
+    if (mem) gsap.fromTo($$('.members li', sec), { opacity: 0, y: 20 }, { opacity: 1, y: 0, stagger: .025, duration: .6, scrollTrigger: { trigger: mem, start: 'top 85%', once: true } });
   }
 }
 
@@ -190,13 +191,17 @@ export function initNews() {
   const evs = EVENTS.map((e) => ({ ...e, s: new Date(e.start), e: new Date(e.end || e.start) })).map((e) => ({ ...e, past: e.e.setHours(23, 59) < now }));
   const up = evs.filter((e) => !e.past).sort((a, b) => a.s - b.s), past = evs.filter((e) => e.past).sort((a, b) => b.s - a.s);
   const dateStr = (e) => e.end ? `${fmtDate(e.s, { day: 'numeric', month: 'long' })} – ${fmtDate(new Date(e.end))}` : fmtDate(e.s);
+  // au-delà de deux jours, le compte à rebours n'affiche plus les heures
+  const cd = (c) => (c.d >= 2 ? `${c.d}<small>${T('jours', 'days')}</small>` : `${c.d}<small>${T(c.d > 1 ? 'jours' : 'jour', c.d > 1 ? 'days' : 'day')} ${c.h} h</small>`);
+  const pastShown = past.slice(0, up.length ? 1 : 2);
   evl.innerHTML = [...up.map((e, i) => {
     const c = countdownText(e.start, now);
     const href = e.local ? `href="${base()}${e.local}" data-transition` : `href="${e.url}" target="_blank" rel="noopener"`;
-    return `<li><a class="ev ${i === 0 ? 'ev--next' : ''}" ${href}><span class="ev__when"><span class="ev__badge">${T('À venir', 'Upcoming')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span>${c && i === 0 ? `<span class="ev__count" data-live-count="${e.start}">${c.d}<small>${T('jours', 'days')} ${c.h} h</small></span>` : ''}</a></li>`;
-  }), ...past.map((e) => `<li><a class="ev ev--past" href="${e.url}" target="_blank" rel="noopener"><span class="ev__when"><span class="ev__badge">${T('Passé', 'Past')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span></a></li>`)].join('');
+    return `<li><a class="ev ${i === 0 ? 'ev--next' : ''}" ${href}><span class="ev__when"><span class="ev__badge">${T('À venir', 'Upcoming')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span>${c && i === 0 ? `<span class="ev__count" data-live-count="${e.start}">${cd(c)}</span>` : ''}</a></li>`;
+  }), ...pastShown.map((e) => `<li><a class="ev ev--past" href="${e.url}" target="_blank" rel="noopener"><span class="ev__when"><span class="ev__badge">${T('Passé', 'Past')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span></a></li>`)].join('');
+  if (past.length > pastShown.length) evl.insertAdjacentHTML('beforeend', `<li><a class="link-arrow ev__all" href="${base()}actualites.html" data-transition>${T('Tous les événements', 'All events')}</a></li>`);
   $$('.ev', evl).forEach((a) => a.style.textDecoration = 'none');
-  setInterval(() => $$('[data-live-count]').forEach((el) => { const c = countdownText(el.dataset.liveCount); if (c) el.innerHTML = `${c.d}<small>${T('jours', 'days')} ${c.h} h</small>`; }), 60000);
+  setInterval(() => $$('[data-live-count]').forEach((el) => { const c = countdownText(el.dataset.liveCount); if (c) el.innerHTML = cd(c); }), 60000);
   const arts = $('[data-articles]'); if (!arts) return;
   if (!reduced()) gsap.fromTo($$('.art', arts), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .08, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: arts, start: 'top 85%', once: true } });
 }
@@ -218,8 +223,11 @@ export function initRdv() {
     const n = ['profil', 'besoin', 'ville', 'cabinet'].filter((k) => $(`[data-r="${k}"]`, recap)?.classList.contains('is-set')).length;
     const tot = recap && $('[data-r-count]', recap); if (tot) tot.textContent = `${n} / 4`;
   };
-  let cur = 0, chosen = null;
+  let cur = 0, chosen = null, first = true;
+  // lecteurs d'écran : « Étape n sur 4 » annoncée à chaque changement
+  const live = document.createElement('p'); live.className = 'sr'; live.setAttribute('aria-live', 'polite'); form.prepend(live);
   const show = (i) => {
+    if (i < 4) live.textContent = T(`Étape ${i + 1} sur 4`, `Step ${i + 1} of 4`);
     steps.forEach((s, k) => s.classList.toggle('is-on', k === i));
     nav.forEach((n, k) => { n.classList.toggle('is-on', k === i); n.classList.toggle('is-done', k < i); });
     prev.hidden = i === 0 || i >= 4; next.hidden = i >= 4;
@@ -228,6 +236,14 @@ export function initRdv() {
     if (en) en.textContent = i === 3 ? 'Send request' : 'Continue';
     if (!reduced()) gsap.fromTo(steps[i], { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: .5, ease: 'power3.out' });
     cur = i;
+    // après un changement d'étape : le titre de l'étape reçoit le focus et reste visible sous l'en-tête
+    if (!first) {
+      const t = i >= 4 ? $('[data-done-text]', form) : $('legend', steps[i]);
+      if (t) { if (!t.hasAttribute('tabindex')) t.tabIndex = -1; t.focus({ preventScroll: true }); }
+      const top = form.getBoundingClientRect().top, hd = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hd-h')) || 72;
+      if (top < hd + 8) window.scrollBy({ top: top - hd - 16, behavior: reduced() ? 'auto' : 'smooth' });
+    }
+    first = false;
   };
   const err = (i, on) => { const e = $('[data-err]', steps[i]); if (e) e.hidden = !on; };
   const valid = (i) => {
@@ -251,7 +267,7 @@ export function initRdv() {
       if (!pool.length) pool = cabs;
       const near = nearest(pool, ref.lat, ref.lon, 3);
       chosen = near[0].c;
-      match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinets les plus proches de ', 'Nearest offices to ')}${ref.label}</p>` + near.map((n, i) => `<label class="match"><input type="radio" name="cabinet" value="${n.c.id}" ${i === 0 ? 'checked' : ''}><span>${n.c.n} <small>${n.c.a}, ${n.d < 10 ? n.d.toFixed(1) : Math.round(n.d)} km</small></span></label>`).join('');
+      match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinets les plus proches de ', 'Nearest offices to ')}${ref.label}</p>` + near.map((n, i) => `<label class="match"><input type="radio" name="cabinet" value="${n.c.id}" ${i === 0 ? 'checked' : ''}><span>${n.c.n} <small>${n.c.a}${n.d >= .5 ? `, ${n.d < 10 ? n.d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(n.d)} km` : ''}</small></span></label>`).join('');
       $$('input[name="cabinet"]', match).forEach((r) => r.addEventListener('change', () => { chosen = near.find((n) => n.c.id === r.value).c; updRecap(); }));
       updRecap();
     }, 250);
@@ -280,6 +296,11 @@ export function initRdv() {
     const c = cabs.find((x) => x.id === pre); if (!c) return;
     chosen = c; town.value = c.c;
     match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinet choisi', 'Selected office')}</p><label class="match"><input type="radio" name="cabinet" value="${c.id}" checked><span>${c.n} <small>${c.a}</small></span></label>`;
+    // venu d'une fiche cabinet : le choix se voit dès la première étape
+    const pb = document.createElement('p'); pb.className = 'rdv__pre';
+    pb.innerHTML = `<span>${T('Cabinet choisi\u00a0:', 'Selected office:')} <strong>${c.n}</strong></span> <button type="button" class="linklike">${T('changer', 'change')}</button>`;
+    $('button', pb).addEventListener('click', () => { chosen = null; town.value = ''; match.innerHTML = ''; pb.remove(); updRecap(); });
+    steps[0].insertBefore(pb, $('legend', steps[0]).nextSibling);
     updRecap();
   });
 }

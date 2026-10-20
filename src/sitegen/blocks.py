@@ -29,6 +29,46 @@ def li_inner(b):
     return esc(b['t'])
 
 
+CAPS_ACC = {'DEVELOPPER': 'DÉVELOPPER', 'ETRE': 'ÊTRE', 'EQUIPE': 'ÉQUIPE', 'ECOUTE': 'ÉCOUTE', 'EXPERIENCE': 'EXPÉRIENCE', 'REUSSITE': 'RÉUSSITE'}
+
+
+def caps_fix(t):
+    """Intertitre tout en capitales : remis en casse de phrase (accents rétablis sur les mots courants)."""
+    if not t or not (t.isupper() and len(t) > 8):
+        return t
+    for a, b in CAPS_ACC.items():
+        t = re.sub(rf'\b{a}\b', b, t)
+    if t.startswith('A '):
+        t = 'À ' + t[2:]
+    return t[:1] + t[1:].lower()
+
+
+def dedupe(blocks):
+    """Paragraphes en double ou presque (exco.fr répète parfois un paragraphe à la casse près) : on garde le premier.
+    Un long paragraphe qui colle bout à bout les puces qui le suivent (copier-coller d'exco.fr) est retiré aussi."""
+    import difflib
+    norm = lambda t: re.sub(r'\s+', ' ', re.sub(r'[^a-z0-9àâäçéèêëîïôöùûüœ ]', ' ', t.lower())).strip()
+    drop = set()
+    for i, b in enumerate(blocks):
+        if b['k'] in ('p', 'li') and len(b.get('t', '')) > 250:
+            big = norm(b['t'])
+            nxt = [x for x in blocks[i + 1:i + 40] if x['k'] in ('li', 'p', 'h3', 'h4') and len(x.get('t', '')) > 20]
+            if sum(1 for x in nxt if norm(x['t']) in big) >= 3:
+                drop.add(i)
+    # la puce retirée gardait parfois un intitulé : il devient le titre de la liste qui suit
+    blocks = [({'k': 'label', 't': b['h']} if i in drop and b.get('h') else b) for i, b in enumerate(blocks) if i not in drop or b.get('h')]
+    seen, nb = [], []
+    for b in blocks:
+        t = b.get('t', '')
+        if b['k'] == 'p' and len(t) > 60:
+            n = re.sub(r'[^a-z0-9àâäçéèêëîïôöùûüœ ]', '', t.lower())
+            if any(difflib.SequenceMatcher(None, n, o).ratio() > .86 for o in seen):
+                continue
+            seen.append(n)
+        nb.append(b)
+    return nb
+
+
 def render(blocks, r='', lead_first=False, ids=False, demote=0):
     """Transforme une liste de blocs en HTML (contenu de .rich).
     lead_first : le premier paragraphe devient un chapeau.
@@ -64,6 +104,7 @@ def render(blocks, r='', lead_first=False, ids=False, demote=0):
             nb.append({'k': 'label', 't': b['t']}); lab = False; continue
         lab = False; nb.append(b)
     blocks = nb
+    blocks = dedupe(blocks)
     prev = 1 + demote
     # niveaux continus : le plus haut intertitre du contenu prend le niveau attendu (pas de saut h2 > h4)
     used = [LV[b['k']] for b in blocks if b['k'] in LV and len(b.get('t', '')) <= 110]
@@ -81,7 +122,7 @@ def render(blocks, r='', lead_first=False, ids=False, demote=0):
         if k == 'ul':
             out.append('<ul>' + ''.join(f'<li>{esc(t)}</li>' for t in b['items']) + '</ul>')
         elif k in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
-            t = b['t']
+            t = caps_fix(b['t'])
             lvl = max(2, min(LV[k] + shift, 4, prev + 1))
             # sur exco.fr, des phrases entières sont mises en titre pour la graisse : la première devient le chapeau, les suivantes un paragraphe appuyé
             if len(t) > 110:

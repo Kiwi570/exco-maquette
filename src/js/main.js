@@ -6,7 +6,7 @@ import { initFinder } from './finder.js';
 import { initCycle, initServices, initSectors, initGov, initGlobe, initRse, initNews, initRdv } from './sections.js';
 import { initCabinetPage } from './page-cabinet.js';
 import { initServicePage } from './page-service.js';
-import { initDirectory, initNewsFilter, initGrids, initTeams } from './pages.js';
+import { initDirectory, initNewsFilter, initGrids, initTeams, initMore, initTabs } from './pages.js';
 import { onVisible } from './util.js';
 
 const gsap = window.gsap;
@@ -20,7 +20,7 @@ async function boot() {
   initHeader(); initMenu(); initDropdowns(); initFooterCols(); initFilterLinks(); initCursor(); initMagnetic(); copyables(); initShare();
   const came = initTransitions();
   revealTitles(); wordsReveal(); counters(); parallax(); tilt();
-  initTeams(); initNews(); initNewsFilter(); initGrids(); initToc();
+  initTabs(); initMore(); initTeams(); initNews(); initNewsFilter(); initGrids(); initToc();
   // composants présents sur plusieurs pages
   initServices(); initSectors(); initGov(); initRse(); initGlobe(); initRdv();
   initDirectory();

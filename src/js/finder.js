@@ -8,9 +8,9 @@ const mk = (n, a = {}) => { const e = document.createElementNS(NS, n); for (cons
 
 export const SVC = {
   ec: ['Expertise comptable', 'Accounting'], audit: ['Audit', 'Audit'], conseil: ['Conseil', 'Advisory'], jur: ['Juridique et fiscal', 'Legal and tax'],
-  social: ['Social, paie et RH', 'Payroll and HR'], eval: ['Évaluation', 'Valuation'], ft: ['Finance et transactions', 'Corporate finance'],
-  gp: ['Gestion privée', 'Wealth management'], intl: ['International', 'International'], form: ['Formation', 'Training'],
-  oti: ['Vérification OTI', 'Third-party verification'], rse: ['RSE', 'CSR'], forensics: ['Forensics', 'Forensics'],
+  social: ['Social, paie et RH', 'Payroll and HR'], eval: ['Évaluation d’entreprise', 'Business valuation'], ft: ['Finance et transactions', 'Corporate finance'],
+  gp: ['Gestion de patrimoine', 'Wealth management'], intl: ['International', 'International'], form: ['Formation', 'Training'],
+  oti: ['Vérification OTI', 'Third-party verification'], rse: ['RSE et durabilité', 'CSR and sustainability'], forensics: ['Forensics', 'Forensics'],
 };
 // monogramme de la ville pour les cabinets sans photo
 const mono = (c) => (c || '').split(/[\s'’-]+/).filter((w) => w && !/^(de|la|le|les|du|des|sur|en|l|d|et|lès|aux)$/i.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
@@ -93,6 +93,7 @@ export async function initFinder() {
   });
   const sizeMarks = () => {
     const w = svg.viewBox.baseVal.width;
+    svg.classList.toggle('is-zoomed', w < map.views.fr[2] * .45);
     const r = w / 190;
     $$('.pin', gPins).forEach((p) => p.setAttribute('r', p.classList.contains('is-active') ? r * 1.8 : r));
     $$('.head', gPins).forEach((p) => p.setAttribute('r', r * .9));
@@ -168,7 +169,7 @@ export async function initFinder() {
   function setZone(z, fromSelect = false) {
     if (st.zone === z && !fromSelect) return;
     st.zone = z;
-    $$('[data-zone]', root).forEach((b) => b.setAttribute('aria-selected', b.dataset.zone === z ? 'true' : 'false'));
+    $$('[data-zone]', root).forEach((b) => b.setAttribute('aria-pressed', b.dataset.zone === z ? 'true' : 'false'));
     const om = z === 'om';
     insets.hidden = !om; svg.classList.toggle('zone-fr', z === 'fr'); gsap.to(svg, { opacity: om ? 0 : 1, duration: .4 }); svg.style.pointerEvents = om ? 'none' : '';
     if (!om) setView(vbOf(z));
@@ -193,26 +194,47 @@ export async function initFinder() {
     const ids = new Set(L.map((c) => c.id));
     pins.forEach((p, id) => { p.classList.toggle('is-dim', !ids.has(id)); p.classList.toggle('is-open', ids.has(id) && st.open); });
     cabLinks.forEach((p) => { p.style.opacity = ids.has(p.dataset.id) ? '' : '.08'; });
+    if (st.active && !ids.has(st.active) && !card.hidden) closeCard();
+    const sig = [st.zone, st.q, [...st.svc].join(), st.open, st.ref && st.ref.label].join('|');
+    if (sig !== st.sig) { st.sig = sig; st.all = false; }
     list.innerHTML = '';
     if (!L.length) {
       const li = document.createElement('li'); li.className = 'cab__meta';
       li.textContent = st.open ? T('Aucun cabinet ouvert en ce moment avec ces critères. Décochez « Ouvert maintenant » pour voir tous les cabinets.', 'No office is open right now with these filters. Untick "Open now" to see every office.') : T('Aucun cabinet avec ces critères. Retirez un filtre ou changez de zone.', 'No office matches. Remove a filter or change area.');
       list.appendChild(li); return;
     }
-    L.forEach((c) => {
+    const small = window.innerWidth < 700;
+    const shown = small && !st.all ? L.slice(0, 6) : L;
+    shown.forEach((c) => {
       const s = openStatus(c);
       const li = document.createElement('li');
       li.innerHTML = `<button type="button" class="cab${st.active === c.id ? ' is-active' : ''}" data-id="${c.id}">
         <span class="cab__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-480.webp" alt="" loading="lazy">` : `<span class="cab__mono" aria-hidden="true">${mono(c.c)}</span>`}</span>
         <span><span class="cab__name" style="display:block">${c.n}</span>
-        <span class="cab__meta" style="display:block">${c.c}${c.reg !== 'fr' ? ', ' + c.co[lang() === 'en' ? 1 : 0] : ''}${c._d !== undefined ? `<span class="cab__dist">${c._d < 10 ? c._d.toFixed(1) : Math.round(c._d)} km</span>` : ''}</span>
+        <span class="cab__meta" style="display:block">${c.c}${c.reg !== 'fr' ? ', ' + c.co[lang() === 'en' ? 1 : 0] : ''}${c._d !== undefined && c._d >= .5 ? `<span class="cab__dist">${c._d < 10 ? c._d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(c._d)} km</span>` : ''}</span>
         <span class="status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}">${s.text}</span></span></button>`;
       li.firstElementChild.addEventListener('click', () => select(c.id, false));
       li.firstElementChild.addEventListener('mouseenter', () => pulse(c));
       list.appendChild(li);
     });
+    if (shown.length < L.length) {
+      const li = document.createElement('li');
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'cab-more';
+      b.textContent = T(`Voir les ${L.length} cabinets`, `See all ${L.length} offices`);
+      b.addEventListener('click', () => { st.all = true; render(); const nx = $$('.cab', list)[6]; nx && nx.focus(); });
+      li.appendChild(b); list.appendChild(li);
+    }
     initPlaceholders();
   }
+  // statuts « ouvert / fermé » mis à jour sur place chaque minute (sans reconstruire la liste ni perdre le focus)
+  function refreshStatus() {
+    $$('.cab', list).forEach((b) => {
+      const c = cabs.find((x) => x.id === b.dataset.id); const el = $('.status', b); if (!c || !el) return;
+      const s = openStatus(c);
+      el.className = `status ${s.open ? 'status--open' : ''}${s.soon ? ' status--soon' : ''}`; el.textContent = s.text;
+    });
+  }
+  function closeCard() { card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); sizeMarks(); }
   function pulse(c) {
     if (reduced()) return;
     const w = svg.viewBox.baseVal.width;
@@ -232,7 +254,8 @@ export async function initFinder() {
     if (fromMap) { const b = $(`.cab[data-id="${id}"]`, list); if (b) b.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' }); }
     if (c.reg !== 'om') {
       const vb = svg.viewBox.baseVal; const w = c.reg === 'fr' ? Math.min(vb.width, 90) : Math.min(vb.width, 520);
-      setView(`${c.x - w / 2} ${c.y - w * .36} ${w} ${w * .72}`, 1);
+      const off = window.innerWidth > 900 ? .3 : .5; // la fiche occupe le tiers droit de la carte
+      setView(`${c.x - w * off} ${c.y - w * .36} ${w} ${w * .72}`, 1);
     }
     pulse(c);
     const s = openStatus(c);
@@ -249,7 +272,9 @@ export async function initFinder() {
       </div>`;
     card.hidden = false;
     if (!reduced()) gsap.fromTo(card, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' });
-    $('.mc__close', card).addEventListener('click', () => { card.hidden = true; st.active = null; pins.forEach((p) => p.classList.remove('is-active')); sizeMarks(); });
+    $('.mc__close', card).addEventListener('click', closeCard);
+    // téléphone : la fiche s'affiche sous la liste, on l'amène à l'écran
+    if (!fromMap && window.innerWidth < 700) setTimeout(() => card.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }), 80);
     $$('[data-copy]', card).forEach((el) => el.addEventListener('click', () => navigator.clipboard?.writeText(el.dataset.copy).catch(() => {})));
     initPlaceholders();
     try { sessionStorage.setItem('exco-last-cab', id); } catch (e) {}
@@ -315,7 +340,8 @@ export async function initFinder() {
     const hits = /^\d{2,3}$/.test(q) ? [] : cabs.filter((c) => wordHit(c, n)).sort((a, b) => score(a, n) - score(b, n));
     if (hits.length) {
       const c = hits[0];
-      setRef({ lat: c.lat, lon: c.lon, label: score(c, n) === 0 ? c.c : q.charAt(0).toUpperCase() + q.slice(1) });
+      const tok = `${c.c} ${c.n}`.split(/[\s–-]+/).find((w) => norm(w).startsWith(n));
+      setRef({ lat: c.lat, lon: c.lon, label: score(c, n) === 0 ? c.c : (tok || q.charAt(0).toUpperCase() + q.slice(1)) });
       select(c.id, true); return;
     }
     const ref = await resolvePlace(q);
@@ -331,6 +357,9 @@ export async function initFinder() {
   });
 
   render();
-  setInterval(render, 60000);
+  setInterval(refreshStatus, 60000);
+  // recherche transmise par l'adresse (page 404, recherche de l'accueil sans JavaScript) : cabinets.html?q=Albi
+  const qp = new URLSearchParams(location.search).get('q');
+  if (qp) { input.value = qp; query(qp); }
   return { query: (q) => { input.value = q; query(q); }, select };
 }

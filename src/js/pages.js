@@ -72,3 +72,52 @@ export function initTeams() {
     ul.after(b);
   });
 }
+
+// textes très longs (fiches cabinets, pages de contenu) : repliés au-delà d'une hauteur confortable
+export function initMore() {
+  $$('[data-more]').forEach((box) => {
+    const lim = window.innerWidth < 700 ? 560 : 760;
+    if (box.scrollHeight < lim * 1.35) return;
+    box.style.setProperty('--more-h', lim + 'px'); box.classList.add('is-clamped');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'more__btn'; b.setAttribute('aria-expanded', 'false');
+    if (!box.id) box.id = 'more-' + Math.random().toString(36).slice(2, 7);
+    b.setAttribute('aria-controls', box.id);
+    const lab = () => (box.classList.contains('is-clamped') ? T('Lire la suite', 'Read more') : T('Réduire', 'Show less'));
+    b.textContent = lab();
+    b.addEventListener('click', () => {
+      const open = box.classList.toggle('is-clamped') === false;
+      b.setAttribute('aria-expanded', String(open)); b.textContent = lab();
+      if (!open) box.scrollIntoView({ block: 'nearest' });
+      window.ScrollTrigger && window.ScrollTrigger.refresh();
+    });
+    box.after(b);
+  });
+}
+
+
+
+// onglets (page RSE) : un volet à la fois, flèches du clavier entre les onglets
+export function initTabs() {
+  $$('[data-tabs]').forEach((box) => {
+    const tabs = $$('[role="tab"]', box), panels = $$('[role="tabpanel"]', box);
+    if (!tabs.length) return;
+    box.classList.add('is-on');
+    const show = (i, focus) => {
+      tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; });
+      panels.forEach((p, k) => { p.hidden = k !== i; });
+      if (focus) tabs[i].focus();
+      if (!reduced()) gsap.fromTo(panels[i], { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .45, ease: 'power3.out' });
+      window.ScrollTrigger && window.ScrollTrigger.refresh();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => show(i));
+      t.addEventListener('keydown', (e) => {
+        const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (k) { e.preventDefault(); show((i + k + tabs.length) % tabs.length, true); }
+        if (e.key === 'Home') { e.preventDefault(); show(0, true); }
+        if (e.key === 'End') { e.preventDefault(); show(tabs.length - 1, true); }
+      });
+    });
+    panels.forEach((p, k) => { p.hidden = k !== 0; });
+  });
+}

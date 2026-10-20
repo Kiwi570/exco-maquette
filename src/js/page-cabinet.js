@@ -18,35 +18,18 @@ function initSvcMore() {
   });
 }
 
-// description longue du cabinet : repliée au-delà d'une hauteur confortable
-function initMore() {
-  $$('[data-more]').forEach((box) => {
-    const lim = window.innerWidth < 700 ? 560 : 760;
-    if (box.scrollHeight < lim * 1.35) return;
-    box.style.setProperty('--more-h', lim + 'px'); box.classList.add('is-clamped');
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'more__btn'; b.setAttribute('aria-expanded', 'false');
-    if (!box.id) box.id = 'more-' + Math.random().toString(36).slice(2, 7);
-    b.setAttribute('aria-controls', box.id);
-    const lab = () => (box.classList.contains('is-clamped') ? T('Lire la suite', 'Read more') : T('Réduire', 'Show less'));
-    b.textContent = lab();
-    b.addEventListener('click', () => {
-      const open = box.classList.toggle('is-clamped') === false;
-      b.setAttribute('aria-expanded', String(open)); b.textContent = lab();
-      if (!open) box.scrollIntoView({ block: 'nearest' });
-      window.ScrollTrigger && window.ScrollTrigger.refresh();
-    });
-    box.after(b);
-  });
-}
-
-// la barre d'actions s'efface quand le formulaire de contact est à l'écran
+// barre d'actions (téléphone) : visible une fois les boutons de l'ouverture passés, effacée sur le formulaire de contact
 function initBar() {
-  const bar = $('.cab-bar'), form = $('#contact'); if (!bar || !form || !('IntersectionObserver' in window)) return;
-  new IntersectionObserver((es) => es.forEach((e) => bar.classList.toggle('is-away', e.isIntersecting)), { threshold: .15 }).observe(form);
+  const bar = $('.cab-bar'), acts = $('.cab-actions'), form = $('#contact'); if (!bar || !('IntersectionObserver' in window)) return;
+  const st = { acts: true, form: false };
+  const upd = () => bar.classList.toggle('is-away', st.acts || st.form);
+  upd();
+  if (acts) new IntersectionObserver((es) => es.forEach((e) => { st.acts = e.isIntersecting || e.boundingClientRect.top > 0; upd(); })).observe(acts);
+  if (form) new IntersectionObserver((es) => es.forEach((e) => { st.form = e.isIntersecting; upd(); }), { threshold: .15 }).observe(form);
 }
 
 export async function initCabinetPage() {
-  initSvcMore(); initMore(); initBar();
+  initSvcMore(); initBar();
   // le bouton « Prendre rendez-vous » de l'en-tête ouvre la demande avec ce cabinet déjà choisi
   $$('.hd__cta, .menu .btn--primary').forEach((a) => { if (a.tagName === 'A') a.setAttribute('href', base() + 'contact.html#' + document.body.dataset.cabinet); });
   const id = document.body.dataset.cabinet;
@@ -126,7 +109,8 @@ export async function initCabinetPage() {
     svg.appendChild(mk('path', { d: map.deps, fill: 'none', stroke: 'rgba(238,241,243,.14)', 'stroke-width': s * .12 }));
     const link = mk('path', { d: `M${head[0]},${head[1]} C${head[0] + (c.x - head[0]) * .3},${head[1] - h * .12} ${head[0] + (c.x - head[0]) * .7},${c.y + h * .12} ${c.x},${c.y}`, fill: 'none', stroke: '#3DB6DB', 'stroke-width': s * .5, 'stroke-linecap': 'round', pathLength: 1 });
     svg.appendChild(link);
-    const label = (x, y, t, col = 'rgba(238,241,243,.82)', anchor = 'start', size = 2.6) => { const e = mk('text', { x: x + (anchor === 'start' ? s * 2 : -s * 2), y: y + s * .9, fill: col, 'font-size': s * size, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': anchor }); e.textContent = t; svg.appendChild(e); };
+    // près du bord droit de la carte, l'étiquette passe à gauche du point pour rester lisible
+    const label = (x, y, t, col = 'rgba(238,241,243,.82)', anchor = 'start', size = 2.6) => { if (anchor === 'start' && x + s * size * .55 * t.length + s * 2 > mx + w / 2) anchor = 'end'; const e = mk('text', { x: x + (anchor === 'start' ? s * 2 : -s * 2), y: y + s * .9, fill: col, 'font-size': s * size, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': anchor }); e.textContent = t; svg.appendChild(e); };
     const seenC = new Set();
     others.forEach(({ x }) => { svg.appendChild(mk('circle', { cx: x.x, cy: x.y, r: s * .9, fill: '#EEF1F3' })); if (!seenC.has(x.c) && Math.hypot(x.x - head[0], x.y - head[1]) > s * 3) { seenC.add(x.c); label(x.x, x.y, x.c); } });
     svg.appendChild(mk('circle', { cx: head[0], cy: head[1], r: s * 1.1, fill: '#3DB6DB' }));

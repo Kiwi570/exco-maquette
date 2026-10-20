@@ -21,8 +21,8 @@
 <link rel="icon" href="assets/img/logos/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/intertight-var.woff2" as="font" type="font/woff2" crossorigin>
-<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>
-<link rel="stylesheet" href="assets/css/site.css?v=7ff50a98">
+<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>
+<link rel="stylesheet" href="assets/css/site.css?v=6e90054b">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://exco-maquette.vercel.app/"},{"@type":"ListItem","position":2,"name":"Contact et rendez-vous","item":"https://exco-maquette.vercel.app/contact"}]}</script>
 </head>
 <body data-page="contact" data-base="">
@@ -55,12 +55,12 @@
     <div class="hd__tools">
       <button class="hd__lang" type="button" data-lang-toggle aria-label="Passer en anglais" data-en-aria-label="Switch to French"><span lang="fr" aria-hidden="true">EN</span><span lang="en" aria-hidden="true">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener"><span lang="fr">Accès client</span><span lang="en">Client access</span></a>
-      <a class="btn btn--primary btn--sm hd__cta" href="contact.html" data-transition data-magnetic aria-current="page"><span class="btn__dot"></span><span class="hd__cta-long"><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></span><span class="hd__cta-short"><span lang="fr">Rendez-vous</span><span lang="en">Meeting</span></span></a>
+      <a class="btn btn--primary btn--sm hd__cta" href="contact.html" data-transition data-magnetic aria-current="page"><span class="btn__dot"></span><span class="hd__cta-long"><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></span><span class="hd__cta-short"><span lang="fr">Rendez-vous</span><span lang="en">Book</span></span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr">Menu</span></button>
     </div>
   </div>
 </header>
-<div class="menu" id="menu" data-menu hidden>
+<div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menu" hidden>
   <nav class="menu__nav" aria-label="Menu">
     <details class="menu__group"><summary><span lang="fr">Le réseau</span><span lang="en">Network</span></summary><ul><li><a href="le-reseau.html" data-transition><span lang="fr">Nous connaître</span><span lang="en">About us</span></a></li><li><a href="le-reseau/gouvernance.html" data-transition><span lang="fr">Gouvernance</span><span lang="en">Governance</span></a></li><li><a href="le-reseau/engagements-rse.html" data-transition><span lang="fr">Engagements RSE</span><span lang="en">CSR commitments</span></a></li><li><a href="le-reseau.html#kreston" data-transition>Kreston Global</a></li></ul></details>
     <details class="menu__group"><summary>Services</summary><ul><li><a href="services.html" data-transition><span lang="fr">Tous les services</span><span lang="en">All services</span></a></li><li><a href="services/expertise-comptable.html" data-transition><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></a></li><li><a href="services/audit.html" data-transition>Audit</a></li><li><a href="services/social-paie-rh.html" data-transition><span lang="fr">Gestion sociale, paie et RH</span><span lang="en">Payroll and HR</span></a></li><li><a href="services/juridique-fiscal.html" data-transition><span lang="fr">Juridique et fiscal</span><span lang="en">Legal and tax</span></a></li><li><a href="services/conseil.html" data-transition><span lang="fr">Conseil</span><span lang="en">Advisory</span></a></li><li><a href="services/evaluation-entreprise.html" data-transition><span lang="fr">Évaluation d’entreprise</span><span lang="en">Business valuation</span></a></li><li><a href="services/finance-transactions.html" data-transition><span lang="fr">Finance et transactions</span><span lang="en">Corporate finance</span></a></li><li><a href="services/gestion-patrimoine.html" data-transition><span lang="fr">Gestion de patrimoine</span><span lang="en">Wealth management</span></a></li><li><a href="services/international.html" data-transition>International</a></li><li><a href="services/rse-durabilite.html" data-transition><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></a></li><li><a href="services/verification-oti.html" data-transition><span lang="fr">Vérification OTI</span><span lang="en">Independent third-party verification</span></a></li><li><a href="services/forensics.html" data-transition>Forensics</a></li><li><a href="services/exco-consulting.html" data-transition>Exco Consulting</a></li></ul></details>
@@ -108,7 +108,7 @@
           <label><input type="radio" name="profil" value="liberal"><span lang="fr">Profession libérale ou commerçant</span><span lang="en">Self-employed professional or retailer</span></label>
           <label><input type="radio" name="profil" value="association"><span lang="fr">Association, ESS ou secteur public</span><span lang="en">Non-profit or public body</span></label>
         </div>
-        <p class="step__err" data-err hidden><span lang="fr">Choisissez une réponse pour continuer.</span><span lang="en">Choose an answer to continue.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Choisissez une réponse pour continuer.</span><span lang="en">Choose an answer to continue.</span></p>
       </fieldset>
       <fieldset class="step" data-step="2">
         <legend class="h4"><span lang="fr">Votre besoin</span><span lang="en">What you need</span></legend>
@@ -121,13 +121,13 @@
           <label><input type="checkbox" name="besoin" value="ft"><span lang="fr">Cession, transmission</span><span lang="en">Selling or handing over</span></label>
           <label><input type="checkbox" name="besoin" value="rse"><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></label>
         </div>
-        <p class="step__err" data-err hidden><span lang="fr">Cochez au moins un besoin.</span><span lang="en">Tick at least one need.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Cochez au moins un besoin.</span><span lang="en">Tick at least one need.</span></p>
       </fieldset>
       <fieldset class="step" data-step="3">
         <legend class="h4"><span lang="fr">Où se trouve votre entreprise ?</span><span lang="en">Where is your business?</span></legend>
         <label class="field"><span lang="fr">Ville ou code postal</span><span lang="en">Town or postcode</span><input type="text" id="rdv-ville" name="ville" autocomplete="address-level2" required data-rdv-town></label>
         <div class="rdv__match" data-rdv-match aria-live="polite"></div>
-        <p class="step__err" data-err hidden><span lang="fr">Indiquez une ville ou un code postal.</span><span lang="en">Enter a town or postcode.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Indiquez une ville ou un code postal.</span><span lang="en">Enter a town or postcode.</span></p>
       </fieldset>
       <fieldset class="step" data-step="4">
         <legend class="h4"><span lang="fr">Vos coordonnées</span><span lang="en">Your details</span></legend>
@@ -139,11 +139,11 @@
           <label class="field"><span lang="fr">Votre message (facultatif)</span><span lang="en">Your message (optional)</span><textarea id="rdv-msg" name="message" rows="3"></textarea></label>
         </div>
         <p class="rgpd"><span lang="fr">Les informations recueillies sur ce formulaire sont enregistrées dans un fichier informatisé par la société Exco SAS, 42 avenue de la Grande Armée 75017 Paris, pour la gestion de vos demandes d’informations. Voir la <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span><span lang="en">The information collected in this form is stored by Exco SAS, 42 avenue de la Grande Armée 75017 Paris, to handle your request. See the <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">privacy policy</a> (in French).</span></p>
-        <p class="step__err" data-err hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
+        <p class="step__err" data-err role="alert" hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
       </fieldset>
       <div class="step step--done" data-step="done">
         <p class="h4"><span lang="fr">Demande prête</span><span lang="en">Request ready</span></p>
-        <p data-done-text></p>
+        <p data-done-text tabindex="-1"></p>
         <p class="chip chip--illus"><span lang="fr">Maquette : aucune donnée n’est envoyée.</span><span lang="en">Mock-up: no data is sent.</span></p>
       </div>
       <div class="steps__ctrl">
@@ -214,6 +214,6 @@
 <script src="assets/vendor/gsap/SplitText.min.js"></script>
 <script src="assets/vendor/gsap/DrawSVGPlugin.min.js"></script>
 <script src="assets/vendor/gsap/CustomEase.min.js"></script>
-<script src="assets/js/site.js?v=126503c5"></script>
+<script src="assets/js/site.js?v=79bfb888"></script>
 </body>
 </html>

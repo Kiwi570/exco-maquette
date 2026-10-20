@@ -175,7 +175,7 @@ def _hours(c):
       <h2 class="h2" id="cab-hours" data-reveal>{bi("Horaires d’ouverture", "Opening hours")}</h2>
       <p class="lead" data-live-text></p>
       <ul class="hours" data-hours></ul>
-      <p class="cab__meta" style="color:var(--ink-soft)">{bi(city_tz[0] + ". Le cadran fait le tour des 24 heures : chaque cercle est un jour, du lundi au centre au dimanche à l’extérieur, et l’aiguille indique l’heure actuelle.", city_tz[1] + ". The dial covers 24 hours: each circle is a day, Monday in the centre to Sunday outside, and the hand shows the current time.")}</p>
+      <p class="cab__meta" style="color:var(--ink-soft)">{bi(city_tz[0] + ".", city_tz[1] + ".")}<span class="dial__note">{bi(" Le cadran fait le tour des 24 heures : chaque cercle est un jour, du lundi au centre au dimanche à l’extérieur, et l’aiguille indique l’heure actuelle.", " The dial covers 24 hours: each circle is a day, Monday in the centre to Sunday outside, and the hand shows the current time.")}</span></p>
     </div>
   </div>
 </section>'''
@@ -188,7 +188,8 @@ def _services(c, fr, en, r):
     if svcs:
         for i, s in enumerate(svcs):
             e = se[i] if i < len(se) else None
-            t = bie(s['t'], e['t'] if e else None)
+            SVC_CASE = {'Exco gestion privée': 'Exco Gestion Privée', 'Exco finance et transactions': 'Exco Finance et Transactions', 'Exco Finance et transactions': 'Exco Finance et Transactions'}
+            t = bie(SVC_CASE.get(s['t'], s['t']), e['t'] if e else None)
             if s.get('slug'):
                 t = f'<a href="{r}services/{s["slug"]}.html" data-transition>{t}</a>'
             d = bie(s['d'], e['d'] if e else None) if s.get('d') else ''
@@ -199,9 +200,9 @@ def _services(c, fr, en, r):
             if not s: continue
             items.append(f'<li><h3><a href="{r}services/{s["slug"]}.html" data-transition>{bie(s["fr"], s["en"])}</a></h3><p>{bie(s["dfr"], s["den"])}</p></li>')
     if not items:
-        return f'''<section class="band band--night" aria-labelledby="cab-svc">
+        return f'''<section class="band band--paper2 band--slim" aria-labelledby="cab-svc">
   <div class="wrap prose">
-    <h2 class="h2" id="cab-svc" data-reveal>{bi("Les services du cabinet", "The office’s services")}</h2>
+    <h2 class="h3" id="cab-svc">{bi("Les services du cabinet", "The office’s services")}</h2>
     <p><span class="chip chip--illus review">{bi("Liste des services à compléter : absente de la fiche actuelle", "List of services to be added: missing from the current page")}</span></p>
     <p><a class="link-arrow" href="{r}services.html" data-transition>{bi("Voir les services du réseau", "See the network’s services")}</a></p>
   </div>
@@ -214,7 +215,7 @@ def _services(c, fr, en, r):
       <h2 class="h2" id="cab-svc" data-reveal>{bi("Les services du cabinet", "The office’s services")}</h2>
       {f'<p class="lead">{bie(lead, lead_en)}</p>' if lead else ''}
     </div>
-    <ul class="svc-list">{''.join(items)}</ul>
+    <ul class="svc-list svc-list--c{ {1: 2, 2: 2, 3: 3, 4: 4, 5: 3, 6: 3, 7: 4, 8: 4, 9: 3, 10: 5, 11: 4, 12: 4}.get(len(items), 3) }">{''.join(items)}</ul>
   </div>
 </section>'''
 
@@ -333,7 +334,7 @@ def cabinet_page(c, actus):
     tag_en = (en or {}).get('tagline') or (en or {}).get('sub') or None
     tel = c.get('t') or ''
     facts_html = f'''<div class="cab-facts"><span class="copy" data-copy="{attr(c['a'])}">{esc(c['a'].replace(', France', ''))}</span>{f'<span class="copy" data-copy="{attr(tel)}">{esc(tel)}</span>' if tel else ''}</div>'''
-    actions = (f'<a class="btn btn--primary" href="#contact" data-magnetic><span class="btn__dot"></span>{bi("Prendre rendez-vous", "Book a meeting")}</a>'
+    actions = (f'<a class="btn btn--primary" href="{r}contact.html#{c["id"]}" data-transition data-magnetic><span class="btn__dot"></span>{bi("Prendre rendez-vous", "Book a meeting")}</a>'
                f'<a class="btn btn--ghost" href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Itinéraire", "Directions")}</a>')
     hero = f'''<section class="page-hero band--paper" data-hero aria-labelledby="cab-title">
   <div class="wrap">
@@ -380,7 +381,7 @@ def cabinet_page(c, actus):
     bar = ('<nav class="cab-bar" aria-label="' + attr('Actions rapides') + '" data-en-aria-label="Quick actions">'
            + (f'<a href="tel:{tel_href}">{ico("phone", "ico") if "phone" in ICONS else ""}{bi("Appeler", "Call")}</a>' if tel_href else '')
            + f'<a href="{maps_url(c)}" target="_blank" rel="noopener">{bi("Itinéraire", "Directions")}</a>'
-           + f'<a class="cab-bar__main" href="#contact"><span class="btn__dot"></span>{bi("Rendez-vous", "Meeting")}</a></nav>')
+           + f'<a class="cab-bar__main" href="{r}contact.html#{c["id"]}" data-transition><span class="btn__dot"></span>{bi("Rendez-vous", "Book")}</a></nav>')
     main = '\n'.join(x for x in [hero, about_sec, _figures(fr, en), _hours(c), _services(c, fr, en, r), _team(fr, en, r, c), _access(c, r), news, _contact(c, r), bar] if x)
     desc_fr = f'{c["n"]}, cabinet d’expertise comptable, d’audit et de conseil à {c["c"]}. Horaires, services, équipe, accès et contact.'
     ld = [ld_cabinet(c, fr), crumbs_ld(items, out)]
@@ -579,7 +580,7 @@ def group_page(g, content_fr=None, content_en=None):
         else:
             body = f'<div class="rich">{body_fr}<p class="note" lang="en">Group description in French.</p></div>'
         intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
-                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{contact}</div>{body}</div></section>')
+                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{contact}</div><div class="split__body"><div class="more" data-more>{body}</div></div></div></section>')
     # chiffres : ceux de la page du groupe, sinon ceux d'une fiche cabinet
     figs = ''
     if G.get('figs'):
@@ -603,7 +604,7 @@ def group_page(g, content_fr=None, content_en=None):
         lis = ''.join(f'<li><h3 class="h4">{bie(*h)}</h3><p>{bie(*d)}</p></li>' for h, d in G['adn'])
         adn = (f'<section class="band band--paper" aria-labelledby="grp-adn"><div class="wrap">'
                f'<div class="sec-head"><h2 class="h2" id="grp-adn" data-reveal>{bie(*G["adn_t"])}</h2></div>'
-               f'<ul class="values values--auto">{lis}</ul></div></section>')
+               f'<ul class="values values--auto values--n{len(G["adn"])}">{lis}</ul></div></section>')
     team = ''
     if G.get('team'):
         faces = []
@@ -622,7 +623,16 @@ def group_page(g, content_fr=None, content_en=None):
         return (f'<li><a class="card" href="{r}services/{sv["slug"]}.html" data-transition>{ico(sv["icon"])}<span class="card__t">{bie(sv["fr"], sv["en"])}</span>'
                 f'<span class="card__n">{bi(f"{n} sur {len(cabs)}", f"{n} of {len(cabs)}")}</span></a></li>')
     svc_html = ''.join(svc_card(k) for k in svc_codes)
-    hero = ihero(r, items, (esc(g['name']), None), lead=lead, facts=facts, plain=True,
+    # ouverture : six visages des associés, sinon la photo d'un cabinet du groupe
+    pics = [p for p in (face_img(r, pslug(m['name'])) for m in G.get('team') or []) if p][:6]
+    gmedia = ''
+    if len(pics) >= 3:
+        gmedia = '<div class="ihero__faces" aria-hidden="true">' + ''.join(f'<span>{p}</span>' for p in pics[:6 if len(pics) >= 6 else 3]) + '</div>'
+    else:
+        ph = next((c for c in cabs if cab_photo(c)), None)
+        if ph:
+            gmedia = f'<figure class="ihero__media"><img src="{r}assets/img/cabinets/{ph["id"]}-960.webp" alt="" width="960" height="1050" fetchpriority="high"></figure>'
+    hero = ihero(r, items, (esc(g['name']), None), lead=lead, facts=facts, plain=not gmedia, media=gmedia,
                  chip=logo, actions=btn(f'#cabinets-groupe', 'Voir les cabinets', 'See the offices') + btn(g['exco'], 'Page du groupe sur exco.fr', 'Group page on exco.fr', ghost=True, ext=True))
     dir_sec = f'''<section class="band band--paper" id="cabinets-groupe" aria-labelledby="grp-cabs">
   <div class="wrap">
@@ -641,7 +651,7 @@ def group_page(g, content_fr=None, content_en=None):
     <ul class="{cards_cls(svc_html.count('<li'))}">{svc_html}</ul>
   </div>
 </section>'''
-    main = '\n'.join(x for x in [hero, intro, figs, adn, team, dir_sec, svc_sec, cta_band(r)] if x)
+    main = '\n'.join(x for x in [hero, intro, figs, adn, team, dir_sec, svc_sec, cta_band(r, title=('Rencontrer un cabinet du groupe', 'Meet one of the group’s offices'), lead=('Horaires en direct, services et équipe sur chaque fiche : le rendez-vous se demande en ligne.', 'Live opening hours, services and team on each page: book a meeting online.'))] if x)
     ld = [{'@context': 'https://schema.org', '@type': 'Organization', 'name': g['name'], 'url': page_url(out), 'parentOrganization': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'},
            'logo': f'{SITE_URL}/assets/img/membres/{g["logo"]}-480.webp'}, crumbs_ld(items, out)]
     pg = dict(r=r, out=out, type='group', title=f'{g["name"]}, groupe membre du réseau Exco', title_en=f'{g["name"]}, member group of the Exco network',

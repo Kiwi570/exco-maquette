@@ -10,7 +10,7 @@ def ver(rel):
 
 CAT = load('catalog.json')
 
-HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>"""
+HEAD_SCRIPT = """<script>(function(){var d=document.documentElement,l='fr',c=0,i=0,n=0;try{l=localStorage.getItem('exco-lang')||'fr';c=localStorage.getItem('exco-calm')==='1';i=sessionStorage.getItem('exco-intro')==='1';var q=/[?&]notes=([01])/.exec(location.search);if(q)localStorage.setItem('exco-notes',q[1]);var g=/[?&]lang=(fr|en)/.exec(location.search);if(g){localStorage.setItem('exco-lang',g[1]);l=g[1]}n=localStorage.getItem('exco-notes')==='0'}catch(e){}if(l!=='en')l='fr';d.setAttribute('data-lang',l);d.lang=l;d.className+=' js'+(c?' calm':'')+(i?' intro-seen':'')+(n?' notes-off':'');if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)d.className+=' rm'})()</script>"""
 
 
 def head(r, pg):
@@ -121,7 +121,7 @@ def header(r, section=''):
     <div class="hd__tools">
       <button class="hd__lang" type="button" data-lang-toggle aria-label="Passer en anglais" data-en-aria-label="Switch to French"><span lang="fr" aria-hidden="true">EN</span><span lang="en" aria-hidden="true">FR</span></button>
       <a class="hd__client" href="https://exco.fr/accedez-a-votre-compte-client/" target="_blank" rel="noopener">{bi('Accès client', 'Client access')}</a>
-      <a class="btn btn--primary btn--sm hd__cta" href="{r}contact.html" data-transition data-magnetic{cur('contact')}><span class="btn__dot"></span><span class="hd__cta-long">{bi('Prendre rendez-vous', 'Book a meeting')}</span><span class="hd__cta-short">{bi('Rendez-vous', 'Meeting')}</span></a>
+      <a class="btn btn--primary btn--sm hd__cta" href="{r}contact.html" data-transition data-magnetic{cur('contact')}><span class="btn__dot"></span><span class="hd__cta-long">{bi('Prendre rendez-vous', 'Book a meeting')}</span><span class="hd__cta-short">{bi('Rendez-vous', 'Book')}</span></a>
       <button class="hd__burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span class="hd__burger-lines"></span><span class="sr">Menu</span></button>
     </div>
   </div>
@@ -132,7 +132,7 @@ def menu(r):
     svc = ''.join(f'<li><a href="{r}services/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['services'])
     sec = ''.join(f'<li><a href="{r}secteurs/{x["slug"]}.html" data-transition>{bie(x["fr"], x["en"])}</a></li>' for x in CAT['sectors'])
     res = ''.join(f'<li><a href="{r}{h}" data-transition>{bie(tf, te)}</a></li>' for h, tf, te, _, _ in RESEAU)
-    return f'''<div class="menu" id="menu" data-menu hidden>
+    return f'''<div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menu" hidden>
   <nav class="menu__nav" aria-label="Menu">
     <details class="menu__group"><summary>{bi('Le réseau', 'Network')}</summary><ul>{res}</ul></details>
     <details class="menu__group"><summary>Services</summary><ul><li><a href="{r}services.html" data-transition>{bi('Tous les services', 'All services')}</a></li>{svc}</ul></details>
@@ -233,6 +233,17 @@ _NB, _NNB = ' ', ' '
 _L = 'A-Za-zÀ-ÖØ-öø-ÿŒœ'
 
 
+FR_NOTE = '<p class="note" lang="en">This section is only available in French.</p>'
+
+
+def one_note(doc):
+    """La mention « disponible en français seulement » n'apparaît qu'une fois par page."""
+    i = doc.find(FR_NOTE)
+    if i < 0: return doc
+    j = i + len(FR_NOTE)
+    return doc[:j] + doc[j:].replace(FR_NOTE, '')
+
+
 def typo(doc):
     """Corrige la typographie du texte visible (jamais les balises, scripts ni attributs)."""
     parts = _TAGS.split(doc)
@@ -256,7 +267,7 @@ def page(pg, main_html, section='', home=False):
     """Assemble une page complète."""
     r = pg['r']
     extra = ''.join(f' data-{k}="{attr(v)}"' for k, v in pg.get('data', {}).items())
-    return typo(f'''{head(r, pg)}
+    return one_note(typo(f'''{head(r, pg)}
 <body data-page="{pg['type']}" data-base="{r}"{extra}>
 {chrome(r)}
 {intro(r) if home else ''}
@@ -269,4 +280,4 @@ def page(pg, main_html, section='', home=False):
 {scripts(r)}
 </body>
 </html>
-''')
+'''))

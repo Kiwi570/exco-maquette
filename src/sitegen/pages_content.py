@@ -33,6 +33,7 @@ LIST_TITLE = re.compile(r'missions|prestations|nos services|domaines|interventio
 
 def smart(blocks, r=''):
     """Rend des blocs en repérant les listes déguisées en paragraphes après un intertitre."""
+    blocks = B.dedupe(blocks)
     out, i, n = [], 0, len(blocks)
     while i < n:
         b = blocks[i]
@@ -63,6 +64,10 @@ def smart(blocks, r=''):
             else:
                 out.append('<ul>' + ''.join(f'<li>{B.li_inner(x)}</li>' for x in run) + '</ul>')
             i = j; continue
+        # phrase entière mise en titre sur exco.fr : chapeau si elle ouvre le texte, sinon paragraphe appuyé
+        if b['k'] in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6') and len(b['t']) > 110:
+            out.append(f'<p class="{"rich__lead" if not out else "rich__em"}">{esc(b["t"])}</p>')
+            i += 1; continue
         out.append(B.render([b], r, demote=0 if b['k'] != 'h2' else 1))
         i += 1
     return ''.join(out)
@@ -127,6 +132,9 @@ def render_sections(pairs, start_bg=0, first_lead=True):
         head = f'<div class="split__head"><h2 class="{hc}" id="{sid}" data-reveal>{bie(hf, he)}</h2></div>' if hf else '<div class="split__head"></div>'
         note = '<p class="note" lang="en">This section is only available in French.</p>' if hf else ''
         body = bi_div(bf, be) if be else f'<div class="rich">{bf}{note}</div>'
+        # texte très long : replié derrière « Lire la suite » (le titre et le début restent visibles)
+        if len(re.sub(r'<[^>]+>', '', bf)) > 1500:
+            body = f'<div class="split__body"><div class="more" data-more>{body}</div></div>'
         lab = f' aria-labelledby="{sid}"' if hf else ''
         out.append(f'<section class="band {bg}"{lab}><div class="wrap split">{head}{body}</div></section>')
     return '\n'.join(out)
@@ -151,6 +159,42 @@ def statcard(r, code, label):
 </aside>'''
 
 
+MOD_RE = re.compile(r'<h3>([^<]{3,160})</h3><ul class="(ledger|checks)">(.*?)</ul>', re.S)
+MOD_KEY = re.compile(r'mission|bénéfice|benefit|avantage|advantage', re.I)
+
+
+def pull_modules(pairs):
+    """Sort des textes les listes « missions » et « bénéfices » pour les montrer en modules pleine largeur (jamais repliées)."""
+    mods, out = [], []
+    for hf, he, bf, be in pairs:
+        fm = [m for m in MOD_RE.finditer(bf) if MOD_KEY.search(m.group(1))]
+        em = [m for m in MOD_RE.finditer(be or '') if MOD_KEY.search(m.group(1))]
+        for m in fm: bf = bf.replace(m.group(0), '')
+        for m in em: be = be.replace(m.group(0), '')
+        for i, m in enumerate(fm):
+            e = em[i] if len(em) == len(fm) else None
+            mods.append((m.group(1), e.group(1) if e else None, m.group(2), m.group(3), e.group(3) if e else None))
+        if re.sub(r'<[^>]+>', '', bf).strip() or not fm:
+            out.append((hf, he, bf, be))
+    return out, mods
+
+
+def modules_html(mods):
+    def cap(t):
+        t = (t or '').strip().rstrip(':').strip().replace('bénéficies', 'bénéfices')
+        return t[:1].upper() + t[1:] if t else t
+    out = []
+    for k, (tf, te, kind, ifr, ien) in enumerate(mods):
+        cls = 'mgrid' if kind == 'ledger' else 'gains'
+        lf, le = f'<ol class="{cls}">{ifr}</ol>' if kind == 'ledger' else f'<ul class="{cls}">{ifr}</ul>', None
+        if ien: le = f'<ol class="{cls}">{ien}</ol>' if kind == 'ledger' else f'<ul class="{cls}">{ien}</ul>'
+        body = bi_div(lf, le, cls='mod') if le else f'<div class="mod">{lf}</div>'
+        bg = 'band--night' if kind == 'ledger' else 'band--paper2'
+        sid = f'mod-{k + 1}'
+        out.append(f'<section class="band {bg}" aria-labelledby="{sid}"><div class="wrap"><div class="sec-head"><h2 class="h2" id="{sid}" data-reveal>{bie(cap(tf), cap(te) if te else None)}</h2></div>{body}</div></section>')
+    return '\n'.join(out)
+
+
 def service_page(s, idx):
     r = '../'
     out = f'services/{s["slug"]}.html'
@@ -163,7 +207,8 @@ def service_page(s, idx):
     if s['exco'].startswith('https://exco.fr') is False:
         acts += btn(s['exco'], 'Site dédié', 'Dedicated site', ghost=True, ext=True)
     hero = ihero(r, items, (s['fr'], s['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=(s['dfr'], s['den']), icon=s['icon'], media=media, actions=acts)
-    body = render_sections(pairs) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
+    pairs, mods = pull_modules(pairs)
+    body = (render_sections(pairs) + '\n' + modules_html(mods)) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
       <p><span class="chip chip--todo">{bi("Contenu détaillé à reprendre de la page exco.fr", "Detailed content to be taken from the exco.fr page")}</span></p>
       <p><a class="link-arrow" href="{s["exco"]}" target="_blank" rel="noopener">{bi("Page actuelle sur exco.fr", "Current page on exco.fr")}</a></p></div></section>'''
     others = [x['slug'] for x in CAT['services'] if x['slug'] != s['slug']]
@@ -172,7 +217,8 @@ def service_page(s, idx):
     related = f'''<section class="band band--paper" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="rel-title" data-reveal>{bi("D’autres services du réseau", "More services from the network")}</h2><a class="link-arrow" href="{r}services.html" data-transition>{bi("Tous les services", "All services")}</a></div>
     {svc_cards(r, rel, svc_counts())}</div></section>'''
-    main = '\n'.join([hero, body, related, cta_band(r, filt=s.get('code', ''))])
+    main = '\n'.join([hero, body, related, cta_band(r, title=('Trouvez un cabinet qui propose ce service', 'Find an office offering this service'),
+                                                     lead=('La carte s’ouvre filtrée sur ce service, avec les horaires en direct de chaque cabinet.', 'The map opens filtered on this service, with each office’s live opening hours.'), filt=s.get('code', ''))])
     ld = [{'@context': 'https://schema.org', '@type': 'Service', 'name': s['fr'], 'serviceType': s['fr'], 'description': s['dfr'], 'url': page_url(out),
            'provider': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'}, 'areaServed': ['FR', 'Europe', 'Afrique']}, crumbs_ld(items, out)]
     pg = dict(r=r, out=out, type='service-generic', title=(f'{s["fr"]} avec les cabinets Exco' if len(s['fr']) < 20 else f'{s["fr"]} | Exco'), title_en=(f'{s["en"]} with Exco offices' if len(s['en']) < 20 else f'{s["en"]} | Exco'), desc=f'{s["fr"]} : {s["dfr"]}', ld=ld)
@@ -217,12 +263,22 @@ def sector_page(x, idx):
     rel = (others[k:] + others[:k])[:4]
     related = f'''<section class="band band--paper" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="rel-title" data-reveal>{bi("D’autres secteurs", "Other sectors")}</h2><a class="link-arrow" href="{r}secteurs.html" data-transition>{bi("Tous les secteurs", "All sectors")}</a></div>
-    <div class="sec-grid">{''.join(sector_card(r, y, notes=False) for y in rel)}</div></div></section>'''
+    <div class="sec-grid sec-grid--row">{''.join(sector_card(r, y, notes=False) for y in rel)}</div></div></section>'''
     core = ['expertise-comptable', 'audit', 'conseil', 'juridique-fiscal', 'social-paie-rh', 'evaluation-entreprise']
-    svc = f'''<section class="band band--paper2" aria-labelledby="svc-title"><div class="wrap">
-    <div class="sec-head"><h2 class="h2" id="svc-title" data-reveal>{bi("Les services les plus demandés", "The most requested services")}</h2><p class="lead">{bi("Les métiers proposés dans la majorité des cabinets du réseau.", "The services offered by most offices in the network.")}</p></div>
-    {svc_cards(r, core, svc_counts())}</div></section>'''
-    main = '\n'.join([hero, body, svc, related, cta_band(r)])
+    chips = ''.join(f'<li><a href="{r}services/{y["slug"]}.html" data-transition>{ico(y["icon"])}{bie(y["fr"], y["en"])}</a></li>' for y in CAT['services'] if y['slug'] in core)
+    svc = f'''<section class="band band--paper2 band--slim" aria-labelledby="svc-title"><div class="wrap svc-row">
+    <h2 class="h3" id="svc-title">{bi("Les services les plus sollicités", "The most requested services")}</h2>
+    <ul class="svc-chips">{chips}</ul></div></section>'''
+    # actualités du secteur, quand des articles y sont rattachés
+    ACT_BY_SECTOR = {'agriculture-agroalimentaire': ('agri',)}
+    news = ''
+    arts = [a for a in load('actus.json') if a['cat'] in ACT_BY_SECTOR.get(x['slug'], ())][:3]
+    if arts:
+        news = f'''<section class="band band--paper" aria-labelledby="sn-title"><div class="wrap">
+    <div class="sec-head sec-head--row"><h2 class="h2" id="sn-title" data-reveal>{bi("Actualités du secteur", "Sector news")}</h2><a class="link-arrow" href="{r}actualites.html" data-transition>{bi("Toutes les actualités", "All news")}</a></div>
+    <ul class="articles articles--3{' articles--pair' if len(arts) == 2 else ''}">{"".join(art_card(r, a) for a in arts)}</ul></div></section>'''
+    main = '\n'.join([hero, body, svc, news, related, cta_band(r, title=('Parlons de votre activité', 'Let’s talk about your business'),
+                                                        lead=('Les experts des cabinets partagent leurs pratiques en commissions sectorielles : le cabinet le plus proche vous rappelle.', 'Office experts share their practice in sector committees: your nearest office will call you back.'))])
     ld = [crumbs_ld(items, out)]
     pg = dict(r=r, out=out, type='sector', title=f'{x["fr"]} : expert-comptable spécialisé | Exco', title_en=f'{x["en"]}: specialist accountants | Exco',
               desc=f'{x["fr"]} : {x["dfr"]}', ld=ld, og=f'assets/img/grok/{x["img"]}.webp')
@@ -236,10 +292,16 @@ def metier_page(m, idx):
     fr = PAGES_FR.get(m['src'])
     en = PAGES_EN.get(m['src'])
     (sub_fr, sub_en), pairs = auto_sections(fr, en) if fr else ((None, None), [])
+    # « Postulez chez Exco » est déjà le bandeau de fin de page
+    pairs = [x for x in pairs if not (x[0] or '').startswith('Postulez')]
     base = 'assets/img/' + m['img']
     ws = [w for w in ('800', '1000', '1500', '1600') if exists(f'{base}-{w}.webp')]
     media = img_tag(r, base, ws, lazy=False, extra=' data-parallax="0.06"')
-    hero = ihero(r, items, (m['fr'], m['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=(m['dfr'], m['den']), media=media,
+    same = sub_fr and m['dfr'][:28].lower() == sub_fr[:28].lower()  # chapeau qui répète le sous-titre
+    lead = None if same else (m['dfr'], m['den'])
+    if sub_fr and len(sub_fr) > 120:  # sous-titre trop long (7 lignes sur téléphone) : il devient le chapeau
+        lead, sub_fr, sub_en = (sub_fr, sub_en), None, None
+    hero = ihero(r, items, (m['fr'], m['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=lead, media=media,
                  actions=btn('https://exco.flatchr.io/fr/company/exco/', 'Voir les offres d’emploi', 'See job offers', ext=True, extra=' data-magnetic') + btn(r + 'carrieres.html', 'Tous les métiers', 'All careers', ghost=True))
     body = render_sections(pairs) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
       <p><span class="chip chip--todo">{bi("Contenu détaillé à reprendre de la page exco.fr", "Detailed content to be taken from the exco.fr page")}</span></p>
@@ -276,7 +338,7 @@ def art_img(r, a, sizes='(max-width: 900px) 92vw, 30vw'):
 def art_card(r, a):
     cat = CATS.get(a['cat'], ('', ''))
     return (f'<li class="art" data-cat="{a["cat"]}"><a href="{r}actualites/{a["slug"]}.html" data-transition><span class="art__img">{art_img(r, a)}</span>'
-            f'<span><span class="art__d" style="display:block">{date_bi(a["date"])} · {bi(*cat)}</span><span class="art__t" style="display:block">{esc(a["fr"]["title"])}</span></span></a></li>')
+            f'<span><span class="art__d" style="display:block">{date_bi(a["date"])} · {bi(*cat)}{"" if a.get("en") else "<span lang=\"en\" class=\"art__lang\"> · in French</span>"}</span><span class="art__t" style="display:block">' + f'{esc(a["fr"]["title"])}</span></span></a></li>')
 
 
 def _drop_cover_dupes(a, body):
@@ -333,7 +395,13 @@ def article_page(a, actus):
   </div></div>
   <div class="wrap" style="margin-top:clamp(28px,4vw,48px)">{cover}</div>
 </section>'''
-    content = f'<section class="band band--paper" style="padding-top:clamp(40px,5vw,72px)"><div class="wrap article">{rich}{aside}</div></section>'
+    # galerie de 4 photos ou plus : sortie de la colonne de texte, en pleine largeur après l'article
+    gal = ''
+    m = re.search(r'<div class="gallery">((?:<figure.*?</figure>){4,})</div>', html_fr, re.S)
+    if m:
+        gal = f'<section class="band band--paper2" aria-labelledby="gal-title"><div class="wrap"><h2 class="h3" id="gal-title" style="margin-bottom:22px">{bi("En images", "In pictures")}</h2><div class="gallery gallery--wide">{m.group(1)}</div></div></section>'
+        rich = re.sub(r'<div class="gallery">(?:<figure.*?</figure>){4,}</div>', '', rich, flags=re.S)
+    content = f'<section class="band band--paper" style="padding-top:clamp(40px,5vw,72px)"><div class="wrap article">{rich}{aside}</div></section>' + gal
     others = [x for x in actus if x['slug'] != a['slug']][:3]
     rel = f'''<section class="band band--paper2" aria-labelledby="rel-title"><div class="wrap">
     <div class="sec-head sec-head--row"><h2 class="h2" id="rel-title" data-reveal>{bi("À lire aussi", "Read next")}</h2><a class="link-arrow" href="{r}actualites.html" data-transition>{bi("Toutes les actualités", "All news")}</a></div>

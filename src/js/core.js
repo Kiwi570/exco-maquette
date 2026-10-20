@@ -99,6 +99,8 @@ export function closeMenu() {
   const b = $('[data-burger]'), m = $('[data-menu]');
   if (!b || b.getAttribute('aria-expanded') !== 'true') return;
   b.setAttribute('aria-expanded', 'false'); html.classList.remove('menu-open');
+  $$('main, .ft').forEach((x) => { x.inert = false; });
+  if (m.contains(document.activeElement)) b.focus();
   if (lenis) lenis.start();
   gsap.to(m, { clipPath: 'circle(0% at 100% 0%)', duration: reduced() ? 0 : .6, ease: 'power3.inOut', onComplete: () => { m.hidden = true; } });
 }
@@ -107,13 +109,22 @@ export function initMenu() {
   b.addEventListener('click', () => {
     if (b.getAttribute('aria-expanded') === 'true') return closeMenu();
     b.setAttribute('aria-expanded', 'true'); m.hidden = false; html.classList.add('menu-open');
+    // fenêtre de menu : la page derrière devient inerte, le focus reste dans le menu
+    $$('main, .ft').forEach((x) => { x.inert = true; });
     if (lenis) lenis.stop();
     gsap.fromTo(m, { clipPath: 'circle(0% at 100% 0%)' }, { clipPath: 'circle(150% at 100% 0%)', duration: reduced() ? 0 : .8, ease: 'power3.inOut' });
     gsap.fromTo($$('.menu__nav > *', m), { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: .05, duration: .7, delay: .2, ease: 'power3.out' });
     $('.menu__nav > a, .menu__nav summary', m)?.focus({ preventScroll: true });
   });
   m.addEventListener('click', (e) => { if (e.target.closest('[data-menu-link]')) closeMenu(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeMenu(); return; }
+    if (e.key !== 'Tab' || b.getAttribute('aria-expanded') !== 'true') return;
+    const f = [b, ...$$('a, button, summary', m).filter((x) => x.getClientRects().length)];
+    const i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && (i === f.length - 1 || i === -1)) { e.preventDefault(); f[0].focus(); }
+  });
 }
 
 // ---------- curseur ----------
@@ -244,22 +255,20 @@ export function parallax() {
 
 // ---------- chiffres : défilement des chiffres puis arrêt, comme un compteur ----------
 export function counters() {
+  // les chiffres montent régulièrement jusqu'à leur valeur (sans valeurs aléatoires intermédiaires)
+  const fmt = (pre, v) => (pre + fmtNum(v)).split('').map((ch) => (/\s/.test(ch) ? '<span class="digit digit--sp" aria-hidden="true">&#8239;</span>' : ch)).join('');
   $$('[data-count]').forEach((n) => {
     const target = +n.dataset.count, pre = n.dataset.prefix || '';
-    const str = pre + fmtNum(target);
-    n.setAttribute('aria-label', str);
-    n.innerHTML = str.split('').map((ch) => (/\s/.test(ch) ? '<span class="digit digit--sp" aria-hidden="true">&#8239;</span>' : `<span class="digit" aria-hidden="true">${ch}</span>`)).join('');
+    n.setAttribute('aria-label', pre + fmtNum(target));
+    const box = document.createElement('span'); box.setAttribute('aria-hidden', 'true'); box.className = 'count';
+    box.innerHTML = fmt(pre, target); n.innerHTML = ''; n.appendChild(box);
     if (reduced()) return;
-    const ds = $$('.digit', n);
-    const tl = gsap.timeline({ paused: true });
-    tl.fromTo(ds, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .9, ease: 'exco', stagger: .06 });
-    // les chiffres défilent avant de se poser
-    ds.forEach((d) => {
-      const fin = d.textContent; if (!/\d/.test(fin)) return;
-      const o = { v: 0 };
-      tl.to(o, { v: 1, duration: .9, ease: 'none', onUpdate: () => { d.textContent = o.v < .92 ? String((Math.random() * 10) | 0) : fin; } }, 0);
-    });
-    window.ScrollTrigger.create({ trigger: n, start: 'top 85%', once: true, onEnter: () => tl.play() });
+    const o = { v: 0 };
+    box.innerHTML = fmt(pre, 0);
+    window.ScrollTrigger.create({ trigger: n, start: 'top 85%', once: true, onEnter: () => {
+      gsap.to(o, { v: target, duration: 1.4, ease: 'power2.out', onUpdate: () => { box.innerHTML = fmt(pre, Math.round(o.v)); } });
+      gsap.fromTo(box, { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .7, ease: 'exco' });
+    } });
   });
 }
 
