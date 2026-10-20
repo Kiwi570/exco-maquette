@@ -58,7 +58,10 @@ def btn(href, fr, en=None, ghost=False, extra='', ext=False):
 
 def cta_band(r, title=('Un projet, une question ?', 'A project or a question?'), lead=('Trouvez le cabinet Exco le plus proche ou demandez un rendez-vous : un expert vous rappelle.', 'Find your nearest Exco office or request a meeting: an expert will call you back.'), filt=''):
     f = f' data-filter="{filt}"' if filt else ''
-    return f'''<section class="band band--night cta-band-wrap" aria-labelledby="cta-title">
+    from .common import grok_img
+    gk = grok_img('cta-rendez-vous-16x9')
+    bg = f'<div class="cta-band__bg" aria-hidden="true"><img src="{r}{gk}.webp" alt="" width="1600" height="900" loading="lazy"></div>' if gk else ''
+    return f'''<section class="band band--night cta-band-wrap{' cta-band-wrap--img' if gk else ''}" aria-labelledby="cta-title">{bg}
   <div class="wrap cta-band">
     <div class="prose"><h2 class="h2" id="cta-title" data-reveal>{bi(*title)}</h2><p class="lead">{bi(*lead)}</p></div>
     <div class="cta-band__actions">{btn(r + 'cabinets.html', 'Trouver mon cabinet', 'Find my office', extra=f + ' data-magnetic')}{btn(r + 'contact.html', 'Prendre rendez-vous', 'Book a meeting', ghost=True)}</div>

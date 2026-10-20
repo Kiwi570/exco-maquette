@@ -1,6 +1,6 @@
 """Pages principales : accueil, services, secteurs, le réseau, gouvernance, RSE, carrières, contact, mentions, plan du site, 404."""
 import os, re, json
-from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, slugify, ckey
+from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, slugify, ckey, grok_img, grok_tag
 from .partials import crumbs, crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
@@ -82,6 +82,7 @@ def home(actus):
     arts = [a for a in actus if a['cat'] != 'event'][:5]
     s = s.replace('{{articles}}', ''.join(art_card(r, a) for a in arts))
     s = s.replace('{{kreston}}', part('kreston.html', r))
+    s = s.replace('{{logos}}', logos_marquee(r))
     s = s.replace('{{gov}}', gov_home(r))
     s = s.replace('{{cta}}', cta_band(r, title=('Parlons de votre projet', 'Let’s talk about your project'),
                                       lead=('Créer, développer, transformer ou transmettre : le cabinet le plus proche de chez vous vous rappelle.', 'Start, grow, transform or hand over: your nearest office will call you back.')))
@@ -182,6 +183,49 @@ def members_grid(r):
     return '<div class="groups">' + ''.join(out) + '</div>'
 
 
+# pictogrammes des quatre axes RSE (tracés au défilement ; aucun végétal)
+_AX = [
+    'M38 24a14 14 0 1 1-4.1-9.9 M38 9v6.5h-6.5 M25 15l-5 10h7l-4 9',  # environnement : énergie et boucle de réemploi
+    'M17 22a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11z M6 38c.8-6.5 5-10 11-10s10.2 3.5 11 10 M32 21a4.5 4.5 0 1 0 0-9 M33 26.5c4.5.7 7.6 4.3 8.3 11.5',  # social : collectif
+    'M7 40h34 M12 40v-9 M20 40v-14 M28 40v-11 M36 40v-19 M10 22l9-7 6 5 12-10 M31 10h6v6',  # économique : croissance locale
+    'M24 7v32 M15 39h18 M9 14h30 M24 10v4 M9 14l-5 10h10z M39 14l-5 10h10z',  # éthique : la balance
+]
+AXIS_ICO = [f'<svg class="axis-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="{d}"/></svg>' for d in _AX]
+
+
+def netmap(r):
+    """Carte animée du réseau : les cabinets de l'annuaire s'allument, de Paris vers le reste du monde."""
+    fr = sum(1 for c in CABS if c['reg'] == 'fr'); om = sum(1 for c in CABS if c['reg'] == 'om'); it = sum(1 for c in CABS if c['reg'] == 'int')
+    pays = len({c['co'][0] for c in CABS if c['reg'] == 'int'})
+    leg = (f'<li><b data-count="{fr}">{fr}</b>{bi("en France métropolitaine", "in mainland France")}</li>'
+           f'<li><b data-count="{om}">{om}</b>{bi("en outre-mer", "in overseas France")}</li>'
+           f'<li><b data-count="{it}">{it}</b>{bi(f"à l’international, dans {pays} pays", f"abroad, in {pays} countries")}</li>')
+    return (f'<figure class="netmap" data-netmap><div class="netmap__map"><svg data-netmap-svg role="img" aria-label="{attr("Carte des cabinets Exco en France, en outre-mer, en Europe et en Afrique")}" '
+            f'data-en-aria-label="Map of Exco offices in France, overseas France, Europe and Africa"></svg></div>'
+            f'<ul class="netmap__legend">{leg}</ul><figcaption>{bi("D’après l’annuaire des cabinets. Antilles et Polynésie en médaillon.", "From the office directory. French West Indies and Polynesia shown as insets.")}</figcaption></figure>')
+
+
+def govflow():
+    """Schéma de la gouvernance, d'après le texte de la page (sans nombre de membres, les chiffres du site divergent)."""
+    dots = ''.join('<i></i>' for _ in range(9))
+    return f'''<div class="govflow" data-govflow>
+      <div class="govflow__step govflow__step--cabs"><span class="govflow__dots" aria-hidden="true">{dots}</span><p><b>{bi("Les cabinets membres", "Member firms")}</b><span>{bi("chacun représenté par un associé", "each represented by a partner")}</span></p></div>
+      <div class="govflow__link" aria-hidden="true"></div>
+      <div class="govflow__step govflow__step--main"><p><b>{bi("Comité directeur", "Steering Committee")}</b><span>{bi("organe de décision : un associé, une voix", "decision-making body: one partner, one vote")}</span></p></div>
+      <div class="govflow__link" aria-hidden="true"><em>{bi("élit", "elects")}</em></div>
+      <div class="govflow__step"><p><b>{bi("Bureau exécutif", "Executive Board")}</b><span>{bi("met en œuvre la stratégie du réseau", "implements the network’s strategy")}</span></p></div>
+      <p class="govflow__pres">{bi("Un associé élu par le Comité directeur préside les deux instances.", "A partner elected by the Steering Committee chairs both bodies.")}</p>
+    </div>'''
+
+
+def logos_marquee(r):
+    """Bandeau défilant des logos des groupes membres (la seconde copie sert à la boucle et n'est pas lue)."""
+    items = ''.join(f'<li><a href="{r}groupes/{g["slug"]}.html" data-transition><img src="{r}assets/img/membres/{g["logo"]}-480.webp" alt="{attr(g["name"])}" loading="lazy" width="240" height="80"></a></li>' for g in CAT['groups'])
+    copy = items.replace('<a href', '<a tabindex="-1" href').replace(' alt="', ' data-alt="').replace('data-alt="', 'alt="" data-alt="')
+    return (f'<div class="marquee" data-marquee><p class="sr">{bi("Les groupes membres du réseau", "The network’s member groups")}</p>'
+            f'<div class="marquee__track"><ul class="marquee__set">{items}</ul><ul class="marquee__set" aria-hidden="true">{copy}</ul></div></div>')
+
+
 def figures_band(r):
     s = open(os.path.join(ROOT, 'src', 'pages', 'home.html'), encoding='utf-8').read()
     a = s.index('<section class="figures')
@@ -204,12 +248,12 @@ def reseau():
     who_en = [s.en[i_intro + 1], s.en[i_intro + 2]] if (i_intro is not None and s.en) else None
     met_fr, met_en = s.slice('Les métiers de nos cabinets', 'Une histoire portée')
     who = f'''<section class="band band--paper2" aria-labelledby="who-title"><div class="wrap split">
-    <div class="split__head"><h2 class="h2" id="who-title" data-reveal>{bi('Des fertiliseurs d’entreprises', 'Business growers')}</h2></div>
+    <div class="split__head"><h2 class="h2" id="who-title" data-reveal>{bi('Des fertiliseurs d’entreprises', 'Business growers')}</h2>{netmap(r)}</div>
     {two(B.render(who_fr, lead_first=True) + B.render(met_fr, demote=0), (B.render(who_en, lead_first=True) + B.render(met_en)) if who_en and met_en else None)}
   </div></section>'''
     # histoire : frise
     hist_fr, hist_en = s.slice('Une histoire portée', 'Un réseau agile')
-    tl = f'''<ol class="timeline">
+    tl = f'''<ol class="timeline" data-timeline>
       <li><b>2002</b><p>{bi('Exco naît de la fusion de deux réseaux : Exco « historique », initialement affilié à Grant Thornton, et A2A, réseau de proximité anciennement affilié à Arthur Andersen.', 'Exco is formed by merging two networks: the “historic” Exco, originally affiliated with Grant Thornton, and A2A, a local network formerly affiliated with Arthur Andersen.')}</p></li>
       <li><b>2008</b><p>{bi('Exco rejoint Kreston Global, réseau mondial de cabinets comptables, d’audit et de conseil.', 'Exco joins Kreston Global, a worldwide network of accounting, audit and advisory firms.')}</p></li>
       <li><b>2026</b><p>{bi(f'{len(CABS)} cabinets dans l’annuaire, 23 groupes membres, en France, en outre-mer, en Europe et en Afrique.', f'{len(CABS)} offices in the directory, 23 member groups, in France, overseas France, Europe and Africa.')}</p></li>
@@ -243,6 +287,7 @@ def reseau():
     gov_fr, gov_en = s.slice('La gouvernance Exco', 'Exco est membre du réseau international')
     gov = f'''<section class="band band--paper" aria-labelledby="gov-t"><div class="wrap split">
     <div class="split__head"><h2 class="h2" id="gov-t" data-reveal>{bi('Une gouvernance décentralisée', 'Decentralised governance')}</h2>
+      {govflow()}
       <a class="link-arrow" href="{r}le-reseau/gouvernance.html" data-transition>{bi('Le Comité directeur et le Bureau exécutif', 'The Steering Committee and Executive Board')}</a></div>
     {two(B.render([b for b in gov_fr[1:] if b['k'] != 'img'], lead_first=True), B.render([b for b in gov_en[1:] if b['k'] != 'img'], lead_first=True) if gov_en else None)}
   </div></section>'''
@@ -276,7 +321,7 @@ def gouvernance():
     gov = gov[:a] + f'  <div class="wrap"><a class="link-arrow" href="{r}le-reseau.html#membres" data-transition>{bi("Voir les 23 groupes membres", "See the 23 member groups")}</a></div>\n' + gov[b:]
     hero = ihero(r, items, ('La gouvernance Exco', 'Exco governance'), sub=('D’un homme, une voix', 'One partner, one vote'),
                  lead=('Une gouvernance décentralisée pour rester au plus près des clients : la stratégie du réseau est définie par les associés des cabinets.', 'Decentralised governance to stay close to clients: the network’s strategy is set by the firms’ partners.'),
-                 plain=True)
+                 media=f'<figure class="ihero__media"><img src="{r}assets/img/convention/orateur-micro-1600.webp" srcset="{r}assets/img/convention/orateur-micro-800.webp 800w, {r}assets/img/convention/orateur-micro-1600.webp 1600w" sizes="(max-width: 900px) 92vw, 44vw" alt="Prise de parole d’un associé à la Convention Exco 2026, à Strasbourg" data-en-alt="A partner speaking at the Exco Convention 2026 in Strasbourg" width="1600" height="1064" fetchpriority="high" data-parallax="0.06" style="object-position:50% 30%"></figure>')
     body = ''
     if s.fr:
         from .pages_cab import face_img, pslug
@@ -362,7 +407,7 @@ def rse():
         for j, b in enumerate(s.fr):
             if b['k'] == 'p' and b['t'] == name: i = j; break
         if i is None: continue
-        axes.append(f'<li><h3 class="h4">{s.bi(i)}</h3><p>{s.bi(i + 1)}</p></li>')
+        axes.append(f'<li>{AXIS_ICO[len(axes) % 4]}<h3 class="h4">{s.bi(i)}</h3><p>{s.bi(i + 1)}</p></li>')
     axes_html = f'''<section class="band band--night" aria-labelledby="ax-title"><div class="wrap">
     <div class="sec-head"><h2 class="h2" id="ax-title" data-reveal>{bi('Quatre axes d’action', 'Four areas of action')}</h2><p class="lead">{s.bi(s.idx('Exco s'))}</p></div>
     <ul class="values values--4">{''.join(axes)}</ul></div></section>''' if axes else ''
@@ -435,12 +480,14 @@ def carrieres():
     vps = [(i, b) for i, b in enumerate(vals_fr) if b['k'] == 'p']
     base_i = s.idx('Fertiliser les talents')
     vals = f'''<section class="band band--paper2" aria-labelledby="cv-title"><div class="wrap split">
-    <div class="split__head"><h2 class="h3" id="cv-title" data-reveal>{bie(*vh)}</h2></div>
+    <div class="split__head"><h2 class="h3" id="cv-title" data-reveal>{bie(*vh)}</h2>
+      <figure class="side-photo"><img src="{r}assets/img/rse/school-integration-groupe-800.webp" srcset="{r}assets/img/rse/school-integration-groupe-800.webp 800w, {r}assets/img/rse/school-integration-groupe-1600.webp 1600w" sizes="(max-width: 900px) 92vw, 36vw" alt="Promotion de nouveaux collaborateurs réunis pour la School Exco" data-en-alt="A new intake of staff gathered for the School Exco" width="800" height="509" loading="lazy"><figcaption>{bi('Accueil des nouveaux collaborateurs à la School Exco.', 'New staff welcomed at the School Exco.')}</figcaption></figure></div>
     <div class="rich">{''.join(f'<p class="{"rich__lead" if k == 0 else ""}">{s.bi(base_i + i)}</p>' for k, (i, b) in enumerate(vps))}</div></div></section>'''
     com_fr, com_en = s.slice('Une communauté de talents', 'Postulez chez Exco')
     env_fr, env_en = s.slice('Des valeurs humaines', 'Découvrez nos métiers')
     comm = f'''<section class="band band--paper" aria-labelledby="cc-title"><div class="wrap split">
-    <div class="split__head"><h2 class="h2" id="cc-title" data-reveal>{bie(*s.t(s.idx('Une communauté de talents')))}</h2></div>
+    <div class="split__head"><h2 class="h2" id="cc-title" data-reveal>{bie(*s.t(s.idx('Une communauté de talents')))}</h2>
+      <figure class="team-mosaic" aria-label="{attr('Collaborateurs du réseau Exco')}" data-en-aria-label="Exco network staff"><span class="team-mosaic__i team-mosaic__i--1"><img src="{r}assets/img/site/video-equipe-1-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--2"><img src="{r}assets/img/site/video-equipe-2-800.webp" alt="" width="800" height="360" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--3"><img src="{r}assets/img/site/video-equipe-3-800.webp" alt="" width="800" height="450" loading="lazy"></span><span class="team-mosaic__i team-mosaic__i--4"><img src="{r}assets/img/site/video-equipe-4-800.webp" alt="" width="800" height="450" loading="lazy"></span><figcaption>{bi('Collaborateurs du réseau, extraits des vidéos d’Exco.', 'Network staff, stills from Exco’s videos.')}</figcaption></figure></div>
     {two(smart(com_fr[1:] + env_fr), smart(com_en[1:] + env_en) if com_en and env_en else None)}</div></section>'''
     careers_part = part('careers.html', r)
     met = f'''<section class="band band--paper2" id="metiers" aria-labelledby="met-title"><div class="wrap">
@@ -461,7 +508,8 @@ def contact():
     r = ''
     items = [('Accueil', 'Home', 'index.html'), ('Contact et rendez-vous', 'Contact and meetings', None)]
     hero = ihero(r, items, ('Contact et rendez-vous', 'Contact and meetings'),
-                 lead=('Quatre questions pour orienter votre demande vers le bon cabinet. Le récapitulatif se remplit au fil de vos réponses.', 'Four questions to send your request to the right office. The summary fills in as you answer.'), plain=True)
+                 lead=('Quatre questions pour orienter votre demande vers le bon cabinet. Le récapitulatif se remplit au fil de vos réponses.', 'Four questions to send your request to the right office. The summary fills in as you answer.'),
+                 media=(f'<figure class="ihero__media ihero__media--tall">{grok_tag(r, grok_img("contact-accueil-4x5"))}</figure>' if grok_img('contact-accueil-4x5') else ''))
     rdv = part('rdv.html', r).replace('class="rdv band band--paper2"', 'class="rdv band band--paper2" style="padding-top:clamp(40px,5vw,72px)"')
     # le titre et l'introduction de la page suffisent : pas de second titre ni de seconde introduction
     rdv = re.sub(r'<h2 class="h2" id="rdv-title" data-reveal>(.*?)</h2>\s*<p class="lead">.*?</p>', r'<h2 class="sr" id="rdv-title">\1</h2>', rdv, count=1, flags=re.S)
@@ -485,6 +533,14 @@ def legal():
     r = ''
     items = [('Accueil', 'Home', 'index.html'), ('Mentions légales', 'Legal notice', None)]
     main = frag('legal.html', r, items)
+    # la liste des images générées suit les fichiers réellement déposés (services, métiers, contact, bandeau)
+    gdir = os.path.join(ROOT, 'assets', 'img', 'grok')
+    have = lambda p: any(f.startswith(p) for f in os.listdir(gdir))
+    extra_fr = [w for p, w in (('service-', 'des pages services'), ('metier-', 'des métiers'), ('contact-', 'de la page contact'), ('cta-', 'du bandeau de rendez-vous')) if have(p)]
+    extra_en = [w for p, w in (('service-', 'service pages'), ('metier-', 'career pages'), ('contact-', 'contact page'), ('cta-', 'meeting banner')) if have(p)]
+    if extra_fr:
+        main = main.replace('photos des secteurs et du cycle de vie générées', 'photos des secteurs, du cycle de vie, ' + ', '.join(extra_fr) + ' générées')
+        main = main.replace('the sector and business life cycle photos are', 'the sector, business life cycle, ' + ', '.join(extra_en) + ' photos are')
     pg = dict(r=r, out='mentions-legales.html', type='legal', title='Mentions légales | Exco', title_en='Legal notice | Exco', desc='Mentions légales du site Exco : éditeur, hébergement, propriété intellectuelle et protection des données personnelles.', ld=[crumbs_ld(items, 'mentions-legales.html')])
     return pg, main
 
@@ -514,7 +570,7 @@ def sitemap_page(all_pages):
 
 def not_found():
     r = '/'
-    main = f'''<section class="ihero ihero--plain nf" data-hero aria-labelledby="page-title"><div class="wrap" style="display:grid;gap:24px;justify-items:start">
+    main = f'''<section class="ihero ihero--plain nf" data-hero aria-labelledby="page-title"><div class="nf__map" data-nfmap aria-hidden="true"></div><div class="wrap" style="display:grid;gap:24px;justify-items:start">
     <p class="nf__n" aria-hidden="true">404</p>
     <h1 class="h2" id="page-title">{bi('Cette page n’existe pas ou a changé d’adresse.', 'This page does not exist or has moved.')}</h1>
     <p class="lead">{bi('Le site a été réorganisé : les cabinets, les services et les secteurs ont maintenant chacun leur page.', 'The site has been reorganised: offices, services and sectors now each have their own page.')}</p>

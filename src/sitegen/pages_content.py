@@ -1,6 +1,6 @@
 """Pages de contenu : services, secteurs, métiers, actualités."""
 import os, json, re
-from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT
+from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, grok_img, grok_tag
 from .partials import crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
@@ -203,6 +203,9 @@ def service_page(s, idx):
     en = PAGES_EN.get(s['src'])
     (sub_fr, sub_en), pairs = auto_sections(fr, en) if fr else ((None, None), [])
     media = statcard(r, s['code'], s['fr']) if s.get('code') else ''
+    gk = grok_img(f'service-{s["slug"]}-4x5')
+    if gk:  # image Grok déposée : elle prend la place, la carte chiffrée se pose dessus
+        media = f'<div class="svc-media"><figure class="ihero__media ihero__media--tall">{grok_tag(r, gk, extra=" data-parallax=\"0.06\"")}</figure>{media}</div>'
     acts = btn(r + 'contact.html', 'Prendre rendez-vous', 'Book a meeting', extra=' data-magnetic')
     if s['exco'].startswith('https://exco.fr') is False:
         acts += btn(s['exco'], 'Site dédié', 'Dedicated site', ghost=True, ext=True)
@@ -297,6 +300,9 @@ def metier_page(m, idx):
     base = 'assets/img/' + m['img']
     ws = [w for w in ('800', '1000', '1500', '1600') if exists(f'{base}-{w}.webp')]
     media = img_tag(r, base, ws, lazy=False, extra=' data-parallax="0.06"')
+    gk = grok_img(f'metier-{m["slug"]}-4x5')
+    if gk:
+        media = f'<figure class="ihero__media ihero__media--tall">{grok_tag(r, gk, extra=" data-parallax=\"0.06\"")}</figure>'
     same = sub_fr and m['dfr'][:28].lower() == sub_fr[:28].lower()  # chapeau qui répète le sous-titre
     lead = None if same else (m['dfr'], m['den'])
     if sub_fr and len(sub_fr) > 120:  # sous-titre trop long (7 lignes sur téléphone) : il devient le chapeau
@@ -319,6 +325,10 @@ def metier_page(m, idx):
 
 
 def metier_card(r, m):
+    gk = grok_img(f'metier-{m["slug"]}-4x5')
+    if gk:
+        return (f'<li><a class="card card--img" href="{r}carrieres/{m["slug"]}.html" data-transition><span class="card__img">{grok_tag(r, gk, lazy=True)}</span>'
+                f'<span class="card__t">{bie(m["fr"], m["en"])}</span><span class="card__d">{bie(m["dfr"], m["den"])}</span></a></li>')
     return f'<li><a class="card" href="{r}carrieres/{m["slug"]}.html" data-transition>{ico("users")}<span class="card__t">{bie(m["fr"], m["en"])}</span><span class="card__d">{bie(m["dfr"], m["den"])}</span></a></li>'
 
 
@@ -435,11 +445,24 @@ def crumbs_html(r, items):
     return crumbs(r, items)
 
 
+def news_mosaic(r, actus):
+    """Ouverture des actualités : les images des trois derniers articles, en mosaïque."""
+    # photos de personnes plutôt qu'une affiche ou une image à bandeau de logos ; la plus récente d'abord sinon
+    ok = [a for a in actus if a['cat'] != 'event' and a.get('img') and not any(k in a['img'] for k in ('impulse', 'agiragri'))]
+    pref = ['cessions-titres', 'trophees-landes', 'transmission-agricole']
+    arts = sorted(ok, key=lambda a: pref.index(a['slug']) if a['slug'] in pref else 99)[:3]
+    if len(arts) < 3:
+        return ''
+    cells = ''.join(f'<a class="nmo__i nmo__i--{i}" href="{r}actualites/{a["slug"]}.html" data-transition aria-label="{attr(a["fr"]["title"])}">{art_img(r, a, "(max-width: 900px) 46vw, 22vw")}</a>' for i, a in enumerate(arts, 1))
+    return f'<div class="nmo">{cells}</div>'
+
+
 def news_index(actus):
     r = ''
     items = [('Accueil', 'Home', 'index.html'), ('Actualités', 'News', None)]
     hero = ihero(r, items, ('Actualités et événements', 'News and events'),
-                 lead=('La vie du réseau, des groupes et des cabinets : rencontres, partenariats, décryptages juridiques et agricoles.', 'Life across the network, groups and offices: meetings, partnerships, legal and farming insights.'), plain=True)
+                 lead=('La vie du réseau, des groupes et des cabinets : rencontres, partenariats, décryptages juridiques et agricoles.', 'Life across the network, groups and offices: meetings, partnerships, legal and farming insights.'),
+                 media=news_mosaic(r, actus))
     cats = [('all', 'Tout', 'All')] + [(k, *v) for k, v in CATS.items() if any(a['cat'] == k for a in actus)]
     filt = ''.join(f'<button type="button" aria-pressed="{"true" if k == "all" else "false"}" data-cat-filter="{k}">{bi(fr, en)}</button>' for k, fr, en in cats)
     grid = f'''<section class="band band--paper news" aria-labelledby="news-title" data-news>

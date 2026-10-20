@@ -81,6 +81,7 @@ def _idcard(c):
     lat = f'{abs(c["lat"]):.4f}° {"N" if c["lat"] >= 0 else "S"}'
     lon = f'{abs(c["lon"]):.4f}° {"E" if c["lon"] >= 0 else "O"}'
     return f'''<aside class="idcard" aria-label="Fiche du lieu" data-en-aria-label="Location card">
+  <div class="idcard__map" data-idmap data-x="{c['x']}" data-y="{c['y']}" data-reg="{c['reg']}"></div>
   <div class="idcard__top"><span>{reg}</span><span>{lat} · {lon}</span></div>
   <p class="idcard__city">{esc(c['c'])}<span class="idcard__country">{country}</span></p>
   <dl class="idcard__rows">
@@ -473,6 +474,15 @@ def finder_section(home=False):
     return src
 
 
+def liveboard():
+    """Tableau des heures locales : rempli en direct par le script (cabinets ouverts par heure locale)."""
+    return (f'<aside class="liveboard" data-liveboard aria-label="{attr("Heures locales des cabinets")}" data-en-aria-label="Offices’ local times">'
+            f'<p class="lb__h"><span class="lb__dot" aria-hidden="true"></span>{bi("En ce moment dans le réseau", "Right now across the network")}</p>'
+            f'<p class="lb__cols" aria-hidden="true"><span>{bi("Heure locale", "Local time")}</span><span>{bi("Où", "Where")}</span><span>{bi("Ouverts", "Open")}</span></p>'
+            f'<ol class="lb__rows" data-liveboard-rows aria-live="off"></ol>'
+            f'<p class="lb__note">{bi("Heure de chaque cabinet et horaires de l’annuaire, mis à jour chaque minute.", "Each office’s local time and directory opening hours, updated every minute.")}</p></aside>')
+
+
 def cabinets_index(actus):
     r = ''
     fr = sum(1 for c in CABS if c['reg'] == 'fr'); om = sum(1 for c in CABS if c['reg'] == 'om'); it = sum(1 for c in CABS if c['reg'] == 'int')
@@ -481,7 +491,7 @@ def cabinets_index(actus):
     facts = fact(len(CABS), 'cabinets dans l’annuaire', 'offices in the directory') + fact(fr, 'en France métropolitaine', 'in mainland France') + fact(om, 'en outre-mer', 'in overseas France') + fact(it, f'à l’international, dans {countries} pays', f'abroad, in {countries} countries')
     hero = ihero(r, items, ('Trouver un cabinet Exco', 'Find an Exco office'),
                  lead=('Cherchez par ville, code postal, département ou nom. Chaque fiche donne les horaires en direct, les services, l’équipe et l’accès.', 'Search by town, postcode, département or name. Each page shows live opening hours, services, the team and directions.'),
-                 facts=facts, plain=True)
+                 facts=facts, media=liveboard())
     finder = finder_section().replace('{{r}}', r)
     # le titre de la page présente déjà l'annuaire : l'en-tête du module devient un titre pour lecteurs d'écran
     finder = re.sub(r'<div class="sec-head sec-head--row">\s*<h2 class="h2" id="finder-title" data-reveal>(.*?)</h2>.*?</div>',

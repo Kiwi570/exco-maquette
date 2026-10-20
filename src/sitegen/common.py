@@ -125,3 +125,19 @@ def ckey(s):
     """Clé de tri alphabétique française : les lettres accentuées se rangent avec leur lettre de base (Béziers avant Brive)."""
     import unicodedata
     return unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode().lower()
+
+
+def grok_img(name):
+    """Chemin relatif d'une image Grok déposée dans assets/img/grok (sans extension), ou None tant qu'elle manque."""
+    base = f'assets/img/grok/{name}'
+    return base if os.path.exists(os.path.join(ROOT, base + '.webp')) else None
+
+
+def grok_tag(r, base, alt_fr='', alt_en=None, lazy=False, cls='', w=800, h=1000, extra=''):
+    """Balise image pour une image Grok (variante 480 px si elle existe)."""
+    small = os.path.exists(os.path.join(ROOT, base + '-480.webp'))
+    srcset = f' srcset="{r}{base}-480.webp 480w, {r}{base}.webp {w}w" sizes="(max-width: 900px) 92vw, 40vw"' if small else ''
+    en = f' data-en-alt="{attr(alt_en)}"' if alt_en else ''
+    ld = ' loading="lazy"' if lazy else ' fetchpriority="high"'
+    c = f' class="{cls}"' if cls else ''
+    return f'<img{c} src="{r}{base}.webp"{srcset} alt="{attr(alt_fr)}"{en} width="{w}" height="{h}"{ld}{extra}>'
