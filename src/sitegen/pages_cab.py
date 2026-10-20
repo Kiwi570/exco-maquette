@@ -2,6 +2,8 @@
 import os, json, re, unicodedata
 from urllib.parse import quote
 from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, DEPTS, dept_of, initials, load, ROOT, slugify, ICONS, ckey
+from .viz_map import map_group
+from . import viz as V
 from .partials import crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, cards_cls
 from . import blocks as B
@@ -371,10 +373,12 @@ def cabinet_page(c, actus):
     about = _about(fr, en)
     pl = _pluses(fr, en)
     about_sec = ''
+    # v13 : le cabinet dans son groupe, sur une carte (annuaire)
+    gmap = map_group(c['g'], g['name'] if g else None, focus=c['id']) if c.get('g') else ''
     if about and not pl:
         about_sec = f'''<section class="band band--paper2" aria-labelledby="cab-about">
   <div class="wrap split">
-    <div class="split__head"><h2 class="h2" id="cab-about" data-reveal>{bi("Le cabinet", "The office")}</h2></div>
+    <div class="split__head"><h2 class="h2" id="cab-about" data-reveal>{bi("Le cabinet", "The office")}</h2>{gmap}</div>
     <div class="split__body prose" style="max-width:none"><div class="more" data-more>{about}</div></div>
   </div>
 </section>'''
@@ -385,7 +389,7 @@ def cabinet_page(c, actus):
       <h2 class="h2" id="cab-about" data-reveal>{bi("Le cabinet", "The office")}</h2>
       <div class="more" data-more>{about}</div>
     </div>
-    {pl or ''}
+    <div class="about__side">{pl or ''}{gmap}</div>
   </div>
 </section>'''
     news = ''
@@ -607,7 +611,7 @@ def group_page(g, content_fr=None, content_en=None):
         contact = f'<aside class="grp-card"><h3 class="h4">{bi("Contacter le groupe", "Contact the group")}</h3><dl class="statcard__rows">{rows}</dl></aside>'
     if contact and not ab_fr:
         intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
-                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2></div>'
+                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{map_group(g["g"], g["name"])}</div>'
                  f'<div class="split__body">{contact.replace("grp-card", "grp-card grp-card--wide")}</div></div></section>')
     elif ab_fr or contact:
         body_fr = smart(ab_fr)
@@ -617,7 +621,7 @@ def group_page(g, content_fr=None, content_en=None):
         else:
             body = f'<div class="rich">{body_fr}<p class="note" lang="en">Group description in French.</p></div>'
         intro = (f'<section class="band band--paper2" aria-labelledby="grp-about"><div class="wrap split">'
-                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{contact}</div><div class="split__body"><div class="more" data-more>{body}</div></div></div></section>')
+                 f'<div class="split__head"><h2 class="h2" id="grp-about" data-reveal>{bi("Le groupe", "The group")}</h2>{contact}{map_group(g["g"], g["name"])}</div><div class="split__body"><div class="more" data-more>{body}</div></div></div></section>')
     # chiffres : ceux de la page du groupe, sinon ceux d'une fiche cabinet
     figs = ''
     if G.get('figs'):
@@ -639,9 +643,10 @@ def group_page(g, content_fr=None, content_en=None):
     adn = ''
     if G.get('adn'):
         lis = ''.join(f'<li><h3 class="h4">{bie(*h)}</h3><p>{bie(*d)}</p></li>' for h, d in G['adn'])
-        adn = (f'<section class="band band--paper" aria-labelledby="grp-adn"><div class="wrap">'
-               f'<div class="sec-head"><h2 class="h2" id="grp-adn" data-reveal>{bie(*G["adn_t"])}</h2></div>'
-               f'<ul class="values values--auto values--n{len(G["adn"])}">{lis}</ul></div></section>')
+        # v13 : l'ADN du groupe en double hélice, un barreau par trait (titres de la page du groupe)
+        adn = (f'<section class="band band--paper adn" aria-labelledby="grp-adn"><div class="wrap split">'
+               f'<div class="split__head"><h2 class="h2" id="grp-adn" data-reveal>{bie(*G["adn_t"])}</h2>{V.helix(len(G["adn"]))}</div>'
+               f'<ul class="values values--adn">{lis}</ul></div></section>')
     team = ''
     if G.get('team'):
         faces = []

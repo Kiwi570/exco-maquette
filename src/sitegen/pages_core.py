@@ -1,6 +1,8 @@
 """Pages principales : accueil, services, secteurs, le réseau, gouvernance, RSE, carrières, contact, mentions, plan du site, 404."""
 import os, re, json
 from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, slugify, ckey, grok_img, grok_tag
+from . import viz as V
+from .viz_map import CABS as CABS_ALL
 from .partials import crumbs, crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
@@ -191,6 +193,11 @@ _AX = [
     'M24 7v32 M15 39h18 M9 14h30 M24 10v4 M9 14l-5 10h10z M39 14l-5 10h10z',  # éthique : la balance
 ]
 AXIS_ICO = [f'<svg class="axis-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="{d}"/></svg>' for d in _AX]
+# v13 : valeurs du réseau : collectif (trois cercles qui se recoupent), humanisme (une personne), confiance (deux anneaux liés)
+VAL_ICO = [f'<svg class="axis-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="{d}"/></svg>' for d in [
+    'M24 8a10 10 0 1 1 0 20a10 10 0 1 1 0-20M15 22a10 10 0 1 1 0 20a10 10 0 1 1 0-20M33 22a10 10 0 1 1 0 20a10 10 0 1 1 0-20',
+    'M24 7a7 7 0 1 1 0 14a7 7 0 1 1 0-14M10 42c0-9 6-15 14-15s14 6 14 15',
+    'M18 14a10 10 0 1 1 0 20a10 10 0 1 1 0-20M30 14a10 10 0 1 1 0 20a10 10 0 1 1 0-20']]
 
 
 def netmap(r):
@@ -269,7 +276,8 @@ def reseau():
     # mission et valeurs
     ag_fr, ag_en = s.slice('Un réseau agile', 'La gouvernance Exco')
     agile = f'''<section class="band band--paper2" aria-labelledby="agile-title"><div class="wrap split">
-    <div class="split__head"><h2 class="h2" id="agile-title" data-reveal>{bi('La force d’un grand réseau, la proximité d’un cabinet', 'The strength of a large network, the closeness of a local firm')}</h2></div>
+    <div class="split__head"><h2 class="h2" id="agile-title" data-reveal>{bi('La force d’un grand réseau, la proximité d’un cabinet', 'The strength of a large network, the closeness of a local firm')}</h2>
+      {V.swarm(len(CABS_ALL), bi(f'{len(CABS_ALL)} cabinets dans l’annuaire, chacun à taille humaine', f'{len(CABS_ALL)} offices in the directory, each on a human scale'))}</div>
     {two(smart(ag_fr[1:]), smart(ag_en[1:]) if ag_en else None)}
   </div></section>'''
     iv = s.idx('DES VALEURS COLLECTIVES')
@@ -280,7 +288,7 @@ def reseau():
             tt, dd = T(iv + 1 + 2 * k), T(iv + 2 + 2 * k)
             VAL_EN = {'COLLECTIF': 'Collective', 'HUMANISME': 'Humanism', 'CONFIANCE': 'Trust'}
             te_ = tt[1] if tt[1] and tt[1] != tt[0] else VAL_EN.get(tt[0].strip().upper())
-            cells.append(f'<li><h3 class="h3">{bie(tt[0].capitalize(), te_.capitalize() if te_ else None)}</h3><p>{bie(*dd)}</p></li>')
+            cells.append(f'<li>{VAL_ICO[k]}<h3 class="h3">{bie(tt[0].capitalize(), te_.capitalize() if te_ else None)}</h3><p>{bie(*dd)}</p></li>')
         vals = f'''<section class="band band--night" aria-labelledby="val-title"><div class="wrap">
     <div class="sec-head"><h2 class="h2" id="val-title" data-reveal>{bi('Des valeurs collectives qui nous animent', 'The shared values that drive us')}</h2></div>
     <ul class="values">{''.join(cells)}</ul></div></section>'''
@@ -398,6 +406,7 @@ def rse():
         cells.append(f'<li><p><strong>{bie(tf, te)}</strong> {bie(df, de)}</p></li>')
     principles = f'''<section class="band band--paper2" aria-labelledby="pr-title"><div class="wrap split">
     <div class="split__head"><h2 class="h2" id="pr-title" data-reveal>{bi('Principes fondamentaux', 'Core principles')}</h2>
+      {V.shield()}
       <a class="link-arrow" href="https://exco.fr/nos-engagements-rse/" target="_blank" rel="noopener">{bi('Télécharger nos engagements RSE (exco.fr)', 'Download our CSR commitments (exco.fr)')}</a></div>
     <ul class="checks">{''.join(cells)}</ul></div></section>'''
     # quatre axes

@@ -11,6 +11,7 @@ import { onVisible } from './util.js';
 import { initMorph, initSpot, initReadBar, initTypeHint } from './fx.js';
 import { initNetmap, initGovflow, initTimeline, initMarquee } from './fx-net.js';
 import { initLiveboard, initIdmap, initDrawIcons, initNfMap } from './fx-pages.js';
+import { initViz } from './fx-viz.js';
 
 const gsap = window.gsap;
 const page = document.body.dataset.page;
@@ -30,6 +31,7 @@ async function boot() {
   initDirectory(); initSpot();
   initNetmap(); initGovflow(); initTimeline(); initMarquee();
   initLiveboard(); initIdmap(); initDrawIcons(); initNfMap();
+  initViz();
   // l'annuaire (carte et liste) se prépare sans retarder l'ouverture de la page ; sur l'accueil, à l'approche de la section
   let finderP = null;
   const getFinder = () => finderP || (finderP = initFinder().catch(() => null));

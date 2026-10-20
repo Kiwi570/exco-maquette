@@ -4,6 +4,8 @@ from .common import bi, bie, esc, attr, ico, page_url, SITE_URL, load, ROOT, gro
 from .partials import crumbs_ld, CAT
 from .ui import ihero, fact, btn, cta_band, exists, img_tag, svc_cards, sector_card, bi_div, cards_cls
 from . import blocks as B
+from .viz_map import section_viz, article_viz
+from . import viz as V
 
 PAGES_FR = load('pages_fr.json') or {}
 PAGES_EN = load('pages_en.json') or {}
@@ -106,7 +108,7 @@ def _split_lead(html):
     return (m.group(1), m.group(2)) if m else (None, html)
 
 
-def render_sections(pairs, start_bg=0, first_lead=True):
+def render_sections(pairs, start_bg=0, first_lead=True, viz=None):
     """Chaque section : bande avec titre à gauche (collant) et texte à droite. Fond alterné.
     Une section sans titre (introduction) met son chapeau à gauche."""
     bgs = ['band--paper2', 'band--paper']
@@ -117,11 +119,12 @@ def render_sections(pairs, start_bg=0, first_lead=True):
         hf, he = fix_case(hf), fix_case(he)
         bg = bgs[(start_bg + k) % 2]; k += 1
         sid = f'sec-{i + 1}'
+        vz = viz(k - 1) if viz else ''  # visuel animé de la section (v13), sous le titre
         if not hf:
             lf, rf = _split_lead(bf)
             le_, re_ = _split_lead(be) if be else (None, '')
             if lf:
-                head = f'<div class="split__head"><p class="split__lead">{bi(lf, le_)}</p></div>'
+                head = f'<div class="split__head"><p class="split__lead">{bi(lf, le_)}</p>{vz}</div>'
                 body = bi_div(rf, re_) if be else f'<div class="rich">{rf}</div>'
                 out.append(f'<section class="band {bg}"><div class="wrap split">{head}{body}</div></section>')
                 continue
@@ -129,7 +132,7 @@ def render_sections(pairs, start_bg=0, first_lead=True):
             bf = re.sub(r'^<p>', '<p class="rich__lead">', bf, count=1)
             be = re.sub(r'^<p>', '<p class="rich__lead">', be, count=1) if be else be
         hc = 'h2' if len(hf or '') <= 60 else 'h3'
-        head = f'<div class="split__head"><h2 class="{hc}" id="{sid}" data-reveal>{bie(hf, he)}</h2></div>' if hf else '<div class="split__head"></div>'
+        head = f'<div class="split__head"><h2 class="{hc}" id="{sid}" data-reveal>{bie(hf, he)}</h2>{vz}</div>' if hf else f'<div class="split__head">{vz}</div>'
         note = '<p class="note" lang="en">This section is only available in French.</p>' if hf else ''
         body = bi_div(bf, be) if be else f'<div class="rich">{bf}{note}</div>'
         # texte très long : replié derrière « Lire la suite » (le titre et le début restent visibles)
@@ -211,7 +214,7 @@ def service_page(s, idx):
         acts += btn(s['exco'], 'Site dédié', 'Dedicated site', ghost=True, ext=True)
     hero = ihero(r, items, (s['fr'], s['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=(s['dfr'], s['den']), icon=s['icon'], media=media, actions=acts)
     pairs, mods = pull_modules(pairs)
-    body = (render_sections(pairs) + '\n' + modules_html(mods)) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
+    body = (render_sections(pairs, viz=lambda k: section_viz(out, k)) + '\n' + modules_html(mods)) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
       <p><span class="chip chip--todo">{bi("Contenu détaillé à reprendre de la page exco.fr", "Detailed content to be taken from the exco.fr page")}</span></p>
       <p><a class="link-arrow" href="{s["exco"]}" target="_blank" rel="noopener">{bi("Page actuelle sur exco.fr", "Current page on exco.fr")}</a></p></div></section>'''
     others = [x['slug'] for x in CAT['services'] if x['slug'] != s['slug']]
@@ -236,6 +239,8 @@ def service_ec_page():
     items = [('Accueil', 'Home', 'index.html'), ('Services', 'Services', 'services.html'), ('Expertise comptable', 'Accounting', None)]
     frag = open(os.path.join(ROOT, 'src', 'pages', 'service-ec.html'), encoding='utf-8').read()
     frag = re.sub(r'</?main[^>]*>', '', frag).replace('{{crumbs}}', crumbs(r, items)).replace('{{r}}', r)
+    # v13 : veille locale, nationale et internationale (texte de la section)
+    frag = frag.replace('{{viz_vision}}', V.rings([('Local', 'Local'), ('National', 'National'), ('International', 'International')]))
     s = CAT['services'][0]
     ld = [{'@context': 'https://schema.org', '@type': 'Service', 'name': 'Expertise comptable', 'serviceType': 'Expertise comptable', 'description': s['dfr'], 'url': page_url(out),
            'provider': {'@type': 'Organization', 'name': 'Exco', 'url': SITE_URL + '/'}}, crumbs_ld(items, out)]
@@ -257,7 +262,7 @@ def sector_page(x, idx):
         chip = f'<span class="chip chip--todo">{bi("Texte à réécrire : la page actuelle décrit le secteur médico-social", "Copy to be rewritten: the current page describes the care sector")}</span>'
     hero = ihero(r, items, (x['fr'], x['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=(x['dfr'], x['den']), media=media, tall=True, chip=chip,
                  actions=btn(r + 'cabinets.html', 'Trouver un cabinet', 'Find an office', extra=' data-magnetic') + btn(r + 'contact.html', 'Prendre rendez-vous', 'Book a meeting', ghost=True))
-    body = render_sections(pairs) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
+    body = render_sections(pairs, viz=lambda k: section_viz(out, k)) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
       <p><span class="chip chip--todo">{bi("Contenu détaillé à reprendre de la page exco.fr", "Detailed content to be taken from the exco.fr page")}</span></p>
       <p><a class="link-arrow" href="{x["exco"]}" target="_blank" rel="noopener">{bi("Page actuelle sur exco.fr", "Current page on exco.fr")}</a></p></div></section>'''
     secs = CAT['sectors']
@@ -309,7 +314,7 @@ def metier_page(m, idx):
         lead, sub_fr, sub_en = (sub_fr, sub_en), None, None
     hero = ihero(r, items, (m['fr'], m['en']), sub=(sub_fr, sub_en) if sub_fr else None, lead=lead, media=media,
                  actions=btn('https://exco.flatchr.io/fr/company/exco/', 'Voir les offres d’emploi', 'See job offers', ext=True, extra=' data-magnetic') + btn(r + 'carrieres.html', 'Tous les métiers', 'All careers', ghost=True))
-    body = render_sections(pairs) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
+    body = render_sections(pairs, viz=lambda k: section_viz(out, k)) if pairs else f'''<section class="band band--paper2"><div class="wrap prose">
       <p><span class="chip chip--todo">{bi("Contenu détaillé à reprendre de la page exco.fr", "Detailed content to be taken from the exco.fr page")}</span></p>
       <p><a class="link-arrow" href="{m["exco"]}" target="_blank" rel="noopener">{bi("Page actuelle sur exco.fr", "Current page on exco.fr")}</a></p></div></section>'''
     others = [y for y in CAT['metiers'] if y['slug'] != m['slug']]
@@ -383,6 +388,9 @@ def article_page(a, actus):
     body = _drop_cover_dupes(a, a['fr']['body'])
     toc = B.toc(body)
     html_fr = B.render(body, r, lead_first=True, ids=True)
+    av = article_viz(a['slug'])  # v13 : un visuel tiré des faits de l'article, avant le premier intertitre
+    if av:
+        html_fr = re.sub(r'(<h2\b)', lambda m: av + m.group(1), html_fr, count=1) if '<h2' in html_fr else re.sub(r'(</p>)', lambda m: m.group(1) + av, html_fr, count=1)
     en = a.get('en')
     html_en = B.render(_drop_cover_dupes(a, en['body']), r, lead_first=True, ids=True) if en else ''
     rich = bi_div(html_fr, html_en) if en else f'<div class="rich"><p class="note" lang="en">This article is only available in French.</p>{html_fr}</div>'
