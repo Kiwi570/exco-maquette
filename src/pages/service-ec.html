@@ -3,13 +3,13 @@
 <section class="svc-top" data-svc-hero aria-labelledby="svc-title">
   <div class="wrap svc-top__grid">
     <div class="svc-top__in">
-      <ol class="crumbs"><li><a href="../index.html" data-transition><span lang="fr">Accueil</span><span lang="en">Home</span></a></li><li><a href="../index.html#services" data-transition><span lang="fr">Services</span><span lang="en">Services</span></a></li><li aria-current="page"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></li></ol>
+      {{crumbs}}
       <h1 class="display" id="svc-title" data-reveal><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></h1>
       <p class="svc-top__sub"><span lang="fr">Comptabilité et fiscalité, gestion, consolidation des comptes</span><span lang="en">Bookkeeping and tax, management, consolidated accounts</span></p>
       <p class="lead" style="color:var(--ink)"><span lang="fr">Déléguez vos obligations réglementaires, identifiez les risques éventuels, optimisez vos options comptables et fiscales en intégrant l'environnement économique qui est le vôtre.</span><span lang="en">Delegate your regulatory obligations, identify potential risks and optimise your accounting and tax options within your own economic context.</span></p>
       <div class="cab-actions">
-        <a class="btn btn--primary" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
-        <a class="btn btn--ghost" href="../index.html#rendez-vous" data-transition><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
+        <a class="btn btn--primary" href="{{r}}cabinets.html" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
+        <a class="btn btn--ghost" href="{{r}}contact.html" data-transition><span lang="fr">Prendre rendez-vous</span><span lang="en">Book a meeting</span></a>
       </div>
     </div>
     <figure class="bilan" data-bilan>
@@ -36,7 +36,7 @@
 
 <section class="band band--paper" aria-labelledby="svc-clear" data-engage>
   <div class="wrap engage">
-    <div class="engage__media"><img src="../assets/img/site/dossiers-vue-dessus-1600.webp" srcset="../assets/img/site/dossiers-vue-dessus-800.webp 800w, ../assets/img/site/dossiers-vue-dessus-1600.webp 1600w, ../assets/img/site/dossiers-vue-dessus-2400.webp 2400w" sizes="(max-width: 900px) 92vw, 40vw" alt="Une séance de travail sur des documents comptables, vue du dessus" data-en-alt="A working session on accounting documents, seen from above" loading="lazy" width="2400" height="1601"></div>
+    <div class="engage__media"><img src="{{r}}assets/img/site/dossiers-vue-dessus-1600.webp" srcset="{{r}}assets/img/site/dossiers-vue-dessus-800.webp 800w, {{r}}assets/img/site/dossiers-vue-dessus-1600.webp 1600w, {{r}}assets/img/site/dossiers-vue-dessus-2400.webp 2400w" sizes="(max-width: 900px) 92vw, 40vw" alt="Une séance de travail sur des documents comptables, vue du dessus" data-en-alt="A working session on accounting documents, seen from above" loading="lazy" width="2400" height="1601"></div>
     <div>
       <div class="sec-head" style="margin-bottom:24px">
         <h2 class="h2" id="svc-clear" data-reveal><span lang="fr">Un fonctionnement clair</span><span lang="en">A clear way of working</span></h2>
@@ -119,7 +119,7 @@
   <div class="wrap">
     <div class="cta-band">
       <h2 class="h2" id="svc-cta" data-reveal style="max-width:18ch"><span lang="fr">Un expert-comptable Exco près de chez vous</span><span lang="en">An Exco accountant near you</span></h2>
-      <a class="btn btn--primary" href="../index.html#cabinets" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
+      <a class="btn btn--primary" href="{{r}}cabinets.html" data-filter="ec" data-transition data-magnetic><span class="btn__dot"></span><span lang="fr">Trouver un cabinet</span><span lang="en">Find an office</span></a>
     </div>
     <h3 class="h4" style="margin:56px 0 18px"><span lang="fr">Les autres services</span><span lang="en">Other services</span></h3>
     <ul class="jobs">

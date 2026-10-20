@@ -234,17 +234,16 @@ export async function initFinder() {
     }
     pulse(c);
     const s = openStatus(c);
-    const ficheLocal = c.id === 'exco-albi';
     const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.n + ' ' + c.a)}`;
     card.innerHTML = `<button type="button" class="mc__close" aria-label="${T('Fermer', 'Close')}">×</button>
       <div class="mc__img">${c.p ? `<img src="${base()}assets/img/cabinets/${c.id}-960.webp" alt="${T('Façade ou accueil du cabinet ', 'Office ')}${c.n}">` : `<div class="ph" data-word="${c.c}"></div>`}</div>
       <div class="mc__body">
-        <p class="mc__name">${c.n}</p>
+        <p class="mc__name"><a href="${base()}cabinets/${c.id}.html" data-transition style="text-decoration:none">${c.n}</a></p>
         <p class="mc__row">${c.g ? T('Groupe ', 'Group ') + c.g : ''}</p>
         <p class="mc__row"><span class="status ${s.open ? 'status--open' : ''}">${s.text}</span> <small>(${T('heure locale', 'local time')})</small></p>
         <p class="mc__row">${c.a}<br><span class="copy" data-copy="${c.t}">${c.t}</span></p>
         ${c.s.length ? `<p class="mc__svc">${c.s.map((k) => `<span>${svcLabel(k)}</span>`).join('')}</p>` : `<p class="mc__row"><span class="chip chip--todo">${T('Services à compléter', 'Services to be added')}</span></p>`}
-        <p class="mc__links"><a href="${ficheLocal ? base() + 'cabinets/exco-albi.html' : c.u}" ${ficheLocal ? 'data-transition' : 'target="_blank" rel="noopener"'}>${ficheLocal ? T('Voir la fiche du cabinet', 'See the office page') : T('Fiche sur exco.fr', 'Page on exco.fr')}</a><a href="${maps}" target="_blank" rel="noopener">${T('Itinéraire', 'Directions')}</a><a href="#rendez-vous">${T('Prendre rendez-vous', 'Book a meeting')}</a></p>
+        <p class="mc__links"><a href="${base()}cabinets/${c.id}.html" data-transition>${T('Voir la fiche du cabinet', 'See the office page')}</a><a href="${maps}" target="_blank" rel="noopener">${T('Itinéraire', 'Directions')}</a><a href="${base()}contact.html#${c.id}" data-transition>${T('Prendre rendez-vous', 'Book a meeting')}</a></p>
       </div>`;
     card.hidden = false;
     if (!reduced()) gsap.fromTo(card, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: 'power3.out' });

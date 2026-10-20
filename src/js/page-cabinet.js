@@ -8,12 +8,21 @@ const mk = (n, a = {}) => { const e = document.createElementNS(NS, n); for (cons
 
 export async function initCabinetPage() {
   const id = document.body.dataset.cabinet;
-  const [cabs, map] = await Promise.all([loadCabinets(), getJSON('assets/data/map.json')]);
+  const cabs = await loadCabinets();
   const c = cabs.find((x) => x.id === id); if (!c) return;
+  const map = c.reg === 'fr' && $('[data-access-map]') ? await getJSON('assets/data/france.json') : null;
+
+  // fiche du lieu (cabinet sans photo) : heure locale
+  const clock = $('[data-clock]');
+  if (clock) {
+    const f = new Intl.DateTimeFormat(lang() === 'en' ? 'en-GB' : 'fr-FR', { timeZone: c.tz, hour: '2-digit', minute: '2-digit' });
+    const tick = () => { clock.textContent = f.format(new Date()); };
+    tick(); setInterval(tick, 20000);
+  }
 
   // statut en direct
   const badge = $('[data-live-status]'), live = $('[data-live-text]');
-  const upd = () => { const s = openStatus(c); if (badge) { badge.textContent = s.text; badge.classList.toggle('is-open', s.open); } if (live) live.textContent = s.text; };
+  const upd = () => { const s = openStatus(c); $$('[data-live-status]').forEach((b) => { b.textContent = s.text; b.classList.toggle('is-open', s.open); }); if (live) live.textContent = s.text; };
   upd(); setInterval(upd, 30000);
 
   // liste des horaires
@@ -56,12 +65,14 @@ export async function initCabinetPage() {
   // cabinets voisins
   const others = cabs.filter((x) => x.id !== c.id).map((x) => ({ x, d: haversine([c.lat, c.lon], [x.lat, x.lon]) })).sort((a, b) => a.d - b.d).slice(0, 3);
   const nb = $('[data-nearby]');
-  if (nb) nb.innerHTML = others.map(({ x, d }) => { const s = openStatus(x); return `<a href="${x.u}" target="_blank" rel="noopener"><strong>${x.n}</strong><span class="cab__meta" style="color:var(--ink-soft)">${x.a}</span><span class="cab__dist">${Math.round(d)} km</span><span class="status ${s.open ? 'status--open' : ''}">${s.text}</span></a>`; }).join('');
+  const km = (d) => (d < 10 ? d.toFixed(1).replace('.', lang() === 'en' ? '.' : ',') : Math.round(d).toLocaleString(lang() === 'en' ? 'en-GB' : 'fr-FR'));
+  if (nb) nb.innerHTML = others.map(({ x, d }) => { const s = openStatus(x); return `<a href="${base()}cabinets/${x.id}.html" data-transition><strong>${x.n}</strong><span class="cab__meta" style="color:var(--ink-soft)">${x.a}</span><span class="cab__dist">${km(d)} km</span><span class="status ${s.open ? 'status--open' : ''}">${s.text}</span></a>`; }).join('');
 
   // plan de situation : la France zoomée, liaison depuis le siège du groupe
   const svg = $('[data-access-map]');
-  if (svg) {
+  if (svg && map) {
     const head = map.heads[c.g] || map.paris;
+    const headCity = (svg.closest('[data-head-city]') || document.body).dataset.headCity || '';
     const pts = [[c.x, c.y], head, ...others.map((o) => [o.x.x, o.x.y])];
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const w = Math.max(24, (Math.max(...xs) - Math.min(...xs)) * 2.1), h = w * .75;
@@ -77,14 +88,13 @@ export async function initCabinetPage() {
     const seenC = new Set();
     others.forEach(({ x }) => { svg.appendChild(mk('circle', { cx: x.x, cy: x.y, r: s * .9, fill: '#EEF1F3' })); if (!seenC.has(x.c) && Math.hypot(x.x - head[0], x.y - head[1]) > s * 3) { seenC.add(x.c); label(x.x, x.y, x.c); } });
     svg.appendChild(mk('circle', { cx: head[0], cy: head[1], r: s * 1.1, fill: '#3DB6DB' }));
-    const hl = mk('text', { x: head[0], y: head[1] + s * 4.6, fill: '#3DB6DB', 'font-size': s * 2.6, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': 'middle' }); hl.textContent = T('Toulouse, siège du groupe', 'Toulouse, group head office'); svg.appendChild(hl);
+    const hl = mk('text', { x: head[0], y: head[1] + s * 4.6, fill: '#3DB6DB', 'font-size': s * 2.6, 'font-family': 'Inter Tight, Arial, sans-serif', 'text-anchor': 'middle' }); hl.textContent = headCity ? T(`${headCity}, siège du groupe`, `${headCity}, group head office`) : T('Siège du groupe', 'Group head office'); svg.appendChild(hl);
     svg.appendChild(mk('circle', { cx: c.x, cy: c.y, r: s * 1.6, fill: '#F59A00' }));
-    label(c.x, c.y, 'Exco Albi', '#F59A00', 'start', 3.4);
+    label(c.x, c.y, c.n.replace(/^Exco\s+/, 'Exco '), '#F59A00', 'start', 3.4);
     if (!reduced()) { gsap.set(link, { strokeDasharray: 1, strokeDashoffset: 1 }); window.ScrollTrigger.create({ trigger: svg, start: 'top 75%', once: true, onEnter: () => gsap.to(link, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' }) }); }
   }
 
   // dates des actualités
-  $$('[data-date]').forEach((e) => (e.textContent = fmtDate(new Date(e.dataset.date)) + (lang() === 'en' ? ' (article in French)' : '')));
 
   // formulaire de contact simulé
   const f = $('[data-contact]');

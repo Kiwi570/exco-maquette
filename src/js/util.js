@@ -54,9 +54,12 @@ export function fitCanvas(c, maxDpr = 1.75) {
 
 // Heures d'ouverture : statut à l'heure locale du cabinet
 const DAYMAP = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+const FMT = new Map(); // un format par fuseau, créé une seule fois
 export function localNow(tz, date = new Date()) {
   try {
-    const p = new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(date);
+    let f = FMT.get(tz);
+    if (!f) { f = new Intl.DateTimeFormat('en-GB', { timeZone: tz, weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); FMT.set(tz, f); }
+    const p = f.formatToParts(date);
     const g = (t) => p.find((x) => x.type === t)?.value;
     return { day: DAYMAP[g('weekday')], min: (+g('hour')) * 60 + (+g('minute')) };
   } catch (e) {

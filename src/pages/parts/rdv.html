@@ -1,0 +1,72 @@
+<section class="rdv band band--paper2" id="rendez-vous" aria-labelledby="rdv-title" data-rdv>
+  <div class="wrap rdv__grid">
+    <div class="rdv__side">
+      <h2 class="h2" id="rdv-title" data-reveal><span lang="fr">Parlons de votre projet</span><span lang="en">Let's talk about your project</span></h2>
+      <p class="lead"><span lang="fr">Quatre questions, et le cabinet le plus proche vous recontacte pour un rendez-vous personnalisé.</span><span lang="en">Four questions, then the nearest office gets back to you to arrange a personal meeting.</span></p>
+      <aside class="recap" data-recap aria-label="Récapitulatif de votre demande" data-en-aria-label="Summary of your request">
+        <p class="recap__top"><strong><span lang="fr">Votre demande</span><span lang="en">Your request</span></strong><span class="recap__count" data-r-count>0 / 4</span></p>
+        <dl class="recap__list">
+          <div><dt><span lang="fr">Profil</span><span lang="en">Profile</span></dt><dd data-r="profil">—</dd></div>
+          <div><dt><span lang="fr">Besoins</span><span lang="en">Needs</span></dt><dd data-r="besoin">—</dd></div>
+          <div><dt><span lang="fr">Lieu</span><span lang="en">Location</span></dt><dd data-r="ville">—</dd></div>
+          <div><dt><span lang="fr">Cabinet proposé</span><span lang="en">Suggested office</span></dt><dd data-r="cabinet">—</dd></div>
+        </dl>
+      </aside>
+      <p class="rdv__direct"><span lang="fr">Ou appelez Exco France :</span><span lang="en">Or call Exco France:</span> <span class="copy" data-copy="+33 1 58 05 22 90">+33 (0)1 58 05 22 90</span></p>
+    </div>
+    <form class="steps" data-steps novalidate>
+      <ol class="steps__nav" aria-hidden="true"><li class="is-on">1</li><li>2</li><li>3</li><li>4</li></ol>
+      <fieldset class="step is-on" data-step="1">
+        <legend class="h4"><span lang="fr">Vous êtes</span><span lang="en">You are</span></legend>
+        <div class="opts">
+          <label><input type="radio" name="profil" value="creation" required><span lang="fr">En création d'entreprise</span><span lang="en">Starting a business</span></label>
+          <label><input type="radio" name="profil" value="tpe-pme"><span lang="fr">Dirigeant de TPE ou PME</span><span lang="en">Running a small or mid-sized business</span></label>
+          <label><input type="radio" name="profil" value="eti"><span lang="fr">Dirigeant d'ETI ou de groupe</span><span lang="en">Running a larger company or group</span></label>
+          <label><input type="radio" name="profil" value="liberal"><span lang="fr">Profession libérale ou commerçant</span><span lang="en">Self-employed professional or retailer</span></label>
+          <label><input type="radio" name="profil" value="association"><span lang="fr">Association, ESS ou secteur public</span><span lang="en">Non-profit or public body</span></label>
+        </div>
+        <p class="step__err" data-err hidden><span lang="fr">Choisissez une réponse pour continuer.</span><span lang="en">Choose an answer to continue.</span></p>
+      </fieldset>
+      <fieldset class="step" data-step="2">
+        <legend class="h4"><span lang="fr">Votre besoin</span><span lang="en">What you need</span></legend>
+        <div class="opts opts--multi">
+          <label><input type="checkbox" name="besoin" value="ec"><span lang="fr">Expertise comptable</span><span lang="en">Accounting</span></label>
+          <label><input type="checkbox" name="besoin" value="audit"><span lang="fr">Audit, commissariat aux comptes</span><span lang="en">Audit</span></label>
+          <label><input type="checkbox" name="besoin" value="social"><span lang="fr">Paie et RH</span><span lang="en">Payroll and HR</span></label>
+          <label><input type="checkbox" name="besoin" value="jur"><span lang="fr">Juridique et fiscal</span><span lang="en">Legal and tax</span></label>
+          <label><input type="checkbox" name="besoin" value="conseil"><span lang="fr">Conseil</span><span lang="en">Advisory</span></label>
+          <label><input type="checkbox" name="besoin" value="ft"><span lang="fr">Cession, transmission</span><span lang="en">Selling or handing over</span></label>
+          <label><input type="checkbox" name="besoin" value="rse"><span lang="fr">RSE et durabilité</span><span lang="en">CSR and sustainability</span></label>
+        </div>
+        <p class="step__err" data-err hidden><span lang="fr">Cochez au moins un besoin.</span><span lang="en">Tick at least one need.</span></p>
+      </fieldset>
+      <fieldset class="step" data-step="3">
+        <legend class="h4"><span lang="fr">Où se trouve votre entreprise ?</span><span lang="en">Where is your business?</span></legend>
+        <label class="field"><span lang="fr">Ville ou code postal</span><span lang="en">Town or postcode</span><input type="text" id="rdv-ville" name="ville" autocomplete="address-level2" required data-rdv-town></label>
+        <div class="rdv__match" data-rdv-match aria-live="polite"></div>
+        <p class="step__err" data-err hidden><span lang="fr">Indiquez une ville ou un code postal.</span><span lang="en">Enter a town or postcode.</span></p>
+      </fieldset>
+      <fieldset class="step" data-step="4">
+        <legend class="h4"><span lang="fr">Vos coordonnées</span><span lang="en">Your details</span></legend>
+        <div class="fields">
+          <label class="field field--half"><span lang="fr">Civilité</span><span lang="en">Title</span><select id="rdv-civ" name="civilite"><option value="">—</option><option lang="fr">Madame</option><option lang="fr">Monsieur</option><option lang="en">Ms</option><option lang="en">Mr</option></select></label>
+          <label class="field field--half"><span lang="fr">Nom</span><span lang="en">Name</span><input type="text" id="rdv-nom" name="nom" autocomplete="name" required></label>
+          <label class="field field--half"><span lang="fr">E-mail</span><span lang="en">Email</span><input type="email" id="rdv-mail" name="email" autocomplete="email" required></label>
+          <label class="field field--half"><span lang="fr">Téléphone</span><span lang="en">Phone</span><input type="tel" id="rdv-tel" name="tel" autocomplete="tel"></label>
+          <label class="field"><span lang="fr">Votre message (facultatif)</span><span lang="en">Your message (optional)</span><textarea id="rdv-msg" name="message" rows="3"></textarea></label>
+        </div>
+        <p class="rgpd"><span lang="fr">Les informations recueillies sur ce formulaire sont enregistrées dans un fichier informatisé par la société Exco SAS, 42 avenue de la Grande Armée 75017 Paris, pour la gestion de vos demandes d'informations. Voir la <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span><span lang="en">The information collected in this form is stored by Exco SAS, 42 avenue de la Grande Armée 75017 Paris, to handle your request. See the <a href="https://exco.fr/politique-de-confidentialite/" target="_blank" rel="noopener">privacy policy</a> (in French).</span></p>
+        <p class="step__err" data-err hidden><span lang="fr">Indiquez votre nom et une adresse e-mail valide.</span><span lang="en">Enter your name and a valid email address.</span></p>
+      </fieldset>
+      <div class="step step--done" data-step="done">
+        <p class="h4"><span lang="fr">Demande prête</span><span lang="en">Request ready</span></p>
+        <p data-done-text></p>
+        <p class="chip chip--illus"><span lang="fr">Maquette : aucune donnée n'est envoyée.</span><span lang="en">Mock-up: no data is sent.</span></p>
+      </div>
+      <div class="steps__ctrl">
+        <button type="button" class="btn btn--ghost btn--sm" data-prev hidden><span lang="fr">Retour</span><span lang="en">Back</span></button>
+        <button type="button" class="btn btn--primary" data-next data-magnetic><span class="btn__dot"></span><span lang="fr" data-next-fr>Continuer</span><span lang="en" data-next-en>Continue</span></button>
+      </div>
+    </form>
+  </div>
+</section>

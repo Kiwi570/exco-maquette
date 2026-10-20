@@ -26,7 +26,6 @@ const DEADLINES = [
 
 export function initServicePage() {
   // lien « trouver un cabinet » : présélectionne le service dans le trouveur
-  $$('[data-filter]').forEach((a) => a.addEventListener('click', () => { try { sessionStorage.setItem('exco-filter', a.dataset.filter); } catch (e) {} }, true));
 
   // ---------- bilan simplifié : les lignes se posent, les totaux s'équilibrent ----------
   const bilan = $('[data-bilan]');

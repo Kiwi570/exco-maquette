@@ -1,0 +1,38 @@
+<section class="finder band band--night" id="cabinets" aria-labelledby="finder-title" data-finder>
+  <div class="wrap">
+    <div class="sec-head sec-head--row">
+      <h2 class="h2" id="finder-title" data-reveal><span lang="fr">Trouvez votre cabinet</span><span lang="en">Find your office</span></h2>
+      <p class="lead"><span lang="fr">139 cabinets dans l'annuaire, reliés à leur groupe et au réseau. Horaires affichés à l'heure locale de chaque cabinet.</span><span lang="en">139 offices in the directory, linked to their group and to the network. Opening hours shown in each office's local time.</span></p>
+    </div>
+    <div class="finder__ui">
+      <div class="finder__panel">
+        <form class="finder__search" data-finder-form role="search">
+          <label for="finder-q" class="sr"><span lang="fr">Rechercher un cabinet</span><span lang="en">Search for an office</span></label>
+          <input id="finder-q" type="search" autocomplete="off" placeholder="Ville, code postal, département ou nom" data-en-placeholder="Town, postcode, département or name" data-finder-q>
+          <button type="button" class="btn btn--ghost btn--sm" data-geoloc><span lang="fr">Autour de moi</span><span lang="en">Near me</span></button>
+          <ul class="finder__suggest" data-finder-suggest role="listbox" hidden></ul>
+        </form>
+        <div class="finder__tabs" role="tablist" aria-label="Zone" data-en-aria-label="Area">
+          <button role="tab" aria-selected="true" data-zone="fr"><span lang="fr">France</span><span lang="en">France</span></button>
+          <button role="tab" aria-selected="false" data-zone="om"><span lang="fr">Outre-mer</span><span lang="en">Overseas</span></button>
+          <button role="tab" aria-selected="false" data-zone="int"><span lang="fr">International</span><span lang="en">International</span></button>
+        </div>
+        <details class="finder__filters">
+          <summary><span lang="fr">Filtrer par service</span><span lang="en">Filter by service</span> <span class="finder__fcount" data-fcount></span></summary>
+          <div class="finder__chips" data-finder-chips></div>
+        </details>
+        <label class="switch"><input type="checkbox" data-open-now><span class="switch__ui"></span><span lang="fr">Ouvert maintenant</span><span lang="en">Open now</span></label>
+        <p class="finder__count" aria-live="polite" data-finder-count></p>
+        <ol class="finder__list" data-finder-list></ol>
+      </div>
+      <div class="finder__map" data-finder-map>
+        <svg class="map" data-map role="img" aria-label="Carte des cabinets Exco" data-en-aria-label="Map of Exco offices"></svg>
+        <div class="map__insets" data-map-insets hidden></div>
+        <div class="map__card" data-map-card hidden></div>
+        <p class="map__legend"><span class="map__k"></span><span lang="fr">Chaque cabinet est relié au siège de son groupe, et chaque groupe au siège d'Exco à Paris.</span><span lang="en">Each office is linked to its group's head office, and each group to Exco's Paris head office.</span></p>
+      </div>
+    </div>
+    <noscript><p><a href="https://exco.fr/trouvez-votre-cabinet/">Liste des cabinets par ville sur exco.fr</a></p></noscript>
+  </div>
+</section>
+

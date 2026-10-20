@@ -1,0 +1,541 @@
+{
+ "services": [
+  {
+   "slug": "expertise-comptable",
+   "icon": "ec",
+   "code": "ec",
+   "exco": "https://exco.fr/nos-services/expertise-comptable/",
+   "src": "service-expertise-comptable",
+   "fr": "Expertise comptable",
+   "en": "Accounting",
+   "dfr": "Déléguez vos obligations réglementaires, identifiez les risques, optimisez vos options comptables et fiscales.",
+   "den": "Delegate regulatory obligations, identify risks, optimise accounting and tax options."
+  },
+  {
+   "slug": "audit",
+   "icon": "audit",
+   "code": "audit",
+   "exco": "https://exco.fr/nos-services/audit/",
+   "src": "service-audit",
+   "fr": "Audit",
+   "en": "Audit",
+   "dfr": "Commissariat aux comptes ou audit contractuel, pour une information financière fiable, transparente et certifiée.",
+   "den": "Statutory or contractual audits, for reliable, transparent and certified financial information."
+  },
+  {
+   "slug": "social-paie-rh",
+   "icon": "social",
+   "code": "social",
+   "exco": "https://exco.fr/nos-services/social-et-ressources-humaines/",
+   "src": "service-social",
+   "fr": "Gestion sociale, paie et RH",
+   "en": "Payroll and HR",
+   "dfr": "Gestion de la paie, conseil en droit du travail et droit social, audit social, management du personnel.",
+   "den": "Payroll, employment law advice, HR audits, people management."
+  },
+  {
+   "slug": "juridique-fiscal",
+   "icon": "jur",
+   "code": "jur",
+   "exco": "https://exco.fr/nos-services/juridique-fiscal/",
+   "src": "service-juridique-fiscal",
+   "fr": "Juridique et fiscal",
+   "en": "Legal and tax",
+   "dfr": "Conseil, optimisation, conformité et sécurisation de vos décisions d'entreprise.",
+   "den": "Advice, optimisation, compliance and securing your business decisions."
+  },
+  {
+   "slug": "conseil",
+   "icon": "conseil",
+   "code": "conseil",
+   "exco": "https://exco.fr/nos-services/conseil/",
+   "src": "service-conseil",
+   "fr": "Conseil",
+   "en": "Advisory",
+   "dfr": "Des solutions de conseil et d'accompagnement sur mesure et collaboratives pour réussir vos projets.",
+   "den": "Tailored, collaborative advice and support for your projects."
+  },
+  {
+   "slug": "evaluation-entreprise",
+   "icon": "eval",
+   "code": "eval",
+   "exco": "https://exco.fr/nos-services/evaluation-dentreprises/",
+   "src": "service-evaluation",
+   "fr": "Évaluation d'entreprise",
+   "en": "Business valuation",
+   "dfr": "Une expérience des opérations de rapprochement et d'acquisition pour résoudre les situations complexes.",
+   "den": "Experience in mergers and acquisitions to resolve complex situations."
+  },
+  {
+   "slug": "finance-transactions",
+   "icon": "ft",
+   "code": "ft",
+   "exco": "https://finance.exco.fr/",
+   "src": "service-finance",
+   "fr": "Finance et transactions",
+   "en": "Corporate finance",
+   "dfr": "Des fusions et acquisitions rendues simples et accessibles, avec un haut niveau de compétences sur les territoires.",
+   "den": "Mergers and acquisitions made simple and accessible, with strong local expertise."
+  },
+  {
+   "slug": "gestion-patrimoine",
+   "icon": "gp",
+   "code": "gp",
+   "exco": "https://gestionprivee.exco.fr/",
+   "src": "service-gestion-privee",
+   "fr": "Gestion de patrimoine",
+   "en": "Wealth management",
+   "dfr": "Exco Gestion Privée accompagne les dirigeants dans leurs projets patrimoniaux.",
+   "den": "Exco Gestion Privée supports business owners with their personal asset plans."
+  },
+  {
+   "slug": "international",
+   "icon": "intl",
+   "code": "intl",
+   "exco": "https://exco.fr/nos-services/developpement-international/",
+   "src": "service-international",
+   "fr": "International",
+   "en": "International",
+   "dfr": "Où que vous alliez, Exco vous accompagne, avec le réseau Kreston Global.",
+   "den": "Wherever you go, Exco goes with you, alongside the Kreston Global network."
+  },
+  {
+   "slug": "rse-durabilite",
+   "icon": "rse",
+   "code": "rse",
+   "exco": "https://exco.fr/nos-services/rse-durabilite/",
+   "src": "service-rse",
+   "fr": "RSE et durabilité",
+   "en": "CSR and sustainability",
+   "dfr": "Aller au-delà des chiffres financiers en prenant en compte l'impact de l'activité sur la société et l'environnement.",
+   "den": "Look beyond financial figures to your impact on society and the environment."
+  },
+  {
+   "slug": "verification-oti",
+   "icon": "oti",
+   "code": "oti",
+   "exco": "https://exco.fr/nos-services/verification-organisme-tiers-independant-oti/",
+   "src": "service-oti",
+   "fr": "Vérification OTI",
+   "en": "Independent third-party verification",
+   "dfr": "Vérification des reportings durabilité et ESG, et de la qualité de société à mission.",
+   "den": "Verification of sustainability and ESG reports and of mission-driven company status."
+  },
+  {
+   "slug": "forensics",
+   "icon": "forensics",
+   "code": "forensics",
+   "exco": "https://exco.fr/nos-services/forensics/",
+   "src": "service-forensics",
+   "fr": "Forensics",
+   "en": "Forensics",
+   "dfr": "À la demande des entreprises et de leurs avocats, avant contentieux et lors de litiges économiques et financiers.",
+   "den": "For companies and their lawyers, before and during economic and financial disputes."
+  },
+  {
+   "slug": "exco-consulting",
+   "icon": "consulting",
+   "code": "",
+   "exco": "https://exco.fr/nos-services/exco-consulting/",
+   "src": "service-consulting",
+   "fr": "Exco Consulting",
+   "en": "Exco Consulting",
+   "dfr": "Un écosystème de consultants entrepreneurs : finance, digital, supply chain, systèmes d'information, développement commercial.",
+   "den": "A network of entrepreneurial consultants: finance, digital, supply chain, IT systems, business development."
+  }
+ ],
+ "sectors": [
+  {
+   "exco": "https://exco.fr/nos-secteurs/agriculture-et-agroalimentaire/",
+   "word": "Agriculture",
+   "img": "secteur-agriculture-4x5",
+   "fr": "Agriculture et agroalimentaire",
+   "en": "Agriculture and food",
+   "dfr": "Gestion financière et conformité fiscale des exploitations agricoles, viticoles et agroalimentaires.",
+   "den": "Financial management and tax compliance for farms, vineyards and food businesses.",
+   "slug": "agriculture-agroalimentaire",
+   "src": "secteur-agriculture"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/automobile/",
+   "word": "Automobile",
+   "img": "secteur-automobile-4x5",
+   "fr": "Automobile",
+   "en": "Automobile",
+   "dfr": "Des solutions adaptées aux défis spécifiques de l'industrie automobile.",
+   "den": "Solutions suited to the specific challenges of the automotive industry.",
+   "slug": "automobile",
+   "src": "secteur-automobile"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/banque-et-assurance/",
+   "word": "Banque",
+   "img": "secteur-banque-assurance-4x5",
+   "fr": "Banque et assurance",
+   "en": "Banking and insurance",
+   "dfr": "Gestion, conformité réglementaire et fiscalité adaptées aux établissements financiers.",
+   "den": "Management, regulatory compliance and tax suited to financial institutions.",
+   "slug": "banque-assurance",
+   "src": "secteur-banque-assurance"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/btp-et-immobilier/",
+   "word": "BTP",
+   "img": "secteur-btp-immobilier-4x5",
+   "fr": "BTP et immobilier",
+   "en": "Construction and real estate",
+   "dfr": "Une comptabilité précise et des conseils adaptés aux enjeux du bâtiment et de l'immobilier.",
+   "den": "Precise accounting and advice suited to construction and property.",
+   "slug": "btp-immobilier",
+   "src": "secteur-btp-immobilier"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/economie-sociale-et-solidaire/",
+   "word": "ESS",
+   "img": "secteur-ess-4x5",
+   "fr": "Économie sociale et solidaire",
+   "en": "Social economy",
+   "dfr": "Une gestion transparente et un soutien stratégique pour les organisations à vocation sociale.",
+   "den": "Transparent management and strategic support for social-purpose organisations.",
+   "slug": "economie-sociale-solidaire",
+   "src": "secteur-ess"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/entreprise-innovante-et-start-up/",
+   "word": "Start-up",
+   "img": "secteur-startup-4x5",
+   "fr": "Entreprises innovantes et start-up",
+   "en": "Innovative companies and start-ups",
+   "dfr": "Des solutions comptables agiles pour accompagner le parcours entrepreneurial.",
+   "den": "Agile accounting solutions along the entrepreneurial journey.",
+   "slug": "start-up-innovation",
+   "src": "secteur-startup"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/hotellerie-cafes-restaurants/",
+   "word": "CHR",
+   "img": "secteur-hotellerie-restauration-4x5",
+   "fr": "Hôtellerie, café et restaurant",
+   "en": "Hotels, cafés and restaurants",
+   "dfr": "Une gestion comptable et une fiscalité adaptées à votre activité.",
+   "den": "Accounting and tax suited to your trade.",
+   "slug": "hotellerie-restauration",
+   "src": "secteur-hotellerie-restauration"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/industrie/",
+   "word": "Industrie",
+   "img": "secteur-industrie-4x5",
+   "fr": "Industrie",
+   "en": "Industry",
+   "dfr": "Gestion financière, efficacité opérationnelle et conformité réglementaire.",
+   "den": "Financial management, operational efficiency and regulatory compliance.",
+   "slug": "industrie",
+   "src": "secteur-industrie"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/loisirs-et-tourisme/",
+   "word": "Tourisme",
+   "img": "secteur-loisirs-tourisme-4x5",
+   "fr": "Loisirs et tourisme",
+   "en": "Leisure and tourism",
+   "dfr": "Une gestion comptable fluide, conforme aux normes du secteur.",
+   "den": "Smooth accounting that meets the sector's standards.",
+   "slug": "loisirs-tourisme",
+   "src": "secteur-loisirs-tourisme"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/profession-liberale/",
+   "word": "Libéral",
+   "img": "secteur-professions-liberales-4x5",
+   "fr": "Professions libérales",
+   "en": "Liberal professions",
+   "dfr": "Texte à compléter : la page actuelle décrit le médico-social",
+   "den": "Copy to be written: the current page describes the care sector",
+   "slug": "professions-liberales",
+   "src": "secteur-professions-liberales"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/pharmacie/",
+   "word": "Pharmacie",
+   "img": "secteur-pharmacie-4x5",
+   "fr": "Pharmacie",
+   "en": "Pharmacy",
+   "dfr": "Comptabilité, fiscalité et conseils pour la conformité réglementaire et la croissance de votre officine.",
+   "den": "Accounting, tax and advice for your pharmacy's compliance and growth.",
+   "slug": "pharmacie",
+   "src": "secteur-pharmacie"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/sante-etablissement-medico-sociaux/",
+   "word": "Santé",
+   "img": "secteur-sante-medico-social-4x5",
+   "fr": "Santé et médico-social",
+   "en": "Health and care",
+   "dfr": "Répondre aux attentes des tutelles, des patients, des praticiens et des actionnaires.",
+   "den": "Meeting the expectations of regulators, patients, practitioners and shareholders.",
+   "slug": "sante-medico-social",
+   "src": "secteur-sante-medico-social"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/secteur-public/",
+   "word": "Public",
+   "img": "secteur-public-4x5",
+   "fr": "Secteur public",
+   "en": "Public sector",
+   "dfr": "Une comptabilité transparente et des conseils adaptés aux besoins du secteur public.",
+   "den": "Transparent accounting and advice suited to the public sector.",
+   "slug": "secteur-public",
+   "src": "secteur-public"
+  },
+  {
+   "exco": "https://exco.fr/nos-secteurs/transports-et-logistique/",
+   "word": "Logistique",
+   "img": "secteur-transports-logistique-4x5",
+   "fr": "Transports et logistique",
+   "en": "Transport and logistics",
+   "dfr": "Une gestion comptable efficace et des conseils conformes aux exigences du secteur.",
+   "den": "Efficient accounting and advice that meets the sector's requirements.",
+   "slug": "transports-logistique",
+   "src": "secteur-transports-logistique"
+  }
+ ],
+ "groups": [
+  {
+   "g": "Exco Fiduciaire du Sud-Ouest",
+   "slug": "exco-fiduciaire-du-sud-ouest",
+   "logo": "fso-toulouse",
+   "city": "Toulouse",
+   "name": "Exco Fiduciaire du Sud-Ouest",
+   "exco": "https://exco.fr/groupes/groupe-exco-fiduciaire-du-sud-ouest/"
+  },
+  {
+   "g": "Exco Valliance",
+   "slug": "exco-valliance",
+   "logo": "valliance-perigny",
+   "city": "Périgny",
+   "name": "Exco Valliance",
+   "exco": "https://exco.fr/groupes/groupe-exco-valliance/"
+  },
+  {
+   "g": "Exco Afrique",
+   "slug": "exco-afrique",
+   "logo": "afrique",
+   "city": "Cotonou",
+   "name": "Exco Afrique",
+   "exco": "https://exco.fr/groupes/groupe-exco-afrique/"
+  },
+  {
+   "g": "Exco Hesio",
+   "slug": "exco-hesio",
+   "logo": "hesio-roanne",
+   "city": "Roanne",
+   "name": "Exco Hesio",
+   "exco": "https://exco.fr/groupes/groupe-exco-hesio/"
+  },
+  {
+   "g": "Exco Omniconseils",
+   "slug": "exco-omniconseils",
+   "logo": "omniconseils-marseille",
+   "city": "Marseille",
+   "name": "Exco Omniconseils",
+   "exco": "https://exco.fr/groupes/groupe-exco-omniconseils/"
+  },
+  {
+   "g": "Exco Nexiom",
+   "slug": "exco-nexiom",
+   "logo": "nexiom-nancy",
+   "city": "Villers-lès-Nancy",
+   "name": "Exco Nexiom",
+   "exco": "https://exco.fr/groupes/groupe-exco-nexiom/"
+  },
+  {
+   "g": "Exco Socodec",
+   "slug": "exco-socodec",
+   "logo": "socodec-dijon",
+   "city": "Dijon",
+   "name": "Exco Socodec",
+   "exco": "https://exco.fr/groupes/groupe-exco-socodec/"
+  },
+  {
+   "g": "Exco AVEC",
+   "slug": "exco-avec",
+   "logo": "avec-nantes",
+   "city": "Nantes",
+   "name": "Exco AVEC",
+   "exco": "https://exco.fr/groupes/groupe-exco-avec/"
+  },
+  {
+   "g": "Exco Côte d'Azur",
+   "slug": "exco-cote-dazur",
+   "logo": "cote-dazur-nice",
+   "city": "Nice",
+   "name": "Exco Côte d’Azur",
+   "exco": "https://exco.fr/groupes/groupe-exco-cote-dazur/"
+  },
+  {
+   "g": "Exco AR MEN",
+   "slug": "exco-ar-men",
+   "logo": "ar-men-vannes",
+   "city": "Vannes",
+   "name": "Exco Ar Men",
+   "exco": "https://exco.fr/groupes/groupe-exco-ar-men/"
+  },
+  {
+   "g": "Exco Clermont-Ferrand",
+   "slug": "exco-clermont-ferrand",
+   "logo": "clermont-ferrand",
+   "city": "Clermont-Ferrand",
+   "name": "Exco Clermont-Ferrand",
+   "exco": "https://exco.fr/groupes/groupe-exco-clermont-ferrand/"
+  },
+  {
+   "g": "Exco Loire",
+   "slug": "exco-loire",
+   "logo": "loire-saint-etienne",
+   "city": "Saint-Étienne",
+   "name": "Exco Loire",
+   "exco": "https://exco.fr/groupes/groupe-exco-loire/"
+  },
+  {
+   "g": "Exco Antilles Guyane",
+   "slug": "exco-antilles-guyane",
+   "logo": "antilles-guyane",
+   "city": "Fort-de-France",
+   "name": "Exco Antilles Guyane",
+   "exco": "https://exco.fr/groupes/groupe-exco-antilles-guyane/"
+  },
+  {
+   "g": "Exco Alpha",
+   "slug": "exco-alpha",
+   "logo": "alpha-bourges",
+   "city": "Bourges",
+   "name": "Exco Alpha",
+   "exco": "https://exco.fr/groupes/groupe-exco-alpha/"
+  },
+  {
+   "g": "Exco SEG Pacifique",
+   "slug": "exco-seg-pacifique",
+   "logo": "seg-pacifique-papeete",
+   "city": "Papeete",
+   "name": "Exco SEG Pacifique",
+   "exco": "https://exco.fr/groupes/groupe-exco-seg-pacifique/"
+  },
+  {
+   "g": "Exco P2B",
+   "slug": "exco-p2b",
+   "logo": "p2b-montbeliard",
+   "city": "Montbéliard",
+   "name": "Exco P2B Audit",
+   "exco": "https://exco.fr/groupes/groupe-exco-p2b/"
+  },
+  {
+   "g": "Exco Naxis",
+   "slug": "exco-naxis",
+   "logo": "naxis-belfort",
+   "city": "Belfort",
+   "name": "Exco Naxis",
+   "exco": "https://exco.fr/groupes/groupe-exco-naxis/"
+  },
+  {
+   "g": "Exco Cogéfi",
+   "slug": "exco-cogefi",
+   "logo": "cogefi-reunion",
+   "city": "La Réunion",
+   "name": "Exco Cogéfi",
+   "exco": "https://exco.fr/groupes/groupe-exco-cogefi/"
+  },
+  {
+   "g": "Exco Bertrand & Associés",
+   "slug": "exco-bertrand-associes",
+   "logo": "bertrand-reunion",
+   "city": "La Réunion",
+   "name": "Exco Bertrand & Associés",
+   "exco": "https://exco.fr/groupes/groupe-exco-bertrand-associes/"
+  },
+  {
+   "g": "Exco Anis Expert",
+   "slug": "exco-anis-expert",
+   "logo": "anis-expert-reunion",
+   "city": "La Réunion",
+   "name": "Exco Anis Experts",
+   "exco": "https://exco.fr/groupes/groupe-exco-anis-expert/"
+  },
+  {
+   "g": "Exco Albertini & Associés",
+   "slug": "exco-albertini-associes",
+   "logo": "albertini-bastia",
+   "city": "Bastia",
+   "name": "Exco Albertini & Associés",
+   "exco": "https://exco.fr/groupes/groupe-exco-albertini-associes/"
+  },
+  {
+   "g": "Exco AESE Lyon",
+   "slug": "exco-aese-lyon",
+   "logo": "aese-lyon",
+   "city": "Écully",
+   "name": "Exco AESE",
+   "exco": "https://exco.fr/groupes/groupe-exco-aese-lyon/"
+  },
+  {
+   "g": "Exco A²A Toulouse",
+   "slug": "exco-a2a-toulouse",
+   "logo": "a2a-toulouse",
+   "city": "Toulouse",
+   "name": "Exco A²A Toulouse",
+   "exco": "https://exco.fr/groupes/groupe-exco-a2a-toulouse/"
+  }
+ ],
+ "metiers": [
+  {
+   "slug": "expert-comptable",
+   "src": "metier-expert-comptable",
+   "exco": "https://exco.fr/carrieres/le-metier-dexpert-comptable/",
+   "fr": "Expert-comptable",
+   "en": "Chartered accountant",
+   "dfr": "Un métier de chiffres, mais avant tout de proximité, de conseil et d’écoute.",
+   "den": "A job about numbers, but above all about proximity, advice and listening.",
+   "img": "site/equipe-ordinateur"
+  },
+  {
+   "slug": "auditeur",
+   "src": "metier-auditeur",
+   "exco": "https://exco.fr/carrieres/le-metier-dauditeur-comptable-et-financier/",
+   "fr": "Auditeur comptable et financier",
+   "en": "Financial auditor",
+   "dfr": "Au-delà de la certification des comptes, appréhender l’entreprise dans sa globalité.",
+   "den": "Beyond certifying accounts, understanding the company as a whole.",
+   "img": "site/dossiers-vue-dessus"
+  },
+  {
+   "slug": "social-rh",
+   "src": "metier-social-rh",
+   "exco": "https://exco.fr/carrieres/les-metiers-du-social-et-ressources-humaines/",
+   "fr": "Social et ressources humaines",
+   "en": "Payroll and HR",
+   "dfr": "Une filière en fort développement, maillon essentiel du conseil aux dirigeants.",
+   "den": "A fast-growing field, essential to how we advise business owners.",
+   "img": "site/atrium-equipe-vue-dessus"
+  },
+  {
+   "slug": "juriste",
+   "src": "metier-juriste",
+   "exco": "https://exco.fr/carrieres/le-metier-de-juriste/",
+   "fr": "Juriste",
+   "en": "Lawyer",
+   "dfr": "Une filière juridique et fiscale déterminante, fondée sur une relation de confiance durable.",
+   "den": "A key legal and tax field, built on long-term trust with clients.",
+   "img": "site/bureau-orange-vue-dessus"
+  },
+  {
+   "slug": "consultant",
+   "src": "metier-consultant",
+   "exco": "https://exco.fr/carrieres/le-metier-de-consultant-comptable-et-financier/",
+   "fr": "Consultant",
+   "en": "Consultant",
+   "dfr": "Intervenir à chaque étape clé de la vie de l’entreprise, en synergie avec les autres métiers.",
+   "den": "Working at every key stage of a company’s life, alongside the other professions.",
+   "img": "site/rendez-vous-conseil"
+  }
+ ]
+}

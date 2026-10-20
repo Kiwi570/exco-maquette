@@ -1,0 +1,5 @@
+# Maquette : ne pas indexer
+User-agent: *
+Disallow: /
+
+Sitemap: https://exco-maquette.vercel.app/sitemap.xml

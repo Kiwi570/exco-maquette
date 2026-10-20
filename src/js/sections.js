@@ -101,17 +101,9 @@ export function initGov() {
 // ---------- globe Kreston : points de terre, arcs vers les implantations ----------
 export async function initGlobe() {
   const c = $('[data-globe]'); if (!c) return;
-  const [map, cabs] = await Promise.all([getJSON('assets/data/map.json'), loadCabinets()]);
-  // masque terre en lat/lon : on teste des points projetés dans le tracé du monde
-  const off = document.createElement('canvas'); off.width = 1; off.height = 1; const octx = off.getContext('2d');
-  const land = new Path2D(map.world);
-  const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2;
-  const pj = (lo, la) => { const l = lo * Math.PI / 180, p = la * Math.PI / 180; const t = Math.asin(M * Math.sin(p)), t2 = t * t, t6 = t2 * t2 * t2; return [2 * Math.sqrt(3) * l * Math.cos(t) / (3 * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2))) * 1000, -t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2)) * 1000]; };
-  const pts = [];
-  for (let la = -58; la <= 80; la += 2.6) {
-    const stepLo = 2.6 / Math.max(.25, Math.cos(la * Math.PI / 180));
-    for (let lo = -180; lo < 180; lo += stepLo) { const [x, y] = pj(lo, la); if (octx.isPointInPath(land, x, y)) pts.push([la, lo]); }
-  }
+  // le globe ne se prépare qu'à l'approche de la section ; les points de terre sont précalculés (globe.json)
+  await new Promise((res) => { let stop = null; stop = onVisible(c, (v) => { if (v) { stop && stop(); res(); } }, { margin: '400px' }); });
+  const [pts, cabs] = await Promise.all([getJSON('assets/data/globe.json'), loadCabinets()]);
   const paris = [48.86, 2.35];
   const targets = [];
   const seen = new Set();
@@ -180,19 +172,10 @@ export function initRse() {
 
 // ---------- actualités : dates réelles, à venir / passées triées automatiquement ----------
 const EVENTS = [
-  { start: '2026-11-19T18:30:00+01:00', fr: 'Transmission d’entreprise : une soirée dédiée aux dirigeants, La Rochelle (Bio’Pôle, Périgny)', en: 'Business transfer: an evening for business owners, La Rochelle (Bio’Pôle, Périgny)', url: 'https://exco.fr/evenement/transmission-dentreprise-une-soiree-dediee-aux-dirigeants-a-la-rochelle/' },
+  { start: '2026-11-19T18:30:00+01:00', fr: 'Transmission d’entreprise : une soirée dédiée aux dirigeants, La Rochelle (Bio’Pôle, Périgny)', en: 'Business transfer: an evening for business owners, La Rochelle (Bio’Pôle, Périgny)', local: 'actualites/soiree-transmission-la-rochelle.html' },
   { start: '2026-05-18', end: '2026-05-22', fr: 'Exco s’engage pour les Journées de la sécurité routière au travail', en: 'Exco supports Road Safety at Work Days', url: 'https://exco.fr/evenement/exco-sengage-pour-les-journees-de-la-securite-routiere-au-travail-2026/' },
   { start: '2026-03-31', fr: 'Facturation électronique : de la théorie à la pratique, comment réussir sa transition ? (webinaire)', en: 'E-invoicing: from theory to practice (webinar)', url: 'https://exco.fr/evenement/la-facturation-electronique-pme-tpe-structurees-daf-de-la-theorie-a-la-pratique-comment-reussir-sa-transition/' },
   { start: '2026-02-23', end: '2026-02-25', fr: 'Exco Fiduciaire du Sud-Ouest, membre d’AGIRAGRI, au SIA’PRO 2026', en: 'Exco Fiduciaire du Sud-Ouest, an AGIRAGRI member, at SIA’PRO 2026', url: 'https://exco.fr/evenement/exco-fiduciaire-du-sud-ouest-membre-dagiragri-participe-au-siapro-2026/' },
-];
-const ARTICLES = [
-  { d: '2026-10-19', img: 'transmission-agricole', fr: 'Transmission agricole : Exco FSO autour de la table pour redonner vie au fonds agricole et au bail cessible', url: 'https://exco.fr/actualites-agricoles/transmission-agricole-exco-fso-autour-de-la-table-pour-redonner-vie-au-fonds-agricole-et-au-bail-cessible/' },
-  { d: '2026-10-19', img: 'impulse-data', fr: 'Exco FSO rejoint Impulse Data pour renforcer l’exploitation de la donnée au service des entreprises', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-reseau-exco-fso/exco-fso-rejoint-impulse-data-pour-renforcer-lexploitation-de-la-donnee-au-service-des-entreprises/' },
-  { d: '2026-10-19', img: 'matinagri-agiragri', fr: 'Matinagri AGIRAGRI : face à l’incertitude agricole, comment renforcer la résilience des exploitations ?', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-reseau-exco-fso/matinagri-agiragri-face-a-lincertitude-agricole-comment-renforcer-la-resilience-des-exploitations/' },
-  { d: '2026-10-12', img: 'campus-agiragri', fr: 'Campus AGIRAGRI en Touraine : trois jours pour mieux accompagner les agriculteurs et viticulteurs', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-reseau-exco-fso/campus-agiragri-en-touraine-trois-jours-pour-mieux-accompagner-les-agriculteurs-et-viticulteurs/' },
-  { d: '2026-10-08', img: 'cessions-titres', fr: 'Cessions de titres de sociétés à prépondérance immobilière : les nouvelles exigences de forme', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-exco/cessions-de-titres-de-societes-a-preponderance-immobiliere-les-nouvelles-exigences-de-forme/' },
-  { d: '2026-09-29', img: 'trophees-landes', fr: 'Exco FSO partenaire des Trophées de l’Économie Landaise : valoriser les entreprises qui font vivre le territoire', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-reseau-exco-fso/exco-fso-partenaire-des-trophees-de-leconomie-landaise-valoriser-les-entreprises-qui-font-vivre-le-territoire/' },
-  { d: '2026-09-29', img: '../convention/photo-groupe-aerienne', fr: 'Convention Exco 2026 : à Strasbourg, un réseau en mouvement', url: 'https://exco.fr/actualites-du-reseau-exco/actualites-exco/convention-exco-2026-a-strasbourg-un-reseau-en-mouvement/' },
 ];
 export function countdownText(iso, now = new Date()) {
   const ms = new Date(iso) - now; if (ms <= 0) return null;
@@ -209,12 +192,12 @@ export function initNews() {
   const dateStr = (e) => e.end ? `${fmtDate(e.s, { day: 'numeric', month: 'long' })} – ${fmtDate(new Date(e.end))}` : fmtDate(e.s);
   evl.innerHTML = [...up.map((e, i) => {
     const c = countdownText(e.start, now);
-    return `<li><a class="ev ${i === 0 ? 'ev--next' : ''}" href="${e.url}" target="_blank" rel="noopener"><span class="ev__when"><span class="ev__badge">${T('À venir', 'Upcoming')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span>${c && i === 0 ? `<span class="ev__count" data-live-count="${e.start}">${c.d}<small>${T('jours', 'days')} ${c.h} h</small></span>` : ''}</a></li>`;
+    const href = e.local ? `href="${base()}${e.local}" data-transition` : `href="${e.url}" target="_blank" rel="noopener"`;
+    return `<li><a class="ev ${i === 0 ? 'ev--next' : ''}" ${href}><span class="ev__when"><span class="ev__badge">${T('À venir', 'Upcoming')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span>${c && i === 0 ? `<span class="ev__count" data-live-count="${e.start}">${c.d}<small>${T('jours', 'days')} ${c.h} h</small></span>` : ''}</a></li>`;
   }), ...past.map((e) => `<li><a class="ev ev--past" href="${e.url}" target="_blank" rel="noopener"><span class="ev__when"><span class="ev__badge">${T('Passé', 'Past')}</span>${dateStr(e)}</span><span class="ev__t">${lang() === 'en' ? e.en : e.fr}</span></a></li>`)].join('');
   $$('.ev', evl).forEach((a) => a.style.textDecoration = 'none');
   setInterval(() => $$('[data-live-count]').forEach((el) => { const c = countdownText(el.dataset.liveCount); if (c) el.innerHTML = `${c.d}<small>${T('jours', 'days')} ${c.h} h</small>`; }), 60000);
-  const arts = $('[data-articles]');
-  arts.innerHTML = ARTICLES.slice(0, 5).map((a) => `<li class="art"><a href="${a.url}" target="_blank" rel="noopener"><span class="art__img"><img src="${base()}assets/img/actus/${a.img}-800.webp" alt="" loading="lazy"></span><span><span class="art__d" style="display:block">${fmtDate(new Date(a.d))}${lang() === 'en' ? ' (article in French)' : ''}</span><span class="art__t" style="display:block">${a.fr}</span></span></a></li>`).join('');
+  const arts = $('[data-articles]'); if (!arts) return;
   if (!reduced()) gsap.fromTo($$('.art', arts), { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .08, duration: .9, ease: 'power3.out', scrollTrigger: { trigger: arts, start: 'top 85%', once: true } });
 }
 
@@ -292,4 +275,11 @@ export function initRdv() {
   form.addEventListener('input', updRecap);
   form.addEventListener('submit', (e) => e.preventDefault());
   show(0);
+  const pre = decodeURIComponent(location.hash.slice(1));
+  if (/^exco-[\w-]+$/.test(pre)) loadCabinets().then((cabs) => {
+    const c = cabs.find((x) => x.id === pre); if (!c) return;
+    chosen = c; town.value = c.c;
+    match.innerHTML = `<p style="font-size:var(--fs-0);font-weight:600">${T('Cabinet choisi', 'Selected office')}</p><label class="match"><input type="radio" name="cabinet" value="${c.id}" checked><span>${c.n} <small>${c.a}</small></span></label>`;
+    updRecap();
+  });
 }
